@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+  body {
+    @apply bg-surface-soft text-neutral-900 antialiased;
+  }
+  ::selection {
+    @apply bg-brand-200 text-brand-900;
+  }
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: "Fraunces", ui-serif, Georgia, serif;
+    font-optical-sizing: auto;
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    @apply bg-white/70 backdrop-blur-xl border border-white/60 shadow-card;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-brand-200 rounded-full;
+  }
+
+  /*
+   * A small "buti" (the tiny repeating dot-motif printed on wedding stationery/
+   * saree borders) layered directly on top of the brand gradient in one
+   * background-image declaration — kept small and low-opacity so it reads as a
+   * faint paper texture, not a loud pattern. (Two bg-image utilities can't be
+   * combined via separate classes since both would set the same CSS property.)
+   */
+  .hero-surface {
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.16' stroke-width='1'%3E%3Cpath d='M28 21v14M21 28h14M23.5 23.5l9 9M32.5 23.5l-9 9'/%3E%3Ccircle cx='28' cy='28' r='2'/%3E%3C/g%3E%3C/svg%3E"),
+      linear-gradient(135deg, #8a1636 0%, #a91d43 45%, #e08e0b 100%);
+    background-size: 56px 56px, 100% 100%;
+  }
+
+  /* Same motif, maroon-tinted — for light auth surfaces. */
+  .auth-surface {
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke='%238a1636' stroke-opacity='0.09' stroke-width='1'%3E%3Cpath d='M28 21v14M21 28h14M23.5 23.5l9 9M32.5 23.5l-9 9'/%3E%3Ccircle cx='28' cy='28' r='2'/%3E%3C/g%3E%3C/svg%3E"),
+      linear-gradient(135deg, #fdf2f4 0%, #fffaeb 100%);
+    background-size: 56px 56px, 100% 100%;
+  }
+
+  /* Thin gold-to-maroon accent bar used at the top of "invitation card" style surfaces. */
+  .accent-bar-top {
+    position: relative;
+  }
+  .accent-bar-top::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 4px;
+    border-radius: 9999px 9999px 0 0;
+    background: linear-gradient(90deg, #8a1636, #e08e0b);
+  }
+}
