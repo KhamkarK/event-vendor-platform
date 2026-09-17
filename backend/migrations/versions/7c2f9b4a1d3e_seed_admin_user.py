@@ -24,19 +24,19 @@ ADMIN_PASSWORD = "admin123"
 
 
 def upgrade() -> None:
-    users_table = sa.table(
-        "users",
-        sa.column("username", sa.String),
-        sa.column("email", sa.String),
-        sa.column("full_name", sa.String),
-        sa.column("hashed_password", sa.String),
-        sa.column("role", sa.String),
-        sa.column("is_active", sa.Boolean),
-        sa.column("is_email_verified", sa.Boolean),
-        sa.column("is_mobile_verified", sa.Boolean),
-    )
+    # Plain sa.table()/insert() binds "role" as VARCHAR, which Postgres
+    # refuses to implicitly cast into the "user_role" enum column created
+    # by the initial migration — so this uses raw SQL with an explicit
+    # CAST(... AS user_role) instead.
     op.execute(
-        users_table.insert().values(
+        sa.text(
+            """
+            INSERT INTO users
+                (username, email, full_name, hashed_password, role, is_active, is_email_verified, is_mobile_verified)
+            VALUES
+                (:username, :email, :full_name, :hashed_password, CAST(:role AS user_role), :is_active, :is_email_verified, :is_mobile_verified)
+            """
+        ).bindparams(
             username=ADMIN_USERNAME,
             email=ADMIN_EMAIL,
             full_name="Administrator",
