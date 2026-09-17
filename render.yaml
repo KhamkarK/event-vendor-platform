@@ -51,8 +51,9 @@ services:
       - key: BACKEND_CORS_ORIGINS
         value: https://event-vendor-platform-web.onrender.com
 
-staticSites:
-  - name: event-vendor-platform-web
+  - type: web
+    name: event-vendor-platform-web
+    runtime: static
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
