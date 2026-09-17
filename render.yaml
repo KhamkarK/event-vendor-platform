@@ -48,8 +48,11 @@ services:
       # assigns "https://<name>.onrender.com" unless that name is already
       # taken by someone else, in which case it suffixes it — if so, update
       # this value to match the actual frontend URL shown in the dashboard.
+      # Must be a JSON array literal: BACKEND_CORS_ORIGINS is a List[str],
+      # and pydantic-settings JSON-decodes list-typed env vars before the
+      # app's own comma-splitting validator ever runs.
       - key: BACKEND_CORS_ORIGINS
-        value: https://event-vendor-platform-web.onrender.com
+        value: '["https://event-vendor-platform-web.onrender.com"]'
 
   - type: web
     name: event-vendor-platform-web
