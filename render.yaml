@@ -1,0 +1,67 @@
+databases:
+  - name: event-vendor-platform-db
+    databaseName: event_vendor_platform
+    user: evp_user
+    plan: free
+
+services:
+  - type: web
+    name: event-vendor-platform-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: POSTGRES_USER
+        fromDatabase:
+          name: event-vendor-platform-db
+          property: user
+      - key: POSTGRES_PASSWORD
+        fromDatabase:
+          name: event-vendor-platform-db
+          property: password
+      - key: POSTGRES_SERVER
+        fromDatabase:
+          name: event-vendor-platform-db
+          property: host
+      - key: POSTGRES_PORT
+        fromDatabase:
+          name: event-vendor-platform-db
+          property: port
+      - key: POSTGRES_DB
+        fromDatabase:
+          name: event-vendor-platform-db
+          property: database
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "60"
+      - key: REFRESH_TOKEN_EXPIRE_MINUTES
+        value: "10080"
+      - key: ENVIRONMENT
+        value: production
+      # Predicted URL, based on the frontend service name below. Render
+      # assigns "https://<name>.onrender.com" unless that name is already
+      # taken by someone else, in which case it suffixes it — if so, update
+      # this value to match the actual frontend URL shown in the dashboard.
+      - key: BACKEND_CORS_ORIGINS
+        value: https://event-vendor-platform-web.onrender.com
+
+staticSites:
+  - name: event-vendor-platform-web
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      # Predicted URL, based on the backend service name above — same
+      # caveat as BACKEND_CORS_ORIGINS if Render suffixes that name.
+      - key: VITE_API_BASE_URL
+        value: https://event-vendor-platform-api.onrender.com/api/v1
