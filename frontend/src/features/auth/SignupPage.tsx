@@ -10,6 +10,7 @@ import { z } from "zod";
 import { DiyaIcon } from "@/assets/DiyaIcon";
 import { Button } from "@/components/common/Button";
 import { Input } from "@/components/common/Input";
+import { VENDOR_CATEGORIES } from "@/constants/vendorCategories";
 import { signupRequest } from "@/features/auth/authApi";
 import { useAuthStore } from "@/store/authStore";
 import type { UserRole } from "@/types/user";
@@ -124,7 +125,31 @@ export function SignupPage() {
                 error={errors.business_name?.message}
                 {...register("business_name")}
               />
-              <Input label="Category" icon={<Briefcase size={16} />} placeholder="e.g. Catering" error={errors.category?.message} {...register("category")} />
+              <div className="w-full">
+                <label className="mb-1.5 block text-sm font-medium text-neutral-700">Category</label>
+                <div className="relative">
+                  <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">
+                    <Briefcase size={16} />
+                  </span>
+                  <select
+                    defaultValue=""
+                    className={`w-full appearance-none rounded-xl border bg-white py-2.5 pl-10 pr-4 text-sm text-neutral-900 outline-none transition-all duration-150 focus:ring-4 focus:ring-brand-100 ${
+                      errors.category ? "border-red-300 focus:border-red-400" : "border-neutral-200 focus:border-brand-400"
+                    }`}
+                    {...register("category")}
+                  >
+                    <option value="" disabled>
+                      Select a category
+                    </option>
+                    {VENDOR_CATEGORIES.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {errors.category?.message && <p className="mt-1 text-xs font-medium text-red-500">{errors.category.message}</p>}
+              </div>
             </motion.div>
           )}
 

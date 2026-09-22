@@ -11,6 +11,7 @@ import { useUIStore } from "@/store/uiStore";
 
 const navLinksByRole: Record<string, { label: string; to: string }[]> = {
   customer: [
+    { label: "Event Types", to: "/event-types" },
     { label: "Find Vendors", to: "/vendors" },
     { label: "My Events", to: "/events" },
   ],

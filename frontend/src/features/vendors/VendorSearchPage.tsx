@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { SearchX } from "lucide-react";
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 
 import { EmptyState } from "@/components/common/EmptyState";
 import { VendorCard } from "@/features/vendors/VendorCard";
@@ -8,7 +9,15 @@ import { VendorFilters } from "@/features/vendors/VendorFilters";
 import { searchVendors, type VendorSearchFilters } from "@/features/vendors/vendorsApi";
 
 export function VendorSearchPage() {
-  const [filters, setFilters] = useState<VendorSearchFilters>({});
+  // Arriving from the Event Types flow (EventTypeCategoriesPage) hands us the
+  // customer's selected categories via router state, so Find Vendors opens
+  // already filtered to them.
+  const location = useLocation();
+  const initialCategories = (location.state as { categories?: string[] } | null)?.categories;
+
+  const [filters, setFilters] = useState<VendorSearchFilters>(
+    initialCategories && initialCategories.length > 0 ? { categories: initialCategories } : {}
+  );
   const { data: vendors, isLoading } = useQuery({
     queryKey: ["vendors", filters],
     queryFn: () => searchVendors(filters),

@@ -41,6 +41,7 @@ class UserRepository:
         self,
         *,
         category: str | None = None,
+        categories: list[str] | None = None,
         location: str | None = None,
         min_rating: float | None = None,
         max_budget: float | None = None,
@@ -49,7 +50,11 @@ class UserRepository:
         stmt = select(VendorProfile)
         if only_approved:
             stmt = stmt.where(VendorProfile.is_approved.is_(True), VendorProfile.is_blocked.is_(False))
-        if category:
+        if categories:
+            # Exact-match multi-select (e.g. from the Event Types picklist flow) takes
+            # precedence over the free-text single category search below.
+            stmt = stmt.where(VendorProfile.category.in_(categories))
+        elif category:
             stmt = stmt.where(VendorProfile.category.ilike(f"%{category}%"))
         if location:
             stmt = stmt.where(VendorProfile.location.ilike(f"%{location}%"))

@@ -22,12 +22,15 @@ router = APIRouter(prefix="/vendors", tags=["vendors"])
 @router.get("", response_model=list[VendorSearchResult])
 def search_vendors(
     category: str | None = Query(default=None),
+    categories: list[str] | None = Query(default=None),
     location: str | None = Query(default=None),
     min_rating: float | None = Query(default=None, ge=0, le=5),
     max_budget: float | None = Query(default=None, gt=0),
     db: Session = Depends(get_db),
 ):
-    return VendorService(db).search(category=category, location=location, min_rating=min_rating, max_budget=max_budget)
+    return VendorService(db).search(
+        category=category, categories=categories, location=location, min_rating=min_rating, max_budget=max_budget
+    )
 
 
 @router.get("/{vendor_id}", response_model=VendorDetailOut)

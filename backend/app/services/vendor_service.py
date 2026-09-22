@@ -17,12 +17,13 @@ class VendorService:
         self,
         *,
         category: str | None = None,
+        categories: list[str] | None = None,
         location: str | None = None,
         min_rating: float | None = None,
         max_budget: float | None = None,
     ):
         profiles = self.users.list_vendor_profiles(
-            category=category, location=location, min_rating=min_rating, max_budget=max_budget
+            category=category, categories=categories, location=location, min_rating=min_rating, max_budget=max_budget
         )
         if max_budget is not None:
             filtered = []
