@@ -46,6 +46,7 @@ class AuthService:
             self.users.create_vendor_profile(profile)
             self.db.refresh(user)
 
+        self._ensure_vendor_can_login(user)
         return self._issue_tokens(user)
 
     def login(self, payload: LoginRequest) -> TokenResponse:
@@ -54,6 +55,7 @@ class AuthService:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid username or password")
         if not user.is_active:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account is disabled")
+        self._ensure_vendor_can_login(user)
         return self._issue_tokens(user)
 
     def refresh(self, refresh_token: str) -> TokenResponse:
@@ -66,7 +68,25 @@ class AuthService:
         user = self.users.get_by_id(int(payload["sub"]))
         if not user or not user.is_active:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
+        self._ensure_vendor_can_login(user)
         return self._issue_tokens(user)
+
+    def _ensure_vendor_can_login(self, user: User) -> None:
+        """Vendors must be admin-approved (and not blocked) before they can hold
+        a session — checked on signup, login, and token refresh alike, so the
+        gate can't be bypassed by refreshing a token issued before approval."""
+        if user.role != UserRole.VENDOR:
+            return
+        profile = user.vendor_profile
+        if profile and profile.is_blocked:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Your vendor account has been blocked. Please contact support."
+            )
+        if not profile or not profile.is_approved:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Your vendor account is pending admin approval. You can log in once it has been approved.",
+            )
 
     def _issue_tokens(self, user: User) -> TokenResponse:
         access_token = create_access_token(subject=str(user.id), role=user.role.value)
