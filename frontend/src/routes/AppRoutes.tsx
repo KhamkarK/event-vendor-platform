@@ -11,7 +11,6 @@ import { BudgetAllocator } from "@/features/budget/BudgetAllocator";
 import { CreateEventPage } from "@/features/events/CreateEventPage";
 import { EventBookingsPage } from "@/features/events/EventBookingsPage";
 import { EventList } from "@/features/events/EventList";
-import { EventTypeCategoriesPage } from "@/features/events/EventTypeCategoriesPage";
 import { EventTypesPage } from "@/features/events/EventTypesPage";
 import { PaymentStub } from "@/features/payments/PaymentStub";
 import { BookingCalendar } from "@/features/vendorDashboard/BookingCalendar";
@@ -41,7 +40,6 @@ export function AppRoutes() {
       <Route element={<AppLayout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/event-types" element={<EventTypesPage />} />
-        <Route path="/event-types/:slug" element={<EventTypeCategoriesPage />} />
         <Route path="/vendors" element={<VendorSearchPage />} />
         <Route path="/vendors/:vendorId" element={<VendorDetailPage />} />
 
