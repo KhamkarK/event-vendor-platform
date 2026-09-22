@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { CalendarCheck, ClipboardList, LayoutDashboard, Wallet } from "lucide-react";
+import { CalendarCheck, ClipboardList, LayoutDashboard, Package, Wallet } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { Card } from "@/components/common/Card";
@@ -9,6 +9,7 @@ import { listVendorBookings } from "@/features/vendorDashboard/vendorDashboardAp
 const sidebarLinks: SidebarLink[] = [
   { label: "Overview", to: "/vendor-dashboard", icon: LayoutDashboard, end: true },
   { label: "Calendar", to: "/vendor-dashboard/calendar", icon: CalendarCheck },
+  { label: "Packages", to: "/vendor-dashboard/packages", icon: Package },
   { label: "Quotations", to: "/vendor-dashboard/quotations", icon: ClipboardList },
   { label: "Ledger", to: "/vendor-dashboard/ledger", icon: Wallet },
 ];

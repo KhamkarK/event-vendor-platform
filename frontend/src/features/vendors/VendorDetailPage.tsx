@@ -86,7 +86,19 @@ export function VendorDetailPage() {
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {vendor.packages.map((pkg) => (
-              <Card key={pkg.id} hoverLift>
+              <Card key={pkg.id} hoverLift className="overflow-hidden">
+                {pkg.photos && pkg.photos.length > 0 && (
+                  <div className="mb-3 -m-4 mb-4 flex gap-1 overflow-x-auto">
+                    {pkg.photos.map((photo, idx) => (
+                      <img
+                        key={idx}
+                        src={photo}
+                        alt={`${pkg.title} photo ${idx + 1}`}
+                        className="h-36 w-full shrink-0 object-cover"
+                      />
+                    ))}
+                  </div>
+                )}
                 <h3 className="font-bold text-neutral-900">{pkg.title}</h3>
                 <p className="mt-1 text-xs font-medium uppercase tracking-wide text-brand-500">{pkg.category}</p>
                 {pkg.description && <p className="mt-2 text-sm text-neutral-500">{pkg.description}</p>}

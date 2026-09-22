@@ -52,6 +52,9 @@ export function CommissionSettings() {
                 <Card key={vendor.id} className="flex flex-wrap items-center justify-between gap-4">
                   <div>
                     <p className="font-semibold text-neutral-800">{vendor.business_name}</p>
+                    {vendor.owner_full_name && (
+                      <p className="text-xs text-neutral-400">Registered by {vendor.owner_full_name}</p>
+                    )}
                     <p className="flex items-center gap-1 text-xs text-neutral-500">
                       <Star size={12} className="fill-accent-400 text-accent-400" /> {vendor.rating_avg.toFixed(1)}
                     </p>

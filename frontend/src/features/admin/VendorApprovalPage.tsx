@@ -48,6 +48,9 @@ function VendorDragCard({ vendor }: { vendor: VendorProfile }) {
       </button>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold text-neutral-800">{vendor.business_name}</p>
+        {vendor.owner_full_name && (
+          <p className="truncate text-xs text-neutral-400">Registered by {vendor.owner_full_name}</p>
+        )}
         <p className="truncate text-xs text-neutral-500">{vendor.category}</p>
         <p className="mt-1 flex items-center gap-1 text-xs text-neutral-500">
           <Star size={11} className="fill-accent-400 text-accent-400" /> {vendor.rating_avg.toFixed(1)} · {vendor.commission_rate}%

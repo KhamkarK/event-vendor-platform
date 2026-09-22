@@ -78,3 +78,22 @@ class VendorProfile(Base):
     bookings: Mapped[list["Booking"]] = relationship("Booking", back_populates="vendor")
     ledger_entries: Mapped[list["LedgerEntry"]] = relationship("LedgerEntry", back_populates="vendor", cascade="all, delete-orphan")
     invoices: Mapped[list["Invoice"]] = relationship("Invoice", back_populates="vendor", cascade="all, delete-orphan")
+
+    # Read-only proxies onto the linked account, so admin-facing schemas can
+    # surface who actually registered as this vendor without duplicating
+    # columns that already live on `User`.
+    @property
+    def owner_full_name(self) -> str:
+        return self.user.full_name
+
+    @property
+    def owner_username(self) -> str:
+        return self.user.username
+
+    @property
+    def owner_email(self) -> str | None:
+        return self.user.email
+
+    @property
+    def owner_mobile(self) -> str | None:
+        return self.user.mobile

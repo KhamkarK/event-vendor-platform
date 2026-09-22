@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { CalendarCheck, ClipboardList, IndianRupee, LayoutDashboard, Wallet } from "lucide-react";
+import { CalendarCheck, ClipboardList, IndianRupee, LayoutDashboard, Package, Wallet } from "lucide-react";
 
 import { Card } from "@/components/common/Card";
 import { EmptyState } from "@/components/common/EmptyState";
@@ -10,6 +10,7 @@ import { listVendorBookings } from "@/features/vendorDashboard/vendorDashboardAp
 const sidebarLinks: SidebarLink[] = [
   { label: "Overview", to: "/vendor-dashboard", icon: LayoutDashboard, end: true },
   { label: "Calendar", to: "/vendor-dashboard/calendar", icon: CalendarCheck },
+  { label: "Packages", to: "/vendor-dashboard/packages", icon: Package },
   { label: "Quotations", to: "/vendor-dashboard/quotations", icon: ClipboardList },
   { label: "Ledger", to: "/vendor-dashboard/ledger", icon: Wallet },
 ];

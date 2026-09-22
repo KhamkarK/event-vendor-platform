@@ -44,6 +44,11 @@ class VendorService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vendor profile not found")
         return user.vendor_profile
 
+    def list_own_packages(self, vendor_profile) -> list[VendorPackage]:
+        """All of the vendor's own packages, active or not (unlike the public
+        search/detail views, which only ever show active ones)."""
+        return sorted(vendor_profile.packages, key=lambda p: p.created_at, reverse=True)
+
     def create_package(self, vendor_profile, payload: VendorPackageCreate) -> VendorPackage:
         package = VendorPackage(vendor_id=vendor_profile.id, **payload.model_dump())
         return self.vendors.create_package(package)

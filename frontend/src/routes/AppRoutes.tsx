@@ -14,6 +14,7 @@ import { EventList } from "@/features/events/EventList";
 import { PaymentStub } from "@/features/payments/PaymentStub";
 import { BookingCalendar } from "@/features/vendorDashboard/BookingCalendar";
 import { LedgerPage } from "@/features/vendorDashboard/LedgerPage";
+import { PackageManager } from "@/features/vendorDashboard/PackageManager";
 import { QuotationManager } from "@/features/vendorDashboard/QuotationManager";
 import { VendorDashboardPage } from "@/features/vendorDashboard/VendorDashboardPage";
 import { VendorDetailPage } from "@/features/vendors/VendorDetailPage";
@@ -94,6 +95,14 @@ export function AppRoutes() {
           element={
             <ProtectedRoute allowedRoles={["vendor"]}>
               <BookingCalendar />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/vendor-dashboard/packages"
+          element={
+            <ProtectedRoute allowedRoles={["vendor"]}>
+              <PackageManager />
             </ProtectedRoute>
           }
         />

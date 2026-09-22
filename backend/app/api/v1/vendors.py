@@ -50,6 +50,13 @@ def add_review(
 package_router = APIRouter(prefix="/vendors/me/packages", tags=["vendor-packages"])
 
 
+@package_router.get("", response_model=list[VendorPackageOut])
+def list_my_packages(current_user: User = Depends(require_vendor), db: Session = Depends(get_db)):
+    service = VendorService(db)
+    profile = service.get_own_profile(current_user)
+    return service.list_own_packages(profile)
+
+
 @package_router.post("", response_model=VendorPackageOut, status_code=201)
 def create_package(payload: VendorPackageCreate, current_user: User = Depends(require_vendor), db: Session = Depends(get_db)):
     service = VendorService(db)

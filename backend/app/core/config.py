@@ -50,6 +50,12 @@ class Settings(BaseSettings):
             return [origin.strip() for origin in v.split(",")]
         return v
 
+    # Media uploads (vendor package photos, etc.)
+    MEDIA_ROOT: str = "media"
+    MEDIA_URL_PREFIX: str = "/media"
+    MEDIA_BASE_URL: str = "http://localhost:8000"
+    MAX_UPLOAD_MB: float = 5.0
+
 
 @lru_cache
 def get_settings() -> Settings:

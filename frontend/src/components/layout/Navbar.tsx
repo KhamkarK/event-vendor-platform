@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { DiyaIcon } from "@/assets/DiyaIcon";
 import { Button } from "@/components/common/Button";
+import { AccountDetailsModal } from "@/components/layout/AccountDetailsModal";
 import { useAuthStore } from "@/store/authStore";
 import { useUIStore } from "@/store/uiStore";
 
@@ -16,6 +17,7 @@ const navLinksByRole: Record<string, { label: string; to: string }[]> = {
   vendor: [
     { label: "Dashboard", to: "/vendor-dashboard" },
     { label: "Calendar", to: "/vendor-dashboard/calendar" },
+    { label: "Packages", to: "/vendor-dashboard/packages" },
     { label: "Quotations", to: "/vendor-dashboard/quotations" },
     { label: "Ledger", to: "/vendor-dashboard/ledger" },
   ],
@@ -27,11 +29,22 @@ const navLinksByRole: Record<string, { label: string; to: string }[]> = {
   ],
 };
 
+/** For a vendor, the business identity is what the rest of the platform (and
+ * their customers) knows them by — show that instead of the personal name
+ * used to sign up. Every other role still shows their own name. */
+function displayName(user: { role: string; full_name: string; vendor_profile: { business_name: string } | null }) {
+  if (user.role === "vendor" && user.vendor_profile) {
+    return user.vendor_profile.business_name;
+  }
+  return user.full_name.split(" ")[0];
+}
+
 export function Navbar() {
   const { user, isAuthenticated, logout } = useAuthStore();
   const openCommandPalette = useUIStore((s) => s.openCommandPalette);
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [showAccountDetails, setShowAccountDetails] = useState(false);
 
   const links = user ? navLinksByRole[user.role] ?? [] : [{ label: "Find Vendors", to: "/vendors" }];
 
@@ -74,13 +87,17 @@ export function Navbar() {
           </button>
           {isAuthenticated && user ? (
             <>
-              <div className="flex items-center gap-2 rounded-full bg-neutral-50 px-3 py-1.5 text-sm font-medium text-neutral-700">
+              <button
+                onClick={() => setShowAccountDetails(true)}
+                className="flex items-center gap-2 rounded-full bg-neutral-50 px-3 py-1.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100"
+                aria-label="View account details"
+              >
                 <UserIcon size={15} className="text-brand-500" />
-                {user.full_name.split(" ")[0]}
+                {displayName(user)}
                 <span className="rounded-full bg-brand-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-700">
                   {user.role}
                 </span>
-              </div>
+              </button>
               <Button variant="ghost" size="sm" onClick={handleLogout}>
                 <LogOut size={15} /> Logout
               </Button>
@@ -126,12 +143,25 @@ export function Navbar() {
                 </Link>
               ))}
               {isAuthenticated ? (
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-red-600 hover:bg-red-50"
-                >
-                  <LogOut size={15} /> Logout
-                </button>
+                <>
+                  {user && (
+                    <button
+                      onClick={() => {
+                        setShowAccountDetails(true);
+                        setMobileOpen(false);
+                      }}
+                      className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-neutral-700 hover:bg-neutral-50"
+                    >
+                      <UserIcon size={15} className="text-brand-500" /> {displayName(user)}
+                    </button>
+                  )}
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-red-600 hover:bg-red-50"
+                  >
+                    <LogOut size={15} /> Logout
+                  </button>
+                </>
               ) : (
                 <div className="flex gap-2 pt-2">
                   <Link to="/login" className="flex-1">
@@ -150,6 +180,8 @@ export function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {user && <AccountDetailsModal isOpen={showAccountDetails} onClose={() => setShowAccountDetails(false)} user={user} />}
     </header>
   );
 }

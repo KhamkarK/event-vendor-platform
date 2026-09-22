@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { CalendarCheck, ClipboardList, IndianRupee, LayoutDashboard, Plus, TrendingDown, TrendingUp, Wallet } from "lucide-react";
+import { CalendarCheck, ClipboardList, IndianRupee, LayoutDashboard, Package, Plus, TrendingDown, TrendingUp, Wallet } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -17,6 +17,7 @@ import { addLedgerEntry, getMyLedger } from "@/features/vendorDashboard/vendorDa
 const sidebarLinks: SidebarLink[] = [
   { label: "Overview", to: "/vendor-dashboard", icon: LayoutDashboard, end: true },
   { label: "Calendar", to: "/vendor-dashboard/calendar", icon: CalendarCheck },
+  { label: "Packages", to: "/vendor-dashboard/packages", icon: Package },
   { label: "Quotations", to: "/vendor-dashboard/quotations", icon: ClipboardList },
   { label: "Ledger", to: "/vendor-dashboard/ledger", icon: Wallet },
 ];

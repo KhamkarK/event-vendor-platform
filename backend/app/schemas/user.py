@@ -23,6 +23,21 @@ class VendorProfileOut(BaseModel):
     created_at: datetime
 
 
+class VendorProfileAdminOut(VendorProfileOut):
+    """Admin-only view: adds who actually registered as this vendor.
+
+    The public VendorProfileOut deliberately stops at business-facing fields;
+    this extends it with the linked account's name/contact so admin screens
+    (Vendor Management, Commissions) can show the registrant, not just the
+    business name.
+    """
+
+    owner_full_name: str
+    owner_username: str
+    owner_email: str | None = None
+    owner_mobile: str | None = None
+
+
 class VendorProfileUpdate(BaseModel):
     business_name: str | None = None
     category: str | None = None

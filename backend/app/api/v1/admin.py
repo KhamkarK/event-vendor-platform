@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.core.dependencies import require_admin
 from app.db.session import get_db
 from app.models.user import User
-from app.schemas.user import VendorProfileOut
+from app.schemas.user import VendorProfileAdminOut, VendorProfileOut
 from app.services.admin_service import AdminService
 
 router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(require_admin)])
@@ -15,12 +15,12 @@ def get_dashboard(db: Session = Depends(get_db)):
     return AdminService(db).get_dashboard_stats()
 
 
-@router.get("/vendors", response_model=list[VendorProfileOut])
+@router.get("/vendors", response_model=list[VendorProfileAdminOut])
 def list_all_vendors(db: Session = Depends(get_db)):
     return AdminService(db).list_all_vendors()
 
 
-@router.get("/vendors/pending", response_model=list[VendorProfileOut])
+@router.get("/vendors/pending", response_model=list[VendorProfileAdminOut])
 def list_pending_vendors(db: Session = Depends(get_db)):
     return AdminService(db).list_pending_vendors()
 
