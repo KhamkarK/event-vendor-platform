@@ -9,6 +9,7 @@ import {
   ShieldCheck,
   Sliders,
   Store,
+  Users,
   Wallet,
   type LucideIcon,
 } from "lucide-react";
@@ -53,6 +54,7 @@ export function MobileTabBar() {
     tabs = [
       { label: "Overview", to: "/admin", icon: BarChart3, end: true },
       { label: "Vendors", to: "/admin/vendors", icon: ShieldCheck },
+      { label: "Customers", to: "/admin/customers", icon: Users },
       { label: "Fees", to: "/admin/commissions", icon: Sliders },
       { label: "Reports", to: "/admin/reports", icon: ClipboardList },
     ];

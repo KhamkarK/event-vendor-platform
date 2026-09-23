@@ -25,6 +25,7 @@ const navLinksByRole: Record<string, { label: string; to: string }[]> = {
   admin: [
     { label: "Overview", to: "/admin" },
     { label: "Vendors", to: "/admin/vendors" },
+    { label: "Customers", to: "/admin/customers" },
     { label: "Commissions", to: "/admin/commissions" },
     { label: "Reports", to: "/admin/reports" },
   ],
