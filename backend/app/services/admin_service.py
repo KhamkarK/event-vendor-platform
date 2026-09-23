@@ -57,6 +57,18 @@ class AdminService:
         self.db.refresh(profile)
         return profile
 
+    def list_customers(self) -> list[User]:
+        return self.users.list_customers()
+
+    def set_customer_prime(self, user_id: int, prime: bool) -> User:
+        user = self.users.get_by_id(user_id)
+        if not user or user.role != UserRole.CUSTOMER:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found")
+        user.is_prime = prime
+        self.db.commit()
+        self.db.refresh(user)
+        return user
+
     def get_dashboard_stats(self) -> dict:
         total_users = self.db.scalar(select(func.count()).select_from(User).where(User.role == UserRole.CUSTOMER)) or 0
         total_vendors = self.db.scalar(select(func.count()).select_from(VendorProfile)) or 0

@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/axios";
-import type { VendorProfile } from "@/types/user";
+import type { User, VendorProfile } from "@/types/user";
 
 export interface AdminDashboardStats {
   total_users: number;
@@ -47,5 +47,15 @@ export async function setCommission(vendorId: number, rate: number): Promise<Ven
 
 export async function setFeatured(vendorId: number, featured: boolean): Promise<VendorProfile> {
   const { data } = await apiClient.post<VendorProfile>(`/admin/vendors/${vendorId}/feature`, null, { params: { featured } });
+  return data;
+}
+
+export async function listCustomers(): Promise<User[]> {
+  const { data } = await apiClient.get<User[]>("/admin/customers");
+  return data;
+}
+
+export async function setCustomerPrime(userId: number, prime: boolean): Promise<User> {
+  const { data } = await apiClient.post<User>(`/admin/customers/${userId}/prime`, null, { params: { prime } });
   return data;
 }

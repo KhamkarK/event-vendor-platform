@@ -182,7 +182,16 @@ export function Navbar() {
         )}
       </AnimatePresence>
 
-      {user && <AccountDetailsModal isOpen={showAccountDetails} onClose={() => setShowAccountDetails(false)} user={user} />}
+      {user && (
+        <AccountDetailsModal
+          isOpen={showAccountDetails}
+          onClose={() => {
+            setShowAccountDetails(false);
+            navigate("/");
+          }}
+          user={user}
+        />
+      )}
     </header>
   );
 }

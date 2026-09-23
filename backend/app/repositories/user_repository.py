@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models.user import User, VendorProfile
+from app.models.user import User, UserRole, VendorProfile
 
 
 class UserRepository:
@@ -67,3 +67,6 @@ class UserRepository:
 
     def list_pending_vendor_approvals(self) -> list[VendorProfile]:
         return list(self.db.scalars(select(VendorProfile).where(VendorProfile.is_approved.is_(False))))
+
+    def list_customers(self) -> list[User]:
+        return list(self.db.scalars(select(User).where(User.role == UserRole.CUSTOMER).order_by(User.created_at.desc())))

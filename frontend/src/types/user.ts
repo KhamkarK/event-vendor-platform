@@ -29,6 +29,7 @@ export interface User {
   mobile: string | null;
   role: UserRole;
   is_active: boolean;
+  is_prime: boolean;
   created_at: string;
   vendor_profile: VendorProfile | null;
 }

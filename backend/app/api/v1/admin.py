@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.core.dependencies import require_admin
 from app.db.session import get_db
 from app.models.user import User
-from app.schemas.user import VendorProfileAdminOut, VendorProfileOut
+from app.schemas.user import UserOut, VendorProfileAdminOut, VendorProfileOut
 from app.services.admin_service import AdminService
 
 router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(require_admin)])
@@ -48,3 +48,13 @@ def set_commission(vendor_id: int, rate: float, db: Session = Depends(get_db)):
 @router.post("/vendors/{vendor_id}/feature", response_model=VendorProfileOut)
 def set_featured(vendor_id: int, featured: bool = True, db: Session = Depends(get_db)):
     return AdminService(db).set_featured(vendor_id, featured)
+
+
+@router.get("/customers", response_model=list[UserOut])
+def list_customers(db: Session = Depends(get_db)):
+    return AdminService(db).list_customers()
+
+
+@router.post("/customers/{user_id}/prime", response_model=UserOut)
+def set_customer_prime(user_id: int, prime: bool = True, db: Session = Depends(get_db)):
+    return AdminService(db).set_customer_prime(user_id, prime)

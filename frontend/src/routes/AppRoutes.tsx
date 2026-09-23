@@ -5,6 +5,7 @@ import { LoginPage } from "@/features/auth/LoginPage";
 import { SignupPage } from "@/features/auth/SignupPage";
 import { AdminDashboardPage } from "@/features/admin/AdminDashboardPage";
 import { CommissionSettings } from "@/features/admin/CommissionSettings";
+import { CustomersPage } from "@/features/admin/CustomersPage";
 import { ReportsPage } from "@/features/admin/ReportsPage";
 import { VendorApprovalPage } from "@/features/admin/VendorApprovalPage";
 import { BudgetAllocator } from "@/features/budget/BudgetAllocator";
@@ -138,6 +139,14 @@ export function AppRoutes() {
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <VendorApprovalPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/customers"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <CustomersPage />
             </ProtectedRoute>
           }
         />

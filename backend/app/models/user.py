@@ -35,6 +35,9 @@ class User(Base):
     # schema doesn't need another migration when it ships.
     is_email_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_mobile_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    # Admin-managed "Prime Member" tag for customers (set via the admin Customers
+    # tab drag board); currently admin-side only, no customer-facing effect yet.
+    is_prime: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

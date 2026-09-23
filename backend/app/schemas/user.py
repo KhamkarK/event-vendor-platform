@@ -56,6 +56,7 @@ class UserOut(BaseModel):
     mobile: str | None = None
     role: UserRole
     is_active: bool
+    is_prime: bool
     created_at: datetime
     vendor_profile: VendorProfileOut | None = None
 

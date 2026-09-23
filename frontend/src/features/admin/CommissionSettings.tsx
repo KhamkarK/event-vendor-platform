@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { BarChart3, LayoutDashboard, ShieldCheck, Sliders, Star } from "lucide-react";
+import { BarChart3, LayoutDashboard, ShieldCheck, Sliders, Star, Users } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
@@ -11,6 +11,7 @@ import { listAllVendors, setCommission, setFeatured } from "@/features/admin/adm
 const sidebarLinks: SidebarLink[] = [
   { label: "Overview", to: "/admin", icon: LayoutDashboard, end: true },
   { label: "Vendors", to: "/admin/vendors", icon: ShieldCheck },
+  { label: "Customers", to: "/admin/customers", icon: Users },
   { label: "Commissions", to: "/admin/commissions", icon: Sliders },
   { label: "Reports", to: "/admin/reports", icon: BarChart3 },
 ];

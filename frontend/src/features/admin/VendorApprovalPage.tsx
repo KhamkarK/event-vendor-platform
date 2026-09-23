@@ -1,18 +1,19 @@
 import { DndContext, type DragEndEvent, PointerSensor, useDraggable, useDroppable, useSensor, useSensors } from "@dnd-kit/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { BarChart3, Ban, GripVertical, LayoutDashboard, ShieldCheck, Sliders, Star } from "lucide-react";
+import { BarChart3, Ban, Crown, GripVertical, LayoutDashboard, ShieldCheck, Sliders, Star, Users } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { MehendiCorner } from "@/assets/MehendiCorner";
 import { RangoliSpinner } from "@/components/common/RangoliSpinner";
 import { Sidebar, type SidebarLink } from "@/components/layout/Sidebar";
-import { approveVendor, blockVendor, listAllVendors, unblockVendor } from "@/features/admin/adminApi";
+import { approveVendor, blockVendor, listAllVendors, setFeatured, unblockVendor } from "@/features/admin/adminApi";
 import type { VendorProfile } from "@/types/user";
 
 const sidebarLinks: SidebarLink[] = [
   { label: "Overview", to: "/admin", icon: LayoutDashboard, end: true },
   { label: "Vendors", to: "/admin/vendors", icon: ShieldCheck },
+  { label: "Customers", to: "/admin/customers", icon: Users },
   { label: "Commissions", to: "/admin/commissions", icon: Sliders },
   { label: "Reports", to: "/admin/reports", icon: BarChart3 },
 ];
@@ -84,6 +85,47 @@ function KanbanColumn({ id, vendors }: { id: ColumnId; vendors: VendorProfile[] 
   );
 }
 
+// Premium tier: a separate drag board scoped to approved, unblocked vendors only —
+// reuses the existing (previously unused) is_featured flag via the existing
+// setFeatured() API function, rather than the approve/block Kanban above.
+type FeatureColumnId = "standard" | "premium";
+
+const featureColumnMeta: Record<FeatureColumnId, { title: string; tint: string }> = {
+  standard: { title: "Standard", tint: "bg-neutral-50 border-neutral-200" },
+  premium: { title: "Premium", tint: "bg-accent-50 border-accent-200" },
+};
+
+function columnOfFeature(vendor: VendorProfile): FeatureColumnId {
+  return vendor.is_featured ? "premium" : "standard";
+}
+
+function FeatureKanbanColumn({ id, vendors }: { id: FeatureColumnId; vendors: VendorProfile[] }) {
+  const { setNodeRef, isOver } = useDroppable({ id });
+  const meta = featureColumnMeta[id];
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`flex min-h-[200px] flex-1 flex-col gap-2 rounded-2xl border-2 border-dashed p-3 transition-colors ${meta.tint} ${
+        isOver ? "ring-2 ring-brand-300" : ""
+      }`}
+    >
+      <div className="mb-1 flex items-center justify-between px-1">
+        <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-neutral-600">
+          {id === "premium" && <Crown size={12} className="text-accent-500" />}
+          {meta.title}
+        </p>
+        <span className="rounded-full bg-white/70 px-2 py-0.5 text-[10px] font-bold text-neutral-500">{vendors.length}</span>
+      </div>
+      {vendors.length === 0 ? (
+        <p className="px-1 py-6 text-center text-xs text-neutral-400">Drag a vendor here</p>
+      ) : (
+        vendors.map((vendor) => <VendorDragCard key={vendor.id} vendor={vendor} />)
+      )}
+    </div>
+  );
+}
+
 export function VendorApprovalPage() {
   const queryClient = useQueryClient();
   const { data: vendors, isLoading } = useQuery({ queryKey: ["admin-vendors"], queryFn: listAllVendors });
@@ -112,9 +154,20 @@ export function VendorApprovalPage() {
       toast.success("Vendor unblocked");
     },
   });
+  const featureMutation = useMutation({
+    mutationFn: ({ id, featured }: { id: number; featured: boolean }) => setFeatured(id, featured),
+    onSuccess: (_, { featured }) => {
+      invalidate();
+      toast.success(featured ? "Vendor marked Premium" : "Vendor moved back to Standard");
+    },
+  });
 
   const columns: Record<ColumnId, VendorProfile[]> = { pending: [], approved: [], blocked: [] };
   (vendors ?? []).forEach((v) => columns[columnOf(v)].push(v));
+
+  const activeVendors = (vendors ?? []).filter((v) => v.is_approved && !v.is_blocked);
+  const featureColumns: Record<FeatureColumnId, VendorProfile[]> = { standard: [], premium: [] };
+  activeVendors.forEach((v) => featureColumns[columnOfFeature(v)].push(v));
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -136,6 +189,20 @@ export function VendorApprovalPage() {
       if (from === "blocked") unblockMutation.mutate(vendorId);
       else toast.error("An approved vendor can't be moved back to pending here.");
     }
+  };
+
+  const handleFeatureDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over) return;
+    const vendorId = Number(active.id);
+    const vendor = activeVendors.find((v) => v.id === vendorId);
+    if (!vendor) return;
+
+    const from = columnOfFeature(vendor);
+    const to = over.id as FeatureColumnId;
+    if (from === to) return;
+
+    featureMutation.mutate({ id: vendorId, featured: to === "premium" });
   };
 
   return (
@@ -170,6 +237,38 @@ export function VendorApprovalPage() {
               </motion.div>
             </DndContext>
           )}
+        </div>
+
+        <div className="mt-10">
+          <h2 className="flex items-center gap-1.5 text-lg font-bold text-neutral-900">
+            <Crown size={16} className="text-accent-500" /> Premium Vendors
+          </h2>
+          <p className="mt-1 text-sm text-neutral-500">
+            Drag an approved vendor into Premium to feature them (only approved, unblocked vendors are eligible).
+          </p>
+
+          <div className="mt-4">
+            {isLoading ? (
+              <div className="flex h-64 items-center justify-center">
+                <RangoliSpinner label="Loading vendors…" />
+              </div>
+            ) : activeVendors.length === 0 ? (
+              <div className="flex h-40 items-center justify-center rounded-2xl border border-dashed border-neutral-200 text-sm text-neutral-400">
+                No approved vendors yet — approve a vendor above to feature them here.
+              </div>
+            ) : (
+              <DndContext sensors={sensors} onDragEnd={handleFeatureDragEnd}>
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex flex-col gap-4 sm:flex-row"
+                >
+                  <FeatureKanbanColumn id="standard" vendors={featureColumns.standard} />
+                  <FeatureKanbanColumn id="premium" vendors={featureColumns.premium} />
+                </motion.div>
+              </DndContext>
+            )}
+          </div>
         </div>
       </div>
     </div>
