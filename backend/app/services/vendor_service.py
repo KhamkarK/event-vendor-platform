@@ -1,10 +1,13 @@
+from datetime import date
+
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.models.vendor import VendorPackage, VendorReview
+from app.models.vendor import VendorBlockedDate, VendorPackage, VendorReview
+from app.repositories.booking_repository import BookingRepository
 from app.repositories.user_repository import UserRepository
 from app.repositories.vendor_repository import VendorRepository
-from app.schemas.vendor import VendorPackageCreate, VendorPackageUpdate, VendorReviewCreate
+from app.schemas.vendor import VendorBlockedDateCreate, VendorPackageCreate, VendorPackageUpdate, VendorReviewCreate
 
 
 class VendorService:
@@ -12,6 +15,7 @@ class VendorService:
         self.db = db
         self.vendors = VendorRepository(db)
         self.users = UserRepository(db)
+        self.bookings = BookingRepository(db)
 
     def search(
         self,
@@ -81,3 +85,28 @@ class VendorService:
         self.db.commit()
 
         return review
+
+    # --- availability ---
+
+    def get_unavailable_dates(self, vendor_id: int) -> list[date]:
+        """The full set of dates this vendor can't be booked on: manually
+        blocked dates, unioned with dates that already have a CONFIRMED booking."""
+        manual = {b.date for b in self.vendors.list_blocked_dates(vendor_id)}
+        confirmed = set(self.bookings.list_confirmed_event_dates(vendor_id))
+        return sorted(manual | confirmed)
+
+    def list_own_blocked_dates(self, vendor_profile) -> list[VendorBlockedDate]:
+        return self.vendors.list_blocked_dates(vendor_profile.id)
+
+    def block_date(self, vendor_profile, payload: VendorBlockedDateCreate) -> VendorBlockedDate:
+        existing = next((b for b in self.vendors.list_blocked_dates(vendor_profile.id) if b.date == payload.date), None)
+        if existing:
+            return existing
+        blocked = VendorBlockedDate(vendor_id=vendor_profile.id, date=payload.date)
+        return self.vendors.create_blocked_date(blocked)
+
+    def unblock_date(self, vendor_profile, blocked_id: int) -> None:
+        blocked = self.vendors.get_blocked_date(blocked_id)
+        if not blocked or blocked.vendor_id != vendor_profile.id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Blocked date not found")
+        self.vendors.delete_blocked_date(blocked)

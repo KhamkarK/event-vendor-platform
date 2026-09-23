@@ -45,3 +45,8 @@ export async function createBooking(payload: { event_id: number; vendor_id: numb
   const { data } = await apiClient.post("/bookings", payload);
   return data;
 }
+
+export async function getVendorAvailability(vendorId: number): Promise<string[]> {
+  const { data } = await apiClient.get<string[]>(`/vendors/${vendorId}/availability`);
+  return data;
+}

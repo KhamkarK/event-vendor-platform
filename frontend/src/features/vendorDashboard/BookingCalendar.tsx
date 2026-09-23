@@ -1,10 +1,18 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CalendarCheck, ClipboardList, LayoutDashboard, Package, Wallet } from "lucide-react";
 import { useMemo, useState } from "react";
+import toast from "react-hot-toast";
 
 import { Card } from "@/components/common/Card";
 import { Sidebar, type SidebarLink } from "@/components/layout/Sidebar";
-import { listVendorBookings } from "@/features/vendorDashboard/vendorDashboardApi";
+import { blockDate, listMyBlockedDates, listVendorBookings, unblockDate } from "@/features/vendorDashboard/vendorDashboardApi";
+import { getVendorAvailability } from "@/features/vendors/vendorsApi";
+import { useAuthStore } from "@/store/authStore";
+
+/** Local YYYY-MM-DD (not UTC) so it lines up with the plain `date` the backend stores/returns. */
+function toDateKey(year: number, month: number, day: number): string {
+  return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
 
 const sidebarLinks: SidebarLink[] = [
   { label: "Overview", to: "/vendor-dashboard", icon: LayoutDashboard, end: true },
@@ -15,8 +23,52 @@ const sidebarLinks: SidebarLink[] = [
 ];
 
 export function BookingCalendar() {
+  const { user } = useAuthStore();
+  const vendorId = user?.vendor_profile?.id;
+  const queryClient = useQueryClient();
+
   const { data: bookings } = useQuery({ queryKey: ["vendor-bookings"], queryFn: listVendorBookings });
+  const { data: blockedDates } = useQuery({ queryKey: ["vendor-blocked-dates"], queryFn: listMyBlockedDates });
+  const { data: unavailableDates } = useQuery({
+    queryKey: ["vendor-availability", vendorId],
+    queryFn: () => getVendorAvailability(vendorId as number),
+    enabled: !!vendorId,
+  });
   const [monthOffset, setMonthOffset] = useState(0);
+
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: ["vendor-blocked-dates"] });
+    queryClient.invalidateQueries({ queryKey: ["vendor-availability", vendorId] });
+  };
+
+  const blockMutation = useMutation({
+    mutationFn: blockDate,
+    onSuccess: invalidate,
+    onError: () => toast.error("Could not block that date"),
+  });
+  const unblockMutation = useMutation({
+    mutationFn: unblockDate,
+    onSuccess: invalidate,
+    onError: () => toast.error("Could not unblock that date"),
+  });
+
+  const unavailableSet = useMemo(() => new Set(unavailableDates ?? []), [unavailableDates]);
+  const blockedByDate = useMemo(() => {
+    const map = new Map<string, number>();
+    (blockedDates ?? []).forEach((b) => map.set(b.date, b.id));
+    return map;
+  }, [blockedDates]);
+
+  function toggleDate(dateKey: string) {
+    const blockedId = blockedByDate.get(dateKey);
+    if (blockedId) {
+      unblockMutation.mutate(blockedId);
+    } else if (unavailableSet.has(dateKey)) {
+      toast.error("This date already has a confirmed booking");
+    } else {
+      blockMutation.mutate(dateKey);
+    }
+  }
 
   const monthDate = useMemo(() => {
     const d = new Date();
@@ -59,6 +111,15 @@ export function BookingCalendar() {
         </div>
 
         <Card>
+          <div className="mb-3 flex flex-wrap items-center gap-4 text-xs font-semibold text-neutral-500">
+            <span className="flex items-center gap-1.5">
+              <span className="h-3 w-3 rounded border border-red-200 bg-red-50" /> Blocked by you
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-3 w-3 rounded border border-neutral-300 bg-neutral-100" /> Confirmed booking
+            </span>
+            <span className="ml-auto text-neutral-400">Tap a date to block or unblock it</span>
+          </div>
           <div className="grid grid-cols-7 gap-2 text-center text-xs font-bold uppercase text-neutral-400">
             {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
               <div key={d}>{d}</div>
@@ -71,16 +132,32 @@ export function BookingCalendar() {
             {Array.from({ length: daysInMonth }).map((_, i) => {
               const day = i + 1;
               const count = bookingsByDay[day];
+              const dateKey = toDateKey(monthDate.getFullYear(), monthDate.getMonth(), day);
+              const manuallyBlocked = blockedByDate.has(dateKey);
+              const confirmedBooked = !manuallyBlocked && unavailableSet.has(dateKey);
               return (
-                <div
+                <button
                   key={day}
+                  type="button"
+                  onClick={() => toggleDate(dateKey)}
+                  disabled={confirmedBooked}
                   className={`flex h-16 flex-col items-center justify-center rounded-xl border text-sm transition-colors ${
-                    count ? "border-brand-200 bg-brand-50 text-brand-700 font-bold" : "border-neutral-100 text-neutral-600"
+                    manuallyBlocked
+                      ? "border-red-200 bg-red-50 text-red-700 font-bold"
+                      : confirmedBooked
+                        ? "cursor-not-allowed border-neutral-300 bg-neutral-100 text-neutral-500 font-bold"
+                        : count
+                          ? "border-brand-200 bg-brand-50 text-brand-700 font-bold hover:bg-brand-100"
+                          : "border-neutral-100 text-neutral-600 hover:bg-neutral-50"
                   }`}
                 >
                   {day}
-                  {count && <span className="mt-0.5 text-[10px] font-semibold">{count} booking{count > 1 ? "s" : ""}</span>}
-                </div>
+                  {manuallyBlocked && <span className="mt-0.5 text-[10px] font-semibold">Blocked</span>}
+                  {confirmedBooked && <span className="mt-0.5 text-[10px] font-semibold">Booked</span>}
+                  {!manuallyBlocked && !confirmedBooked && count ? (
+                    <span className="mt-0.5 text-[10px] font-semibold">{count} booking{count > 1 ? "s" : ""}</span>
+                  ) : null}
+                </button>
               );
             })}
           </div>

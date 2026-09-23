@@ -29,3 +29,9 @@ export interface VendorDetail extends VendorProfile {
   packages: VendorPackage[];
   reviews: VendorReview[];
 }
+
+export interface VendorBlockedDate {
+  id: number;
+  date: string;
+  created_at: string;
+}

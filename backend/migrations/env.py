@@ -14,7 +14,7 @@ from app.db.base import Base  # noqa: E402
 from app.models.user import User, VendorProfile  # noqa: E402,F401
 from app.models.event import Event  # noqa: E402,F401
 from app.models.budget import BudgetCategory, BudgetAllocation  # noqa: E402,F401
-from app.models.vendor import VendorPackage, VendorReview  # noqa: E402,F401
+from app.models.vendor import VendorBlockedDate, VendorPackage, VendorReview  # noqa: E402,F401
 from app.models.booking import Booking, Wishlist, Quotation  # noqa: E402,F401
 from app.models.ledger import LedgerEntry, Invoice  # noqa: E402,F401
 

@@ -1,13 +1,15 @@
 import { DndContext, type DragEndEvent, PointerSensor, useDraggable, useDroppable, useSensor, useSensors } from "@dnd-kit/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { BarChart3, Ban, Crown, GripVertical, LayoutDashboard, ShieldCheck, Sliders, Star, Users } from "lucide-react";
+import { BarChart3, Ban, CalendarDays, Crown, GripVertical, LayoutDashboard, ShieldCheck, Sliders, Star, Users } from "lucide-react";
+import { useState } from "react";
 import toast from "react-hot-toast";
 
 import { MehendiCorner } from "@/assets/MehendiCorner";
 import { RangoliSpinner } from "@/components/common/RangoliSpinner";
 import { Sidebar, type SidebarLink } from "@/components/layout/Sidebar";
 import { approveVendor, blockVendor, listAllVendors, setFeatured, unblockVendor } from "@/features/admin/adminApi";
+import { VendorAvailabilityModal } from "@/features/admin/VendorAvailabilityModal";
 import type { VendorProfile } from "@/types/user";
 
 const sidebarLinks: SidebarLink[] = [
@@ -32,7 +34,7 @@ function columnOf(vendor: VendorProfile): ColumnId {
   return "pending";
 }
 
-function VendorDragCard({ vendor }: { vendor: VendorProfile }) {
+function VendorDragCard({ vendor, onViewAvailability }: { vendor: VendorProfile; onViewAvailability: (vendor: VendorProfile) => void }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: vendor.id });
   const style = transform
     ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`, zIndex: 20 }
@@ -57,11 +59,27 @@ function VendorDragCard({ vendor }: { vendor: VendorProfile }) {
           <Star size={11} className="fill-accent-400 text-accent-400" /> {vendor.rating_avg.toFixed(1)} · {vendor.commission_rate}%
         </p>
       </div>
+      <button
+        onClick={() => onViewAvailability(vendor)}
+        className="shrink-0 rounded-full p-1.5 text-neutral-300 transition-colors hover:bg-neutral-100 hover:text-brand-600"
+        aria-label={`View ${vendor.business_name}'s availability`}
+        title="View availability"
+      >
+        <CalendarDays size={16} />
+      </button>
     </div>
   );
 }
 
-function KanbanColumn({ id, vendors }: { id: ColumnId; vendors: VendorProfile[] }) {
+function KanbanColumn({
+  id,
+  vendors,
+  onViewAvailability,
+}: {
+  id: ColumnId;
+  vendors: VendorProfile[];
+  onViewAvailability: (vendor: VendorProfile) => void;
+}) {
   const { setNodeRef, isOver } = useDroppable({ id });
   const meta = columnMeta[id];
 
@@ -79,7 +97,7 @@ function KanbanColumn({ id, vendors }: { id: ColumnId; vendors: VendorProfile[] 
       {vendors.length === 0 ? (
         <p className="px-1 py-6 text-center text-xs text-neutral-400">Drag a vendor here</p>
       ) : (
-        vendors.map((vendor) => <VendorDragCard key={vendor.id} vendor={vendor} />)
+        vendors.map((vendor) => <VendorDragCard key={vendor.id} vendor={vendor} onViewAvailability={onViewAvailability} />)
       )}
     </div>
   );
@@ -99,7 +117,15 @@ function columnOfFeature(vendor: VendorProfile): FeatureColumnId {
   return vendor.is_featured ? "premium" : "standard";
 }
 
-function FeatureKanbanColumn({ id, vendors }: { id: FeatureColumnId; vendors: VendorProfile[] }) {
+function FeatureKanbanColumn({
+  id,
+  vendors,
+  onViewAvailability,
+}: {
+  id: FeatureColumnId;
+  vendors: VendorProfile[];
+  onViewAvailability: (vendor: VendorProfile) => void;
+}) {
   const { setNodeRef, isOver } = useDroppable({ id });
   const meta = featureColumnMeta[id];
 
@@ -120,7 +146,7 @@ function FeatureKanbanColumn({ id, vendors }: { id: FeatureColumnId; vendors: Ve
       {vendors.length === 0 ? (
         <p className="px-1 py-6 text-center text-xs text-neutral-400">Drag a vendor here</p>
       ) : (
-        vendors.map((vendor) => <VendorDragCard key={vendor.id} vendor={vendor} />)
+        vendors.map((vendor) => <VendorDragCard key={vendor.id} vendor={vendor} onViewAvailability={onViewAvailability} />)
       )}
     </div>
   );
@@ -130,6 +156,7 @@ export function VendorApprovalPage() {
   const queryClient = useQueryClient();
   const { data: vendors, isLoading } = useQuery({ queryKey: ["admin-vendors"], queryFn: listAllVendors });
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
+  const [availabilityVendor, setAvailabilityVendor] = useState<VendorProfile | null>(null);
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["admin-vendors"] });
 
@@ -231,9 +258,9 @@ export function VendorApprovalPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="flex flex-col gap-4 sm:flex-row"
               >
-                <KanbanColumn id="pending" vendors={columns.pending} />
-                <KanbanColumn id="approved" vendors={columns.approved} />
-                <KanbanColumn id="blocked" vendors={columns.blocked} />
+                <KanbanColumn id="pending" vendors={columns.pending} onViewAvailability={setAvailabilityVendor} />
+                <KanbanColumn id="approved" vendors={columns.approved} onViewAvailability={setAvailabilityVendor} />
+                <KanbanColumn id="blocked" vendors={columns.blocked} onViewAvailability={setAvailabilityVendor} />
               </motion.div>
             </DndContext>
           )}
@@ -263,14 +290,20 @@ export function VendorApprovalPage() {
                   animate={{ opacity: 1, y: 0 }}
                   className="flex flex-col gap-4 sm:flex-row"
                 >
-                  <FeatureKanbanColumn id="standard" vendors={featureColumns.standard} />
-                  <FeatureKanbanColumn id="premium" vendors={featureColumns.premium} />
+                  <FeatureKanbanColumn id="standard" vendors={featureColumns.standard} onViewAvailability={setAvailabilityVendor} />
+                  <FeatureKanbanColumn id="premium" vendors={featureColumns.premium} onViewAvailability={setAvailabilityVendor} />
                 </motion.div>
               </DndContext>
             )}
           </div>
         </div>
       </div>
+
+      <VendorAvailabilityModal
+        isOpen={!!availabilityVendor}
+        onClose={() => setAvailabilityVendor(null)}
+        vendor={availabilityVendor}
+      />
     </div>
   );
 }

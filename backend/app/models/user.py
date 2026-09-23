@@ -81,6 +81,9 @@ class VendorProfile(Base):
     bookings: Mapped[list["Booking"]] = relationship("Booking", back_populates="vendor")
     ledger_entries: Mapped[list["LedgerEntry"]] = relationship("LedgerEntry", back_populates="vendor", cascade="all, delete-orphan")
     invoices: Mapped[list["Invoice"]] = relationship("Invoice", back_populates="vendor", cascade="all, delete-orphan")
+    blocked_dates: Mapped[list["VendorBlockedDate"]] = relationship(
+        "VendorBlockedDate", back_populates="vendor", cascade="all, delete-orphan"
+    )
 
     # Read-only proxies onto the linked account, so admin-facing schemas can
     # surface who actually registered as this vendor without duplicating

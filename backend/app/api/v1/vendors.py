@@ -1,3 +1,5 @@
+from datetime import date
+
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
@@ -6,6 +8,8 @@ from app.db.session import get_db
 from app.models.user import User
 from app.schemas.user import VendorProfileOut
 from app.schemas.vendor import (
+    VendorBlockedDateCreate,
+    VendorBlockedDateOut,
     VendorDetailOut,
     VendorPackageCreate,
     VendorPackageOut,
@@ -48,6 +52,12 @@ def add_review(
     return VendorService(db).add_review(current_user.id, vendor_id, payload)
 
 
+@router.get("/{vendor_id}/availability", response_model=list[date])
+def get_vendor_availability(vendor_id: int, db: Session = Depends(get_db)):
+    """Dates this vendor is unavailable on (manually blocked or already confirmed-booked)."""
+    return VendorService(db).get_unavailable_dates(vendor_id)
+
+
 # --- Vendor's own package management ---
 
 package_router = APIRouter(prefix="/vendors/me/packages", tags=["vendor-packages"])
@@ -84,3 +94,33 @@ def delete_package(package_id: int, current_user: User = Depends(require_vendor)
     service = VendorService(db)
     profile = service.get_own_profile(current_user)
     service.delete_package(profile, package_id)
+
+
+# --- Vendor's own availability (blocked dates) management ---
+
+blocked_dates_router = APIRouter(prefix="/vendors/me/blocked-dates", tags=["vendor-availability"])
+
+
+@blocked_dates_router.get("", response_model=list[VendorBlockedDateOut])
+def list_my_blocked_dates(current_user: User = Depends(require_vendor), db: Session = Depends(get_db)):
+    service = VendorService(db)
+    profile = service.get_own_profile(current_user)
+    return service.list_own_blocked_dates(profile)
+
+
+@blocked_dates_router.post("", response_model=VendorBlockedDateOut, status_code=201)
+def block_date(
+    payload: VendorBlockedDateCreate,
+    current_user: User = Depends(require_vendor),
+    db: Session = Depends(get_db),
+):
+    service = VendorService(db)
+    profile = service.get_own_profile(current_user)
+    return service.block_date(profile, payload)
+
+
+@blocked_dates_router.delete("/{blocked_id}", status_code=204)
+def unblock_date(blocked_id: int, current_user: User = Depends(require_vendor), db: Session = Depends(get_db)):
+    service = VendorService(db)
+    profile = service.get_own_profile(current_user)
+    service.unblock_date(profile, blocked_id)

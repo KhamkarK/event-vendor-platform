@@ -3,14 +3,16 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Heart, MapPin, Package, Star } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { Button } from "@/components/common/Button";
+import { BlockedDatesList } from "@/components/common/BlockedDatesList";
 import { Card } from "@/components/common/Card";
 import { EmptyState } from "@/components/common/EmptyState";
 import { RangoliSpinner } from "@/components/common/RangoliSpinner";
 import { VerifiedRibbon } from "@/components/common/VerifiedRibbon";
-import { getVendorDetail, toggleWishlist } from "@/features/vendors/vendorsApi";
+import { RequestBookingModal } from "@/features/vendors/RequestBookingModal";
+import { getVendorAvailability, getVendorDetail, toggleWishlist } from "@/features/vendors/vendorsApi";
 import { useAuthStore } from "@/store/authStore";
 
 export function VendorDetailPage() {
@@ -19,12 +21,26 @@ export function VendorDetailPage() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
   const [wishlisted, setWishlisted] = useState(false);
+  const [showBookingModal, setShowBookingModal] = useState(false);
 
   const { data: vendor, isLoading } = useQuery({
     queryKey: ["vendor", id],
     queryFn: () => getVendorDetail(id),
     enabled: !!id,
   });
+  const { data: unavailableDates } = useQuery({
+    queryKey: ["vendor-availability", id],
+    queryFn: () => getVendorAvailability(id),
+    enabled: !!id,
+  });
+
+  const handleBookClick = () => {
+    if (!isAuthenticated) {
+      toast.error("Log in to request a booking");
+      return;
+    }
+    setShowBookingModal(true);
+  };
 
   const handleWishlist = async () => {
     if (!isAuthenticated) {
@@ -110,6 +126,13 @@ export function VendorDetailPage() {
       </div>
 
       <div className="mt-8">
+        <h2 className="mb-4 text-lg font-bold text-neutral-900">Availability</h2>
+        <Card>
+          <BlockedDatesList dates={unavailableDates ?? []} emptyLabel="No unavailable dates — this vendor is open on all upcoming dates" />
+        </Card>
+      </div>
+
+      <div className="mt-8">
         <h2 className="mb-4 text-lg font-bold text-neutral-900">Reviews</h2>
         {vendor.reviews.length === 0 ? (
           <p className="text-sm text-neutral-500">No reviews yet — be the first to book and review!</p>
@@ -130,10 +153,10 @@ export function VendorDetailPage() {
       </div>
 
       <div className="mt-8 flex justify-end">
-        <Link to="/events">
-          <Button>Book from an event</Button>
-        </Link>
+        <Button onClick={handleBookClick}>Request booking</Button>
       </div>
+
+      {vendor && <RequestBookingModal isOpen={showBookingModal} onClose={() => setShowBookingModal(false)} vendor={vendor} />}
     </div>
   );
 }

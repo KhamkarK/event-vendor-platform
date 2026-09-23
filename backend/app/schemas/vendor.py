@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -60,3 +60,15 @@ class VendorSearchResult(VendorProfileOut):
 class VendorDetailOut(VendorProfileOut):
     packages: list[VendorPackageOut] = []
     reviews: list[VendorReviewOut] = []
+
+
+class VendorBlockedDateCreate(BaseModel):
+    date: date
+
+
+class VendorBlockedDateOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    date: date
+    created_at: datetime

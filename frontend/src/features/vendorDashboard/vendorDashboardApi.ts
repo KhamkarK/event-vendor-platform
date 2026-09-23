@@ -1,5 +1,6 @@
 import { apiClient } from "@/lib/axios";
 import type { Booking, BookingStatus, Invoice, LedgerEntry, Quotation, VendorLedgerSummary } from "@/types/booking";
+import type { VendorBlockedDate } from "@/types/vendor";
 
 export async function listVendorBookings(): Promise<Booking[]> {
   const { data } = await apiClient.get<Booking[]>("/bookings/vendor/me");
@@ -39,4 +40,18 @@ export async function createInvoice(payload: { booking_id: number; amount: numbe
 export async function markInvoicePaid(invoiceId: number): Promise<Invoice> {
   const { data } = await apiClient.patch<Invoice>(`/ledger/me/invoices/${invoiceId}/mark-paid`);
   return data;
+}
+
+export async function listMyBlockedDates(): Promise<VendorBlockedDate[]> {
+  const { data } = await apiClient.get<VendorBlockedDate[]>("/vendors/me/blocked-dates");
+  return data;
+}
+
+export async function blockDate(date: string): Promise<VendorBlockedDate> {
+  const { data } = await apiClient.post<VendorBlockedDate>("/vendors/me/blocked-dates", { date });
+  return data;
+}
+
+export async function unblockDate(blockedId: number): Promise<void> {
+  await apiClient.delete(`/vendors/me/blocked-dates/${blockedId}`);
 }

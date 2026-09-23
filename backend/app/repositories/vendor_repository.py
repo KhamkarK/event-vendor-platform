@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models.vendor import VendorPackage, VendorReview
+from app.models.vendor import VendorBlockedDate, VendorPackage, VendorReview
 
 
 class VendorRepository:
@@ -43,3 +43,25 @@ class VendorRepository:
                 select(VendorReview).where(VendorReview.vendor_id == vendor_id).order_by(VendorReview.created_at.desc())
             )
         )
+
+    # --- blocked dates (manual availability blocks) ---
+
+    def create_blocked_date(self, blocked: VendorBlockedDate) -> VendorBlockedDate:
+        self.db.add(blocked)
+        self.db.commit()
+        self.db.refresh(blocked)
+        return blocked
+
+    def list_blocked_dates(self, vendor_id: int) -> list[VendorBlockedDate]:
+        return list(
+            self.db.scalars(
+                select(VendorBlockedDate).where(VendorBlockedDate.vendor_id == vendor_id).order_by(VendorBlockedDate.date)
+            )
+        )
+
+    def get_blocked_date(self, blocked_id: int) -> VendorBlockedDate | None:
+        return self.db.get(VendorBlockedDate, blocked_id)
+
+    def delete_blocked_date(self, blocked: VendorBlockedDate) -> None:
+        self.db.delete(blocked)
+        self.db.commit()

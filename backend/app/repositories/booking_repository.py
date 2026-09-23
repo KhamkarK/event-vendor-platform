@@ -1,7 +1,10 @@
+from datetime import date
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
-from app.models.booking import Booking, Quotation, Wishlist
+from app.models.booking import Booking, BookingStatus, Quotation, Wishlist
+from app.models.event import Event
 
 
 class BookingRepository:
@@ -29,6 +32,17 @@ class BookingRepository:
 
     def list_by_vendor(self, vendor_id: int) -> list[Booking]:
         return list(self.db.scalars(select(Booking).where(Booking.vendor_id == vendor_id).order_by(Booking.created_at.desc())))
+
+    def list_confirmed_event_dates(self, vendor_id: int) -> list[date]:
+        """Distinct event dates the vendor has a CONFIRMED booking on — computed
+        live rather than stored, so a cancelled booking frees the date automatically."""
+        stmt = (
+            select(Event.event_date)
+            .join(Booking, Booking.event_id == Event.id)
+            .where(Booking.vendor_id == vendor_id, Booking.status == BookingStatus.CONFIRMED)
+            .distinct()
+        )
+        return list(self.db.scalars(stmt))
 
     def update(self, booking: Booking) -> Booking:
         self.db.commit()

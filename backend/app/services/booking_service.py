@@ -6,6 +6,7 @@ from app.repositories.booking_repository import BookingRepository
 from app.repositories.event_repository import EventRepository
 from app.repositories.user_repository import UserRepository
 from app.schemas.booking import BookingCreate, BookingStatusUpdate, QuotationCreate, QuotationRespond, WishlistCreate
+from app.services.vendor_service import VendorService
 
 
 class BookingService:
@@ -14,6 +15,7 @@ class BookingService:
         self.bookings = BookingRepository(db)
         self.events = EventRepository(db)
         self.users = UserRepository(db)
+        self.vendor_service = VendorService(db)
 
     def create_booking(self, user_id: int, payload: BookingCreate) -> Booking:
         event = self.events.get_by_id(payload.event_id)
@@ -22,6 +24,11 @@ class BookingService:
         vendor = self.users.get_vendor_profile(payload.vendor_id)
         if not vendor or not vendor.is_approved or vendor.is_blocked:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vendor not available")
+        if event.event_date in self.vendor_service.get_unavailable_dates(payload.vendor_id):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"This vendor is not available on {event.event_date.isoformat()}.",
+            )
 
         booking = Booking(
             event_id=payload.event_id,
