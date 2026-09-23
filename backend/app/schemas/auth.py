@@ -15,6 +15,7 @@ class SignupRequest(BaseModel):
     # Required only when role == vendor; validated in the service layer.
     business_name: str | None = None
     category: str | None = None
+    location: str | None = None
 
 
 class LoginRequest(BaseModel):

@@ -15,6 +15,7 @@ export interface SignupPayload {
   role: UserRole;
   business_name?: string;
   category?: string;
+  location?: string;
 }
 
 export async function loginRequest(payload: LoginPayload): Promise<AuthResponse> {

@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
-import { Briefcase, Building2, Mail, Phone, User as UserIcon } from "lucide-react";
+import { Briefcase, Building2, Mail, MapPin, Phone, User as UserIcon } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -11,6 +11,7 @@ import { DiyaIcon } from "@/assets/DiyaIcon";
 import { Button } from "@/components/common/Button";
 import { Input } from "@/components/common/Input";
 import { VENDOR_CATEGORIES } from "@/constants/vendorCategories";
+import { VENDOR_LOCATIONS } from "@/constants/vendorLocations";
 import { signupRequest } from "@/features/auth/authApi";
 import { useAuthStore } from "@/store/authStore";
 import type { UserRole } from "@/types/user";
@@ -25,6 +26,7 @@ const schema = z
     role: z.enum(["customer", "vendor"]),
     business_name: z.string().optional(),
     category: z.string().optional(),
+    location: z.string().optional(),
   })
   .refine((data) => data.role !== "vendor" || !!data.business_name, {
     message: "Business name is required for vendors",
@@ -33,6 +35,10 @@ const schema = z
   .refine((data) => data.role !== "vendor" || !!data.category, {
     message: "Category is required for vendors",
     path: ["category"],
+  })
+  .refine((data) => data.role !== "vendor" || !!data.location, {
+    message: "Location is required for vendors",
+    path: ["location"],
   });
 
 type FormValues = z.infer<typeof schema>;
@@ -149,6 +155,31 @@ export function SignupPage() {
                   </select>
                 </div>
                 {errors.category?.message && <p className="mt-1 text-xs font-medium text-red-500">{errors.category.message}</p>}
+              </div>
+              <div className="col-span-2 w-full">
+                <label className="mb-1.5 block text-sm font-medium text-neutral-700">Location</label>
+                <div className="relative">
+                  <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">
+                    <MapPin size={16} />
+                  </span>
+                  <select
+                    defaultValue=""
+                    className={`w-full appearance-none rounded-xl border bg-white py-2.5 pl-10 pr-4 text-sm text-neutral-900 outline-none transition-all duration-150 focus:ring-4 focus:ring-brand-100 ${
+                      errors.location ? "border-red-300 focus:border-red-400" : "border-neutral-200 focus:border-brand-400"
+                    }`}
+                    {...register("location")}
+                  >
+                    <option value="" disabled>
+                      Select a location
+                    </option>
+                    {VENDOR_LOCATIONS.map((location) => (
+                      <option key={location} value={location}>
+                        {location}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {errors.location?.message && <p className="mt-1 text-xs font-medium text-red-500">{errors.location.message}</p>}
               </div>
             </motion.div>
           )}

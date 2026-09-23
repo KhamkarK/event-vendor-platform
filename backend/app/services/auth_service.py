@@ -21,10 +21,10 @@ class AuthService:
         if payload.mobile and self.users.get_by_mobile(payload.mobile):
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Mobile number already registered")
 
-        if payload.role == UserRole.VENDOR and not (payload.business_name and payload.category):
+        if payload.role == UserRole.VENDOR and not (payload.business_name and payload.category and payload.location):
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="business_name and category are required for vendor signup",
+                detail="business_name, category and location are required for vendor signup",
             )
 
         user = User(
@@ -42,6 +42,7 @@ class AuthService:
                 user_id=user.id,
                 business_name=payload.business_name,
                 category=payload.category,
+                location=payload.location,
             )
             self.users.create_vendor_profile(profile)
             self.db.refresh(user)

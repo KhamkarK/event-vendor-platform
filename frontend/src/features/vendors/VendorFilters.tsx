@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { Input } from "@/components/common/Input";
 import { VENDOR_CATEGORIES } from "@/constants/vendorCategories";
+import { VENDOR_LOCATIONS } from "@/constants/vendorLocations";
 import type { VendorSearchFilters } from "@/features/vendors/vendorsApi";
 
 interface VendorFiltersProps {
@@ -82,12 +83,19 @@ export function VendorFilters({ filters, onChange }: VendorFiltersProps) {
         </AnimatePresence>
       </div>
       <div className="flex-1">
-        <Input
-          label="Location"
-          placeholder="City"
+        <label className="mb-1.5 block text-sm font-medium text-neutral-700">Location</label>
+        <select
           value={filters.location ?? ""}
           onChange={(e) => onChange({ ...filters, location: e.target.value || undefined })}
-        />
+          className="h-[42px] w-full rounded-xl border border-neutral-200 bg-white px-3 text-sm text-neutral-900 outline-none transition-all duration-150 focus:border-brand-400 focus:ring-4 focus:ring-brand-100"
+        >
+          <option value="">All locations</option>
+          {VENDOR_LOCATIONS.map((location) => (
+            <option key={location} value={location}>
+              {location}
+            </option>
+          ))}
+        </select>
       </div>
       <div className="w-full sm:w-40">
         <Input
