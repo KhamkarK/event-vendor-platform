@@ -7,14 +7,10 @@ import { DiyaIcon } from "@/assets/DiyaIcon";
 import { ScallopEdge } from "@/assets/ScallopEdge";
 import { Button } from "@/components/common/Button";
 import { Card } from "@/components/common/Card";
+import { HERO_IMAGE_URL } from "@/constants/heroImage";
 import { VENDOR_CATEGORIES } from "@/constants/vendorCategories";
 import { VENDOR_LOCATIONS } from "@/constants/vendorLocations";
 import { useAuthStore } from "@/store/authStore";
-
-/** Placeholder hero photo (swap this single URL for CEAT/EventKarma's own event
- * photography before a real launch). Layered under a gradient so the overlaid text
- * stays legible, and over a solid fallback color in case the image fails to load. */
-const HERO_IMAGE_URL = "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1600&q=70";
 
 const POPULAR_SEARCHES = [
   "Event Management Company",

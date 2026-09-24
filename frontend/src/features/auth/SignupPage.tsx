@@ -10,6 +10,7 @@ import { z } from "zod";
 import { DiyaIcon } from "@/assets/DiyaIcon";
 import { Button } from "@/components/common/Button";
 import { Input } from "@/components/common/Input";
+import { HERO_IMAGE_URL } from "@/constants/heroImage";
 import { VENDOR_CATEGORIES } from "@/constants/vendorCategories";
 import { VENDOR_LOCATIONS } from "@/constants/vendorLocations";
 import { signupRequest } from "@/features/auth/authApi";
@@ -81,7 +82,12 @@ export function SignupPage() {
   };
 
   return (
-    <div className="auth-surface flex min-h-screen items-center justify-center px-4 py-10">
+    <div
+      className="flex min-h-screen items-center justify-center bg-neutral-900 bg-cover bg-center px-4 py-10"
+      style={{
+        backgroundImage: `linear-gradient(to bottom, rgba(20,12,10,0.55), rgba(20,12,10,0.7)), url(${HERO_IMAGE_URL})`,
+      }}
+    >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

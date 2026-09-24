@@ -9,6 +9,7 @@ import { z } from "zod";
 import { DiyaIcon } from "@/assets/DiyaIcon";
 import { Button } from "@/components/common/Button";
 import { Input } from "@/components/common/Input";
+import { HERO_IMAGE_URL } from "@/constants/heroImage";
 import { loginRequest } from "@/features/auth/authApi";
 import { useAuthStore } from "@/store/authStore";
 
@@ -41,7 +42,12 @@ export function LoginPage() {
   };
 
   return (
-    <div className="auth-surface flex min-h-screen items-center justify-center px-4">
+    <div
+      className="flex min-h-screen items-center justify-center bg-neutral-900 bg-cover bg-center px-4"
+      style={{
+        backgroundImage: `linear-gradient(to bottom, rgba(20,12,10,0.55), rgba(20,12,10,0.7)), url(${HERO_IMAGE_URL})`,
+      }}
+    >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
