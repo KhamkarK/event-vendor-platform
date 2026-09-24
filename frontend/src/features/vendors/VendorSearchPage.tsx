@@ -9,15 +9,18 @@ import { VendorFilters } from "@/features/vendors/VendorFilters";
 import { searchVendors, type VendorSearchFilters } from "@/features/vendors/vendorsApi";
 
 export function VendorSearchPage() {
-  // Arriving from the Event Types flow (EventTypeCategoriesPage) hands us the
-  // customer's selected categories via router state, so Find Vendors opens
-  // already filtered to them.
+  // Arriving from the Event Types flow (EventTypeCategoriesPage) or the landing
+  // page's hero search bar hands us the customer's selected category/location
+  // via router state, so Find Vendors opens already filtered.
   const location = useLocation();
-  const initialCategories = (location.state as { categories?: string[] } | null)?.categories;
+  const initialState = location.state as { categories?: string[]; location?: string } | null;
+  const initialCategories = initialState?.categories;
+  const initialLocation = initialState?.location;
 
-  const [filters, setFilters] = useState<VendorSearchFilters>(
-    initialCategories && initialCategories.length > 0 ? { categories: initialCategories } : {}
-  );
+  const [filters, setFilters] = useState<VendorSearchFilters>({
+    ...(initialCategories && initialCategories.length > 0 ? { categories: initialCategories } : {}),
+    ...(initialLocation ? { location: initialLocation } : {}),
+  });
   const { data: vendors, isLoading } = useQuery({
     queryKey: ["vendors", filters],
     queryFn: () => searchVendors(filters),
