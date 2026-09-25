@@ -15,5 +15,11 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    // Docker Desktop on Windows doesn't forward native filesystem change
+    // events across the bind-mount boundary, so Vite's default watcher never
+    // sees host-side edits inside the container. Polling works around that.
+    watch: {
+      usePolling: true,
+    },
   },
 });
