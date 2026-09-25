@@ -20,6 +20,7 @@ class VendorProfileOut(BaseModel):
     is_approved: bool
     is_blocked: bool
     is_featured: bool
+    featured_requested: bool
     created_at: datetime
 
 

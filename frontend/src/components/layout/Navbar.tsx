@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Crown, LogOut, Menu, Search, User as UserIcon, X } from "lucide-react";
+import { LogOut, Menu, Search, User as UserIcon, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -7,6 +7,7 @@ import { DiyaIcon } from "@/assets/DiyaIcon";
 import { Button } from "@/components/common/Button";
 import { AccountDetailsDropdown } from "@/components/layout/AccountDetailsDropdown";
 import { AccountDetailsModal } from "@/components/layout/AccountDetailsModal";
+import { PremiumMembershipModal } from "@/components/layout/PremiumMembershipModal";
 import { PrimeMembershipModal } from "@/components/layout/PrimeMembershipModal";
 import { useAuthStore } from "@/store/authStore";
 import { useUIStore } from "@/store/uiStore";
@@ -51,6 +52,7 @@ export function Navbar() {
   const [showAccountDetails, setShowAccountDetails] = useState(false);
   const [showAccountDropdown, setShowAccountDropdown] = useState(false);
   const [showPrimeModal, setShowPrimeModal] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
   const accountDropdownRef = useRef<HTMLDivElement>(null);
 
   const links = user ? navLinksByRole[user.role] ?? [] : [{ label: "Find Vendors", to: "/vendors" }];
@@ -92,6 +94,22 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
+          {user?.role === "customer" && !user.is_prime && (
+            <button
+              onClick={() => setShowPrimeModal(true)}
+              className="text-sm font-medium text-neutral-600 transition-colors hover:text-brand-600"
+            >
+              {user.prime_requested ? "Prime Pending" : "Join Prime Membership"}
+            </button>
+          )}
+          {user?.role === "vendor" && !user.vendor_profile?.is_featured && (
+            <button
+              onClick={() => setShowPremiumModal(true)}
+              className="text-sm font-medium text-neutral-600 transition-colors hover:text-brand-600"
+            >
+              {user.vendor_profile?.featured_requested ? "Premium Pending" : "Premium Membership"}
+            </button>
+          )}
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
@@ -118,17 +136,6 @@ export function Navbar() {
                 </button>
                 <AccountDetailsDropdown isOpen={showAccountDropdown} onClose={() => setShowAccountDropdown(false)} user={user} />
               </div>
-              {user.role === "customer" &&
-                !user.is_prime &&
-                (user.prime_requested ? (
-                  <span className="flex items-center gap-1.5 rounded-full bg-accent-50 px-3 py-1.5 text-xs font-semibold text-accent-700">
-                    <Crown size={13} /> Prime pending
-                  </span>
-                ) : (
-                  <Button variant="primary" size="sm" onClick={() => setShowPrimeModal(true)}>
-                    <Crown size={14} /> Join Prime Membership
-                  </Button>
-                ))}
               <Button variant="ghost" size="sm" onClick={handleLogout}>
                 <LogOut size={15} /> Logout
               </Button>
@@ -182,6 +189,28 @@ export function Navbar() {
                   {link.label}
                 </Link>
               ))}
+              {user?.role === "customer" && !user.is_prime && (
+                <button
+                  onClick={() => {
+                    setShowPrimeModal(true);
+                    setMobileOpen(false);
+                  }}
+                  className="rounded-lg px-3 py-2 text-left text-sm font-medium text-neutral-700 hover:bg-neutral-50"
+                >
+                  {user.prime_requested ? "Prime Pending" : "Join Prime Membership"}
+                </button>
+              )}
+              {user?.role === "vendor" && !user.vendor_profile?.is_featured && (
+                <button
+                  onClick={() => {
+                    setShowPremiumModal(true);
+                    setMobileOpen(false);
+                  }}
+                  className="rounded-lg px-3 py-2 text-left text-sm font-medium text-neutral-700 hover:bg-neutral-50"
+                >
+                  {user.vendor_profile?.featured_requested ? "Premium Pending" : "Premium Membership"}
+                </button>
+              )}
               {isAuthenticated ? (
                 <>
                   {user && (
@@ -195,24 +224,6 @@ export function Navbar() {
                       <UserIcon size={15} className="text-brand-500" /> {displayName(user)}
                     </button>
                   )}
-                  {user &&
-                    user.role === "customer" &&
-                    !user.is_prime &&
-                    (user.prime_requested ? (
-                      <span className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-accent-700">
-                        <Crown size={15} /> Prime request pending
-                      </span>
-                    ) : (
-                      <button
-                        onClick={() => {
-                          setShowPrimeModal(true);
-                          setMobileOpen(false);
-                        }}
-                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-accent-700 hover:bg-accent-50"
-                      >
-                        <Crown size={15} /> Join Prime Membership
-                      </button>
-                    ))}
                   <button
                     onClick={handleLogout}
                     className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-red-600 hover:bg-red-50"
@@ -251,6 +262,7 @@ export function Navbar() {
       )}
 
       {user && <PrimeMembershipModal isOpen={showPrimeModal} onClose={() => setShowPrimeModal(false)} />}
+      {user && <PremiumMembershipModal isOpen={showPremiumModal} onClose={() => setShowPremiumModal(false)} />}
     </header>
   );
 }

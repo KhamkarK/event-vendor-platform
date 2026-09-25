@@ -35,3 +35,11 @@ export async function requestPrimeMembership(): Promise<User> {
   const { data } = await apiClient.post<User>("/users/me/prime-request");
   return data;
 }
+
+/** Records a Premium membership request from the vendor — no payment is
+ * actually charged; an admin still has to drag them into "Premium" on the
+ * Vendor Management page (see AdminService.set_featured) to activate it. */
+export async function requestPremiumMembership(): Promise<User> {
+  const { data } = await apiClient.post<User>("/users/me/premium-request");
+  return data;
+}

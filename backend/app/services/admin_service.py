@@ -53,6 +53,8 @@ class AdminService:
         if not profile:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vendor not found")
         profile.is_featured = featured
+        if featured:
+            profile.featured_requested = False
         self.db.commit()
         self.db.refresh(profile)
         return profile

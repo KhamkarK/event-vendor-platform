@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.core.dependencies import get_current_user, require_customer
+from app.core.dependencies import get_current_user, require_customer, require_vendor
 from app.db.session import get_db
 from app.models.user import User
 from app.repositories.user_repository import UserRepository
@@ -39,3 +39,15 @@ def request_prime_membership(current_user: User = Depends(require_customer), db:
     Customers page (AdminService.set_customer_prime) to actually activate it."""
     current_user.prime_requested = True
     return UserRepository(db).update(current_user)
+
+
+@router.post("/me/premium-request", response_model=UserOut)
+def request_premium_membership(current_user: User = Depends(require_vendor), db: Session = Depends(get_db)):
+    """Records that this vendor asked for Premium membership — no payment is
+    charged here; an admin still has to drag them into "Premium" on the Vendor
+    Management page (AdminService.set_featured) to actually activate it."""
+    if current_user.vendor_profile:
+        current_user.vendor_profile.featured_requested = True
+        db.commit()
+        db.refresh(current_user)
+    return current_user

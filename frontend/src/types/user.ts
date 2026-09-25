@@ -13,6 +13,7 @@ export interface VendorProfile {
   is_approved: boolean;
   is_blocked: boolean;
   is_featured: boolean;
+  featured_requested: boolean;
   created_at: string;
   /** Only present on admin endpoints (Vendor Management, Commissions) — who actually registered as this vendor. */
   owner_full_name?: string;

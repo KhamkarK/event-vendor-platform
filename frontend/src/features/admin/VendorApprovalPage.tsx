@@ -58,6 +58,11 @@ function VendorDragCard({ vendor, onViewAvailability }: { vendor: VendorProfile;
         <p className="mt-1 flex items-center gap-1 text-xs text-neutral-500">
           <Star size={11} className="fill-accent-400 text-accent-400" /> {vendor.rating_avg.toFixed(1)} · {vendor.commission_rate}%
         </p>
+        {vendor.featured_requested && !vendor.is_featured && (
+          <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-accent-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-accent-700">
+            <Crown size={10} /> Requested
+          </span>
+        )}
       </div>
       <button
         onClick={() => onViewAvailability(vendor)}
