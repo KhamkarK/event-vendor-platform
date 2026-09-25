@@ -15,11 +15,13 @@ interface PrimeMembershipModalProps {
   onClose: () => void;
 }
 
-/** Customer self-service entry point for the admin-managed Prime tag (see
- * AdminService.set_customer_prime / CustomersPage.tsx). Confirming here only
- * records a request — no payment is actually charged, coupon or not — an
- * admin still has to drag the customer into "Prime Members" to activate it. */
-export function PrimeMembershipModal({ isOpen, onClose }: PrimeMembershipModalProps) {
+/** Shared coupon/submit body for the Prime Membership request — used by both
+ * the mobile centered Modal (PrimeMembershipModal, below) and the desktop
+ * anchored dropdown (PrimeMembershipDropdown). Confirming here only records a
+ * request — no payment is actually charged, coupon or not — an admin still
+ * has to drag the customer into "Prime Members" (see
+ * AdminService.set_customer_prime / CustomersPage.tsx) to activate it. */
+export function PrimeMembershipBody() {
   const { user, updateUser } = useAuthStore();
   const [coupon, setCoupon] = useState("");
   const [couponApplied, setCouponApplied] = useState(false);
@@ -52,7 +54,7 @@ export function PrimeMembershipModal({ isOpen, onClose }: PrimeMembershipModalPr
   const pending = !!user?.prime_requested && !user?.is_prime;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Join Prime Membership" maxWidthClassName="max-w-sm">
+    <>
       <div className="flex items-start gap-3 rounded-xl bg-accent-50 p-3 text-sm text-accent-700">
         <Sparkles size={16} className="mt-0.5 shrink-0" />
         <p>Get unlimited vendor details across all categories with Prime Membership.</p>
@@ -109,6 +111,16 @@ export function PrimeMembershipModal({ isOpen, onClose }: PrimeMembershipModalPr
           </p>
         </>
       )}
+    </>
+  );
+}
+
+/** Mobile presentation: the shared centered Modal. See PrimeMembershipDropdown
+ * for the desktop tab's anchored-below-the-tab presentation of the same body. */
+export function PrimeMembershipModal({ isOpen, onClose }: PrimeMembershipModalProps) {
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title="Join Prime Membership" maxWidthClassName="max-w-sm">
+      <PrimeMembershipBody />
     </Modal>
   );
 }

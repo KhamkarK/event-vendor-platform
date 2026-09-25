@@ -15,12 +15,14 @@ interface PremiumMembershipModalProps {
   onClose: () => void;
 }
 
-/** Vendor self-service entry point for the admin-managed Premium tag (see
+/** Shared coupon/submit body for the Premium Membership request — used by
+ * both the mobile centered Modal (PremiumMembershipModal, below) and the
+ * desktop anchored dropdown (PremiumMembershipDropdown). Confirming here only
+ * records a request — no payment is actually charged, coupon or not — an
+ * admin still has to drag the vendor into "Premium" (see
  * AdminService.set_featured / VendorApprovalPage.tsx's "Premium Vendors"
- * board). Confirming here only records a request — no payment is actually
- * charged, coupon or not — an admin still has to drag the vendor into
- * "Premium" to activate it. */
-export function PremiumMembershipModal({ isOpen, onClose }: PremiumMembershipModalProps) {
+ * board) to activate it. */
+export function PremiumMembershipBody() {
   const { user, updateUser } = useAuthStore();
   const [coupon, setCoupon] = useState("");
   const [couponApplied, setCouponApplied] = useState(false);
@@ -53,7 +55,7 @@ export function PremiumMembershipModal({ isOpen, onClose }: PremiumMembershipMod
   const pending = !!user?.vendor_profile?.featured_requested && !user?.vendor_profile?.is_featured;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Premium Membership" maxWidthClassName="max-w-sm">
+    <>
       <div className="flex items-start gap-3 rounded-xl bg-accent-50 p-3 text-sm text-accent-700">
         <Sparkles size={16} className="mt-0.5 shrink-0" />
         <p>
@@ -113,6 +115,16 @@ export function PremiumMembershipModal({ isOpen, onClose }: PremiumMembershipMod
           </p>
         </>
       )}
+    </>
+  );
+}
+
+/** Mobile presentation: the shared centered Modal. See PremiumMembershipDropdown
+ * for the desktop tab's anchored-below-the-tab presentation of the same body. */
+export function PremiumMembershipModal({ isOpen, onClose }: PremiumMembershipModalProps) {
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title="Premium Membership" maxWidthClassName="max-w-sm">
+      <PremiumMembershipBody />
     </Modal>
   );
 }

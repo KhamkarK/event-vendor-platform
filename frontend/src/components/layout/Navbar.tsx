@@ -7,7 +7,9 @@ import { DiyaIcon } from "@/assets/DiyaIcon";
 import { Button } from "@/components/common/Button";
 import { AccountDetailsDropdown } from "@/components/layout/AccountDetailsDropdown";
 import { AccountDetailsModal } from "@/components/layout/AccountDetailsModal";
+import { PremiumMembershipDropdown } from "@/components/layout/PremiumMembershipDropdown";
 import { PremiumMembershipModal } from "@/components/layout/PremiumMembershipModal";
+import { PrimeMembershipDropdown } from "@/components/layout/PrimeMembershipDropdown";
 import { PrimeMembershipModal } from "@/components/layout/PrimeMembershipModal";
 import { useAuthStore } from "@/store/authStore";
 import { useUIStore } from "@/store/uiStore";
@@ -53,7 +55,11 @@ export function Navbar() {
   const [showAccountDropdown, setShowAccountDropdown] = useState(false);
   const [showPrimeModal, setShowPrimeModal] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [showPrimeDropdown, setShowPrimeDropdown] = useState(false);
+  const [showPremiumDropdown, setShowPremiumDropdown] = useState(false);
   const accountDropdownRef = useRef<HTMLDivElement>(null);
+  const primeDropdownRef = useRef<HTMLDivElement>(null);
+  const premiumDropdownRef = useRef<HTMLDivElement>(null);
 
   const links = user ? navLinksByRole[user.role] ?? [] : [{ label: "Find Vendors", to: "/vendors" }];
 
@@ -64,8 +70,15 @@ export function Navbar() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (accountDropdownRef.current && !accountDropdownRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (accountDropdownRef.current && !accountDropdownRef.current.contains(target)) {
         setShowAccountDropdown(false);
+      }
+      if (primeDropdownRef.current && !primeDropdownRef.current.contains(target)) {
+        setShowPrimeDropdown(false);
+      }
+      if (premiumDropdownRef.current && !premiumDropdownRef.current.contains(target)) {
+        setShowPremiumDropdown(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -95,20 +108,26 @@ export function Navbar() {
             </Link>
           ))}
           {user?.role === "customer" && !user.is_prime && (
-            <button
-              onClick={() => setShowPrimeModal(true)}
-              className="text-sm font-medium text-neutral-600 transition-colors hover:text-brand-600"
-            >
-              {user.prime_requested ? "Prime Pending" : "Join Prime Membership"}
-            </button>
+            <div ref={primeDropdownRef} className="relative">
+              <button
+                onClick={() => setShowPrimeDropdown((v) => !v)}
+                className="text-sm font-medium text-neutral-600 transition-colors hover:text-brand-600"
+              >
+                {user.prime_requested ? "Prime Pending" : "Join Prime Membership"}
+              </button>
+              <PrimeMembershipDropdown isOpen={showPrimeDropdown} onClose={() => setShowPrimeDropdown(false)} />
+            </div>
           )}
           {user?.role === "vendor" && !user.vendor_profile?.is_featured && (
-            <button
-              onClick={() => setShowPremiumModal(true)}
-              className="text-sm font-medium text-neutral-600 transition-colors hover:text-brand-600"
-            >
-              {user.vendor_profile?.featured_requested ? "Premium Pending" : "Premium Membership"}
-            </button>
+            <div ref={premiumDropdownRef} className="relative">
+              <button
+                onClick={() => setShowPremiumDropdown((v) => !v)}
+                className="text-sm font-medium text-neutral-600 transition-colors hover:text-brand-600"
+              >
+                {user.vendor_profile?.featured_requested ? "Premium Pending" : "Premium Membership"}
+              </button>
+              <PremiumMembershipDropdown isOpen={showPremiumDropdown} onClose={() => setShowPremiumDropdown(false)} />
+            </div>
           )}
         </nav>
 
