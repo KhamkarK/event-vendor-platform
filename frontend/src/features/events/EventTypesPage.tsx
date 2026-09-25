@@ -60,7 +60,6 @@ export function EventTypesPage() {
                 className="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border border-neutral-100 bg-white py-1.5 shadow-2xl"
               >
                 {EVENT_TYPES.map((eventType) => {
-                  const Icon = eventType.icon;
                   const checked = selectedSlugs.includes(eventType.slug);
                   return (
                     <label
@@ -75,7 +74,7 @@ export function EventTypesPage() {
                         {checked && <Check size={11} />}
                       </span>
                       <input type="checkbox" checked={checked} onChange={() => toggleEventType(eventType.slug)} className="sr-only" />
-                      <Icon size={15} className="text-brand-500" />
+                      <img src={eventType.image} alt="" className="h-7 w-7 shrink-0 rounded-full object-cover" />
                       {eventType.label}
                     </label>
                   );
