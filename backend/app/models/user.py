@@ -38,6 +38,9 @@ class User(Base):
     # Admin-managed "Prime Member" tag for customers (set via the admin Customers
     # tab drag board); currently admin-side only, no customer-facing effect yet.
     is_prime: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    # Set by the customer via "Join Prime Membership" (POST /users/me/prime-request);
+    # cleared once admin promotes them to Prime via AdminService.set_customer_prime.
+    prime_requested: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

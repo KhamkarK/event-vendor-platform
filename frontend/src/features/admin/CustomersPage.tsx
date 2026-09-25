@@ -61,6 +61,11 @@ function CustomerDragCard({ customer }: { customer: User }) {
         <p className="mt-1 text-xs text-neutral-400">
           Joined {new Date(customer.created_at).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}
         </p>
+        {customer.prime_requested && !customer.is_prime && (
+          <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-accent-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-accent-700">
+            <Crown size={10} /> Requested
+          </span>
+        )}
       </div>
     </div>
   );

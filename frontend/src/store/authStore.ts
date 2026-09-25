@@ -11,6 +11,9 @@ interface AuthState {
   /** Transient flag: true right after a fresh login/signup, until the welcome brochure is dismissed. */
   showBrochure: boolean;
   setSession: (auth: AuthResponse) => void;
+  /** Merges fields into the current user (e.g. after a self-service update like
+   * a Prime membership request) without requiring a full re-login. */
+  updateUser: (patch: Partial<User>) => void;
   dismissBrochure: () => void;
   logout: () => void;
 }
@@ -31,6 +34,7 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: true,
           showBrochure: true,
         }),
+      updateUser: (patch) => set((state) => (state.user ? { user: { ...state.user, ...patch } } : {})),
       dismissBrochure: () => set({ showBrochure: false }),
       logout: () =>
         set({

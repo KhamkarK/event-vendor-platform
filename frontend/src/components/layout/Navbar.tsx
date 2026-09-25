@@ -1,11 +1,12 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { LogOut, Menu, Search, User as UserIcon, X } from "lucide-react";
+import { Crown, LogOut, Menu, Search, User as UserIcon, X } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { DiyaIcon } from "@/assets/DiyaIcon";
 import { Button } from "@/components/common/Button";
 import { AccountDetailsModal } from "@/components/layout/AccountDetailsModal";
+import { PrimeMembershipModal } from "@/components/layout/PrimeMembershipModal";
 import { useAuthStore } from "@/store/authStore";
 import { useUIStore } from "@/store/uiStore";
 
@@ -47,6 +48,7 @@ export function Navbar() {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showAccountDetails, setShowAccountDetails] = useState(false);
+  const [showPrimeModal, setShowPrimeModal] = useState(false);
 
   const links = user ? navLinksByRole[user.role] ?? [] : [{ label: "Find Vendors", to: "/vendors" }];
 
@@ -100,6 +102,17 @@ export function Navbar() {
                   {user.role}
                 </span>
               </button>
+              {user.role === "customer" &&
+                !user.is_prime &&
+                (user.prime_requested ? (
+                  <span className="flex items-center gap-1.5 rounded-full bg-accent-50 px-3 py-1.5 text-xs font-semibold text-accent-700">
+                    <Crown size={13} /> Prime pending
+                  </span>
+                ) : (
+                  <Button variant="primary" size="sm" onClick={() => setShowPrimeModal(true)}>
+                    <Crown size={14} /> Join Prime Membership
+                  </Button>
+                ))}
               <Button variant="ghost" size="sm" onClick={handleLogout}>
                 <LogOut size={15} /> Logout
               </Button>
@@ -166,6 +179,24 @@ export function Navbar() {
                       <UserIcon size={15} className="text-brand-500" /> {displayName(user)}
                     </button>
                   )}
+                  {user &&
+                    user.role === "customer" &&
+                    !user.is_prime &&
+                    (user.prime_requested ? (
+                      <span className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-accent-700">
+                        <Crown size={15} /> Prime request pending
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          setShowPrimeModal(true);
+                          setMobileOpen(false);
+                        }}
+                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-accent-700 hover:bg-accent-50"
+                      >
+                        <Crown size={15} /> Join Prime Membership
+                      </button>
+                    ))}
                   <button
                     onClick={handleLogout}
                     className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-red-600 hover:bg-red-50"
@@ -202,6 +233,8 @@ export function Navbar() {
           user={user}
         />
       )}
+
+      {user && <PrimeMembershipModal isOpen={showPrimeModal} onClose={() => setShowPrimeModal(false)} />}
     </header>
   );
 }

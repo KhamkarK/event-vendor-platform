@@ -65,6 +65,8 @@ class AdminService:
         if not user or user.role != UserRole.CUSTOMER:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found")
         user.is_prime = prime
+        if prime:
+            user.prime_requested = False
         self.db.commit()
         self.db.refresh(user)
         return user

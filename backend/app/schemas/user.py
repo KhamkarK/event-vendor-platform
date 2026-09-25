@@ -57,6 +57,7 @@ class UserOut(BaseModel):
     role: UserRole
     is_active: bool
     is_prime: bool
+    prime_requested: bool
     created_at: datetime
     vendor_profile: VendorProfileOut | None = None
 

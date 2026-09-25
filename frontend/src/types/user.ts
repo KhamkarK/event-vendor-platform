@@ -30,6 +30,7 @@ export interface User {
   role: UserRole;
   is_active: boolean;
   is_prime: boolean;
+  prime_requested: boolean;
   created_at: string;
   vendor_profile: VendorProfile | null;
 }
