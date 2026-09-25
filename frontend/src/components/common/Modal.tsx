@@ -28,9 +28,9 @@ export function Modal({ isOpen, onClose, title, children, maxWidthClassName = "m
             exit={{ opacity: 0, scale: 0.94, y: 16 }}
             transition={{ type: "spring", stiffness: 300, damping: 26 }}
             onClick={(e) => e.stopPropagation()}
-            className={`w-full ${maxWidthClassName} rounded-2xl bg-white p-6 shadow-2xl`}
+            className={`flex w-full ${maxWidthClassName} max-h-[85vh] flex-col overflow-hidden rounded-2xl bg-white p-6 shadow-2xl`}
           >
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-4 flex shrink-0 items-center justify-between">
               {title && <h3 className="text-lg font-bold text-neutral-900">{title}</h3>}
               <button
                 onClick={onClose}
@@ -40,7 +40,7 @@ export function Modal({ isOpen, onClose, title, children, maxWidthClassName = "m
                 <X size={18} />
               </button>
             </div>
-            {children}
+            <div className="min-h-0 overflow-y-auto">{children}</div>
           </motion.div>
         </motion.div>
       )}
