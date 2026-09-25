@@ -24,14 +24,15 @@ function Row({ icon, label, value }: { icon: React.ReactNode; label: string; val
   );
 }
 
-/** Shows everything the person entered at registration — the account fields
- * every role has, plus the full vendor-profile block for vendors. Pulled
- * straight from the already-loaded auth user, no extra API call. */
-export function AccountDetailsModal({ isOpen, onClose, user }: AccountDetailsModalProps) {
+/** Everything the person entered at registration — the account fields every
+ * role has, plus the full vendor-profile block for vendors. Pulled straight
+ * from the already-loaded auth user, no extra API call. Shared by the mobile
+ * AccountDetailsModal (below) and the desktop AccountDetailsDropdown. */
+export function AccountDetailsContent({ user }: { user: User }) {
   const profile = user.vendor_profile;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Your details" maxWidthClassName="max-w-md">
+    <>
       <div className="divide-y divide-neutral-100">
         <Row icon={<UserIcon size={15} />} label="Full name" value={user.full_name} />
         <Row icon={<UserIcon size={15} />} label="Username" value={user.username} />
@@ -66,6 +67,18 @@ export function AccountDetailsModal({ isOpen, onClose, user }: AccountDetailsMod
           </div>
         </>
       )}
+    </>
+  );
+}
+
+/** Mobile presentation of the account chip's details: the shared Modal
+ * (centered dialog), used by the hamburger-menu trigger. See
+ * AccountDetailsDropdown for the desktop chip's anchored-below-the-button
+ * presentation of the same content. */
+export function AccountDetailsModal({ isOpen, onClose, user }: AccountDetailsModalProps) {
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title="Your details" maxWidthClassName="max-w-md">
+      <AccountDetailsContent user={user} />
     </Modal>
   );
 }

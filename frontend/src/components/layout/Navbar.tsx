@@ -1,10 +1,11 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Crown, LogOut, Menu, Search, User as UserIcon, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { DiyaIcon } from "@/assets/DiyaIcon";
 import { Button } from "@/components/common/Button";
+import { AccountDetailsDropdown } from "@/components/layout/AccountDetailsDropdown";
 import { AccountDetailsModal } from "@/components/layout/AccountDetailsModal";
 import { PrimeMembershipModal } from "@/components/layout/PrimeMembershipModal";
 import { useAuthStore } from "@/store/authStore";
@@ -48,7 +49,9 @@ export function Navbar() {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showAccountDetails, setShowAccountDetails] = useState(false);
+  const [showAccountDropdown, setShowAccountDropdown] = useState(false);
   const [showPrimeModal, setShowPrimeModal] = useState(false);
+  const accountDropdownRef = useRef<HTMLDivElement>(null);
 
   const links = user ? navLinksByRole[user.role] ?? [] : [{ label: "Find Vendors", to: "/vendors" }];
 
@@ -56,6 +59,16 @@ export function Navbar() {
     logout();
     navigate("/login");
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (accountDropdownRef.current && !accountDropdownRef.current.contains(event.target as Node)) {
+        setShowAccountDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <header className="sticky top-0 z-40 border-b border-neutral-100 bg-white/80 backdrop-blur-xl">
@@ -91,17 +104,20 @@ export function Navbar() {
           </button>
           {isAuthenticated && user ? (
             <>
-              <button
-                onClick={() => setShowAccountDetails(true)}
-                className="flex items-center gap-2 rounded-full bg-neutral-50 px-3 py-1.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100"
-                aria-label="View account details"
-              >
-                <UserIcon size={15} className="text-brand-500" />
-                {displayName(user)}
-                <span className="rounded-full bg-brand-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-700">
-                  {user.role}
-                </span>
-              </button>
+              <div ref={accountDropdownRef} className="relative">
+                <button
+                  onClick={() => setShowAccountDropdown((v) => !v)}
+                  className="flex items-center gap-2 rounded-full bg-neutral-50 px-3 py-1.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100"
+                  aria-label="View account details"
+                >
+                  <UserIcon size={15} className="text-brand-500" />
+                  {displayName(user)}
+                  <span className="rounded-full bg-brand-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-700">
+                    {user.role}
+                  </span>
+                </button>
+                <AccountDetailsDropdown isOpen={showAccountDropdown} onClose={() => setShowAccountDropdown(false)} user={user} />
+              </div>
               {user.role === "customer" &&
                 !user.is_prime &&
                 (user.prime_requested ? (
