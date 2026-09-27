@@ -4,6 +4,7 @@ import {
   CalendarCheck,
   CalendarDays,
   ClipboardList,
+  Crown,
   Home,
   Search,
   ShieldCheck,
@@ -15,7 +16,10 @@ import {
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import clsx from "clsx";
+import { useState } from "react";
 
+import { PremiumMembershipModal } from "@/components/layout/PremiumMembershipModal";
+import { PrimeMembershipModal } from "@/components/layout/PrimeMembershipModal";
 import { useAuthStore } from "@/store/authStore";
 import { useUIStore } from "@/store/uiStore";
 
@@ -35,6 +39,8 @@ interface TabItem {
 export function MobileTabBar() {
   const { user, isAuthenticated } = useAuthStore();
   const openCommandPalette = useUIStore((s) => s.openCommandPalette);
+  const [showPrimeModal, setShowPrimeModal] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
 
   let tabs: TabItem[];
   if (!isAuthenticated || !user) {
@@ -50,6 +56,13 @@ export function MobileTabBar() {
       { label: "Quotes", to: "/vendor-dashboard/quotations", icon: ClipboardList },
       { label: "Ledger", to: "/vendor-dashboard/ledger", icon: Wallet },
     ];
+    if (!user.vendor_profile?.is_featured) {
+      tabs.push({
+        label: user.vendor_profile?.featured_requested ? "Premium" : "Go Premium",
+        icon: Crown,
+        onClick: () => setShowPremiumModal(true),
+      });
+    }
   } else if (user.role === "admin") {
     tabs = [
       { label: "Overview", to: "/admin", icon: BarChart3, end: true },
@@ -65,47 +78,58 @@ export function MobileTabBar() {
       { label: "Events", to: "/events", icon: CalendarDays },
       { label: "Search", icon: Search, onClick: openCommandPalette },
     ];
+    if (!user.is_prime) {
+      tabs.push({
+        label: user.prime_requested ? "Prime" : "Go Prime",
+        icon: Crown,
+        onClick: () => setShowPrimeModal(true),
+      });
+    }
   }
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-neutral-100 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden">
-      <div className="grid grid-cols-4" style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
-        {tabs.map((tab) =>
-          tab.onClick ? (
-            <button
-              key={tab.label}
-              onClick={tab.onClick}
-              className="flex flex-col items-center gap-1 py-2.5 text-neutral-500 transition-colors hover:text-brand-600"
-            >
-              <tab.icon size={19} />
-              <span className="text-[11px] font-medium">{tab.label}</span>
-            </button>
-          ) : (
-            <NavLink
-              key={tab.to}
-              to={tab.to!}
-              end={tab.end}
-              className={({ isActive }) =>
-                clsx("relative flex flex-col items-center gap-1 py-2.5 transition-colors", isActive ? "text-brand-600" : "text-neutral-500")
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  {isActive && (
-                    <motion.span
-                      layoutId="mobile-tab-active"
-                      className="absolute top-0 h-0.5 w-8 rounded-full bg-brand-gradient"
-                      transition={{ type: "spring", stiffness: 350, damping: 30 }}
-                    />
-                  )}
-                  <tab.icon size={19} />
-                  <span className="text-[11px] font-medium">{tab.label}</span>
-                </>
-              )}
-            </NavLink>
-          )
-        )}
-      </div>
-    </nav>
+    <>
+      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-neutral-100 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden">
+        <div className="grid grid-cols-4" style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
+          {tabs.map((tab) =>
+            tab.onClick ? (
+              <button
+                key={tab.label}
+                onClick={tab.onClick}
+                className="flex flex-col items-center gap-1 py-2.5 text-neutral-500 transition-colors hover:text-brand-600"
+              >
+                <tab.icon size={19} />
+                <span className="text-[11px] font-medium">{tab.label}</span>
+              </button>
+            ) : (
+              <NavLink
+                key={tab.to}
+                to={tab.to!}
+                end={tab.end}
+                className={({ isActive }) =>
+                  clsx("relative flex flex-col items-center gap-1 py-2.5 transition-colors", isActive ? "text-brand-600" : "text-neutral-500")
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    {isActive && (
+                      <motion.span
+                        layoutId="mobile-tab-active"
+                        className="absolute top-0 h-0.5 w-8 rounded-full bg-brand-gradient"
+                        transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                      />
+                    )}
+                    <tab.icon size={19} />
+                    <span className="text-[11px] font-medium">{tab.label}</span>
+                  </>
+                )}
+              </NavLink>
+            )
+          )}
+        </div>
+      </nav>
+      {user && <PrimeMembershipModal isOpen={showPrimeModal} onClose={() => setShowPrimeModal(false)} />}
+      {user && <PremiumMembershipModal isOpen={showPremiumModal} onClose={() => setShowPremiumModal(false)} />}
+    </>
   );
 }
