@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertTriangle, ArrowLeft, CheckCircle2, ClipboardList, Wallet } from "lucide-react";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { MehendiCorner } from "@/assets/MehendiCorner";
@@ -13,8 +14,9 @@ import { Card } from "@/components/common/Card";
 import { EventCountdownChip } from "@/components/common/EventCountdownChip";
 import { RangoliLoadingBlock } from "@/components/common/RangoliSpinner";
 import { BudgetCategoryCard } from "@/features/budget/BudgetCategoryCard";
+import { BudgetOverageModal } from "@/features/budget/BudgetOverageModal";
 import { getBudgetSummary, reorderAllocations, updateAllocation } from "@/features/budget/budgetApi";
-import { getEvent } from "@/features/events/eventsApi";
+import { getEvent, updateEvent } from "@/features/events/eventsApi";
 import type { BudgetAllocation } from "@/types/event";
 
 export function BudgetAllocator() {
@@ -31,6 +33,9 @@ export function BudgetAllocator() {
   });
 
   const [items, setItems] = useState<BudgetAllocation[]>([]);
+  const [pendingChangeId, setPendingChangeId] = useState<number | null>(null);
+  const [overagePrompt, setOveragePrompt] = useState<{ overage: number } | null>(null);
+  const [resolvingOverage, setResolvingOverage] = useState(false);
 
   useEffect(() => {
     if (summary) setItems(summary.categories);
@@ -65,13 +70,88 @@ export function BudgetAllocator() {
   };
 
   const handleAmountChange = (allocationId: number, amount: number) => {
+    setPendingChangeId(allocationId);
     setItems((current) => current.map((item) => (item.id === allocationId ? { ...item, allocated_amount: amount } : item)));
   };
 
-  const handleAmountCommit = async () => {
-    // Persist all allocation amounts on pointer release (lightweight alternative to debouncing every slider tick).
-    await Promise.all(items.map((i) => updateAllocation(id, i.id, { allocated_amount: i.allocated_amount })));
+  const persistItems = async (list: BudgetAllocation[]) => {
+    await Promise.all(list.map((i) => updateAllocation(id, i.id, { allocated_amount: i.allocated_amount })));
     queryClient.invalidateQueries({ queryKey: ["budget", id] });
+  };
+
+  const handleAmountCommit = async () => {
+    if (overagePrompt) return; // a decision is already pending — don't re-trigger from a stray pointerup (e.g. clicking the modal)
+    // Persist all allocation amounts on pointer release (lightweight alternative to debouncing every slider tick).
+    if (totalAllocated > totalBudget) {
+      setOveragePrompt({ overage: Math.round((totalAllocated - totalBudget) * 100) / 100 });
+      return;
+    }
+    await persistItems(items);
+  };
+
+  /** "Adjust within existing budget" — proportionally trims every other category
+   * to absorb the overage, floored at ₹0. If the others can't fully absorb it
+   * even at zero, the remainder is trimmed back off the category that was just
+   * increased, so the total always lands back at exactly the existing budget. */
+  const handleAdjustWithinBudget = async () => {
+    if (!overagePrompt) return;
+    setResolvingOverage(true);
+    try {
+      const overage = overagePrompt.overage;
+      const others = items.filter((i) => i.id !== pendingChangeId);
+      const othersTotal = others.reduce((sum, i) => sum + i.allocated_amount, 0);
+      const reducible = Math.min(overage, othersTotal);
+      const leftover = overage - reducible;
+
+      let nextItems = items.map((item) => {
+        if (item.id === pendingChangeId || othersTotal <= 0) return item;
+        const reduced = item.allocated_amount - reducible * (item.allocated_amount / othersTotal);
+        return { ...item, allocated_amount: Math.max(0, Math.round(reduced * 100) / 100) };
+      });
+
+      if (leftover > 0) {
+        nextItems = nextItems.map((item) =>
+          item.id === pendingChangeId
+            ? { ...item, allocated_amount: Math.max(0, Math.round((item.allocated_amount - leftover) * 100) / 100) }
+            : item
+        );
+      }
+
+      setItems(nextItems);
+      await persistItems(nextItems);
+      toast.success("Adjusted within your existing budget");
+    } catch (error: any) {
+      toast.error(error?.response?.data?.detail ?? "Couldn't adjust the budget");
+    } finally {
+      setResolvingOverage(false);
+      setOveragePrompt(null);
+      setPendingChangeId(null);
+    }
+  };
+
+  /** "Increase the budget instead" — raises total_budget by the overage and
+   * leaves every category's amount exactly as the customer set it. */
+  const handleIncreaseBudget = async () => {
+    if (!overagePrompt) return;
+    setResolvingOverage(true);
+    try {
+      await updateEvent(id, { total_budget: totalBudget + overagePrompt.overage });
+      await persistItems(items);
+      queryClient.invalidateQueries({ queryKey: ["event", id] });
+      toast.success("Budget increased");
+    } catch (error: any) {
+      toast.error(error?.response?.data?.detail ?? "Couldn't increase the budget");
+    } finally {
+      setResolvingOverage(false);
+      setOveragePrompt(null);
+      setPendingChangeId(null);
+    }
+  };
+
+  const handleCancelOverage = () => {
+    if (summary) setItems(summary.categories); // discard the uncommitted drag
+    setOveragePrompt(null);
+    setPendingChangeId(null);
   };
 
   if (isLoading || !event) {
@@ -161,6 +241,16 @@ export function BudgetAllocator() {
           <Wallet size={16} /> Find vendors for this budget
         </Button>
       </div>
+
+      <BudgetOverageModal
+        isOpen={!!overagePrompt}
+        overage={overagePrompt?.overage ?? 0}
+        currentBudget={totalBudget}
+        isProcessing={resolvingOverage}
+        onAdjustWithinBudget={handleAdjustWithinBudget}
+        onIncreaseBudget={handleIncreaseBudget}
+        onCancel={handleCancelOverage}
+      />
     </div>
   );
 }

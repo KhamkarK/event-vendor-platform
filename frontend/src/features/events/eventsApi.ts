@@ -24,6 +24,11 @@ export async function createEvent(payload: CreateEventPayload): Promise<EventIte
   return data;
 }
 
+export async function updateEvent(eventId: number, payload: Partial<Pick<EventItem, "total_budget">>): Promise<EventItem> {
+  const { data } = await apiClient.patch<EventItem>(`/events/${eventId}`, payload);
+  return data;
+}
+
 export async function deleteEvent(eventId: number): Promise<void> {
   await apiClient.delete(`/events/${eventId}`);
 }
