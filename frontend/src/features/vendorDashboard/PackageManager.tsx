@@ -25,6 +25,7 @@ import { Input } from "@/components/common/Input";
 import { Modal } from "@/components/common/Modal";
 import { RangoliSpinner } from "@/components/common/RangoliSpinner";
 import { Sidebar, type SidebarLink } from "@/components/layout/Sidebar";
+import { VENDOR_CATEGORIES } from "@/constants/vendorCategories";
 import {
   createPackage,
   deletePackage,
@@ -221,7 +222,24 @@ export function PackageManager() {
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
             <Input label="Title" placeholder="e.g. Premium Wedding Photography" error={errors.title?.message} {...register("title")} />
             <div className="grid grid-cols-2 gap-3">
-              <Input label="Category" placeholder="e.g. Photography" error={errors.category?.message} {...register("category")} />
+              <div className="w-full">
+                <label className="mb-1.5 block text-sm font-medium text-neutral-700">Category</label>
+                <select
+                  defaultValue=""
+                  className="h-[42px] w-full rounded-xl border border-neutral-200 bg-white px-3 text-sm text-neutral-900 outline-none transition-all duration-150 focus:border-brand-400 focus:ring-4 focus:ring-brand-100"
+                  {...register("category")}
+                >
+                  <option value="" disabled>
+                    Select a category…
+                  </option>
+                  {VENDOR_CATEGORIES.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+                {errors.category?.message && <p className="mt-1 text-xs font-medium text-red-500">{errors.category.message}</p>}
+              </div>
               <Input label="Budget / price (₹)" type="number" step="0.01" error={errors.price?.message} {...register("price")} />
             </div>
             <div className="w-full">
