@@ -22,12 +22,12 @@ const RING_CEREMONY_IMAGE_URL = "https://images.unsplash.com/photo-1769038936715
  * an event and generating its budget. */
 export const EVENT_TYPES: EventTypeOption[] = [
   { slug: "bachelorette-party", label: "Bachelorette Party", icon: PartyPopper, image: HERO_IMAGE_URL },
-  { slug: "marriage-proposal", label: "Marriage proposal", icon: Gem, image: PROPOSAL_IMAGE_URL },
-  { slug: "sangeet-ceremony", label: "Sangeet Ceremony", icon: Music, image: HERO_IMAGE_URL },
   { slug: "destination-wedding", label: "Destination wedding", icon: Plane, image: DESTINATION_WEDDING_IMAGE_URL },
-  { slug: "wedding-ceremony", label: "Wedding Ceremony", icon: Heart, image: HERO_IMAGE_URL },
   { slug: "grahshanti", label: "Grahshanti", icon: Flame, image: HERO_IMAGE_URL },
-  { slug: "reception-ceremony", label: "Reception Ceremony", icon: Wine, image: HERO_IMAGE_URL },
   { slug: "haldi-mehendi-ceremony", label: "Haldi And Mehendi Ceremony", icon: Flower2, image: HERO_IMAGE_URL },
+  { slug: "marriage-proposal", label: "Marriage proposal", icon: Gem, image: PROPOSAL_IMAGE_URL },
+  { slug: "reception-ceremony", label: "Reception Ceremony", icon: Wine, image: HERO_IMAGE_URL },
   { slug: "ring-ceremony", label: "Ring Ceremony", icon: Sparkles, image: RING_CEREMONY_IMAGE_URL },
+  { slug: "sangeet-ceremony", label: "Sangeet Ceremony", icon: Music, image: HERO_IMAGE_URL },
+  { slug: "wedding-ceremony", label: "Wedding Ceremony", icon: Heart, image: HERO_IMAGE_URL },
 ];
