@@ -7,7 +7,7 @@ import { Modal } from "@/components/common/Modal";
 import { requestPrimeMembership } from "@/features/auth/authApi";
 import { useAuthStore } from "@/store/authStore";
 
-const PRIME_PRICE = 199;
+const PRIME_PRICE = 1;
 const COUPON_CODE = "EventKarma";
 
 interface PrimeMembershipModalProps {
