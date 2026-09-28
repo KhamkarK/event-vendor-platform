@@ -48,6 +48,7 @@ class VendorReviewOut(BaseModel):
     id: int
     vendor_id: int
     user_id: int
+    reviewer_name: str
     rating: int
     comment: str | None = None
     created_at: datetime

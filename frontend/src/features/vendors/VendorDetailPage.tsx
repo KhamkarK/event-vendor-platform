@@ -155,10 +155,13 @@ export function VendorDetailPage() {
           <div className="flex flex-col gap-3">
             {vendor.reviews.map((review) => (
               <Card key={review.id}>
-                <div className="flex items-center gap-1 text-accent-400">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={14} fill={i < review.rating ? "currentColor" : "none"} />
-                  ))}
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-neutral-800">{review.reviewer_name}</p>
+                  <div className="flex items-center gap-1 text-accent-400">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={14} fill={i < review.rating ? "currentColor" : "none"} />
+                    ))}
+                  </div>
                 </div>
                 {review.comment && <p className="mt-2 text-sm text-neutral-600">{review.comment}</p>}
               </Card>

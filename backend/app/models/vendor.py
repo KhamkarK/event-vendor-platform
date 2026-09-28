@@ -43,6 +43,12 @@ class VendorReview(Base):
     vendor: Mapped["VendorProfile"] = relationship("VendorProfile", back_populates="reviews")
     user: Mapped["User"] = relationship("User", back_populates="reviews")
 
+    @property
+    def reviewer_name(self) -> str:
+        """Read-only proxy onto the linked account, so VendorReviewOut can
+        surface who wrote the review without duplicating a name column."""
+        return self.user.full_name
+
 
 class VendorBlockedDate(Base):
     """A single calendar date the vendor has manually marked unavailable.

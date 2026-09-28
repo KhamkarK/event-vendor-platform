@@ -16,6 +16,7 @@ export interface VendorReview {
   id: number;
   vendor_id: number;
   user_id: number;
+  reviewer_name: string;
   rating: number;
   comment: string | null;
   created_at: string;
