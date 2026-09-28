@@ -11,6 +11,7 @@ import { Card } from "@/components/common/Card";
 import { EmptyState } from "@/components/common/EmptyState";
 import { RangoliSpinner } from "@/components/common/RangoliSpinner";
 import { VerifiedRibbon } from "@/components/common/VerifiedRibbon";
+import { AddReviewModal } from "@/features/vendors/AddReviewModal";
 import { RequestBookingModal } from "@/features/vendors/RequestBookingModal";
 import { getVendorAvailability, getVendorDetail, toggleWishlist } from "@/features/vendors/vendorsApi";
 import { useAuthStore } from "@/store/authStore";
@@ -22,6 +23,7 @@ export function VendorDetailPage() {
   const { isAuthenticated } = useAuthStore();
   const [wishlisted, setWishlisted] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
 
   const { data: vendor, isLoading } = useQuery({
     queryKey: ["vendor", id],
@@ -50,6 +52,14 @@ export function VendorDetailPage() {
     const result = await toggleWishlist(id);
     setWishlisted(result.wishlisted);
     toast.success(result.wishlisted ? "Added to wishlist" : "Removed from wishlist");
+  };
+
+  const handleWriteReview = () => {
+    if (!isAuthenticated) {
+      toast.error("Log in to write a review");
+      return;
+    }
+    setShowReviewModal(true);
   };
 
   if (isLoading || !vendor) {
@@ -133,7 +143,12 @@ export function VendorDetailPage() {
       </div>
 
       <div className="mt-8">
-        <h2 className="mb-4 text-lg font-bold text-neutral-900">Reviews</h2>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-neutral-900">Reviews</h2>
+          <Button variant="outline" size="sm" onClick={handleWriteReview}>
+            Write a review
+          </Button>
+        </div>
         {vendor.reviews.length === 0 ? (
           <p className="text-sm text-neutral-500">No reviews yet — be the first to book and review!</p>
         ) : (
@@ -157,6 +172,7 @@ export function VendorDetailPage() {
       </div>
 
       {vendor && <RequestBookingModal isOpen={showBookingModal} onClose={() => setShowBookingModal(false)} vendor={vendor} />}
+      <AddReviewModal isOpen={showReviewModal} onClose={() => setShowReviewModal(false)} vendorId={id} />
     </div>
   );
 }
