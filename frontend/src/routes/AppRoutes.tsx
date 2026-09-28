@@ -40,9 +40,30 @@ export function AppRoutes() {
 
       <Route element={<AppLayout />}>
         <Route path="/" element={<HomePage />} />
-        <Route path="/event-types" element={<EventTypesPage />} />
-        <Route path="/vendors" element={<VendorSearchPage />} />
-        <Route path="/vendors/:vendorId" element={<VendorDetailPage />} />
+        <Route
+          path="/event-types"
+          element={
+            <ProtectedRoute>
+              <EventTypesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/vendors"
+          element={
+            <ProtectedRoute>
+              <VendorSearchPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/vendors/:vendorId"
+          element={
+            <ProtectedRoute>
+              <VendorDetailPage />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/events"

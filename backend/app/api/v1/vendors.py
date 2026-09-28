@@ -30,6 +30,7 @@ def search_vendors(
     location: str | None = Query(default=None),
     min_rating: float | None = Query(default=None, ge=0, le=5),
     max_budget: float | None = Query(default=None, gt=0),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     return VendorService(db).search(
@@ -38,7 +39,7 @@ def search_vendors(
 
 
 @router.get("/{vendor_id}", response_model=VendorDetailOut)
-def get_vendor(vendor_id: int, db: Session = Depends(get_db)):
+def get_vendor(vendor_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     return VendorService(db).get_vendor_detail(vendor_id)
 
 
@@ -53,7 +54,7 @@ def add_review(
 
 
 @router.get("/{vendor_id}/availability", response_model=list[date])
-def get_vendor_availability(vendor_id: int, db: Session = Depends(get_db)):
+def get_vendor_availability(vendor_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Dates this vendor is unavailable on (manually blocked or already confirmed-booked)."""
     return VendorService(db).get_unavailable_dates(vendor_id)
 
