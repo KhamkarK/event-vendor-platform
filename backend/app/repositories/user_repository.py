@@ -60,6 +60,8 @@ class UserRepository:
             stmt = stmt.where(VendorProfile.location.ilike(f"%{location}%"))
         if min_rating is not None:
             stmt = stmt.where(VendorProfile.rating_avg >= min_rating)
+        # Highest-rated vendors first; more reviews breaks a tie on average rating.
+        stmt = stmt.order_by(VendorProfile.rating_avg.desc(), VendorProfile.rating_count.desc())
         return list(self.db.scalars(stmt))
 
     def get_vendor_profile(self, vendor_id: int) -> VendorProfile | None:
