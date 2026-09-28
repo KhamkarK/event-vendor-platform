@@ -29,12 +29,18 @@ def search_vendors(
     categories: list[str] | None = Query(default=None),
     location: str | None = Query(default=None),
     min_rating: float | None = Query(default=None, ge=0, le=5),
+    min_budget: float | None = Query(default=None, gt=0),
     max_budget: float | None = Query(default=None, gt=0),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     return VendorService(db).search(
-        category=category, categories=categories, location=location, min_rating=min_rating, max_budget=max_budget
+        category=category,
+        categories=categories,
+        location=location,
+        min_rating=min_rating,
+        min_budget=min_budget,
+        max_budget=max_budget,
     )
 
 

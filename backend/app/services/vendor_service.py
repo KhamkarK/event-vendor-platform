@@ -24,16 +24,24 @@ class VendorService:
         categories: list[str] | None = None,
         location: str | None = None,
         min_rating: float | None = None,
+        min_budget: float | None = None,
         max_budget: float | None = None,
     ):
         profiles = self.users.list_vendor_profiles(
             category=category, categories=categories, location=location, min_rating=min_rating, max_budget=max_budget
         )
-        if max_budget is not None:
+        if min_budget is not None or max_budget is not None:
+            def in_budget(price: float) -> bool:
+                if min_budget is not None and price < min_budget:
+                    return False
+                if max_budget is not None and price > max_budget:
+                    return False
+                return True
+
             filtered = []
             for profile in profiles:
                 packages = self.vendors.list_packages(profile.id)
-                if any(p.price <= max_budget for p in packages) or not packages:
+                if any(in_budget(p.price) for p in packages) or not packages:
                     filtered.append(profile)
             profiles = filtered
         return profiles

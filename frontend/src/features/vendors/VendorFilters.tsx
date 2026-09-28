@@ -99,6 +99,15 @@ export function VendorFilters({ filters, onChange }: VendorFiltersProps) {
       </div>
       <div className="w-full sm:w-40">
         <Input
+          label="Min budget (₹)"
+          type="number"
+          placeholder="Any"
+          value={filters.min_budget ?? ""}
+          onChange={(e) => onChange({ ...filters, min_budget: e.target.value ? Number(e.target.value) : undefined })}
+        />
+      </div>
+      <div className="w-full sm:w-40">
+        <Input
           label="Max budget (₹)"
           type="number"
           placeholder="Any"

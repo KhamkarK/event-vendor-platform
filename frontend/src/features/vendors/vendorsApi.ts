@@ -8,6 +8,7 @@ export interface VendorSearchFilters {
   categories?: string[];
   location?: string;
   min_rating?: number;
+  min_budget?: number;
   max_budget?: number;
 }
 
@@ -20,6 +21,7 @@ export async function searchVendors(filters: VendorSearchFilters): Promise<Vendo
   filters.categories?.forEach((category) => params.append("categories", category));
   if (filters.location) params.append("location", filters.location);
   if (filters.min_rating !== undefined) params.append("min_rating", String(filters.min_rating));
+  if (filters.min_budget !== undefined) params.append("min_budget", String(filters.min_budget));
   if (filters.max_budget !== undefined) params.append("max_budget", String(filters.max_budget));
 
   const { data } = await apiClient.get<VendorSearchResult[]>("/vendors", { params });
