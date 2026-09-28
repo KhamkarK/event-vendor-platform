@@ -1,11 +1,29 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, type LucideIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { MehendiCorner } from "@/assets/MehendiCorner";
 import { Button } from "@/components/common/Button";
 import { EVENT_TYPES } from "@/features/events/eventTypes";
 import { VendorChecklistModal } from "@/features/events/VendorChecklistModal";
+
+/** The occasion photos are hotlinked (see eventTypes.ts) — some networks
+ * (corporate proxies, ad/privacy blockers) can't reach that host, so this
+ * falls back to the event type's own Lucide icon instead of a broken-image
+ * glyph, matching the brand-tinted icon circle EmptyState already uses. */
+function EventTypeThumbnail({ image, icon: Icon }: { image: string; icon: LucideIcon }) {
+  const [failed, setFailed] = useState(false);
+
+  if (failed) {
+    return (
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-500">
+        <Icon size={14} />
+      </span>
+    );
+  }
+
+  return <img src={image} alt="" onError={() => setFailed(true)} className="h-7 w-7 shrink-0 rounded-full object-cover" />;
+}
 
 /** "Shop by occasion" — pick one or more occasions from the dropdown, then tap
  * Find Vendors to review/fine-tune the matching vendor categories in a
@@ -74,7 +92,7 @@ export function EventTypesPage() {
                         {checked && <Check size={11} />}
                       </span>
                       <input type="checkbox" checked={checked} onChange={() => toggleEventType(eventType.slug)} className="sr-only" />
-                      <img src={eventType.image} alt="" className="h-7 w-7 shrink-0 rounded-full object-cover" />
+                      <EventTypeThumbnail image={eventType.image} icon={eventType.icon} />
                       {eventType.label}
                     </label>
                   );

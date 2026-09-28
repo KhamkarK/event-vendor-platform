@@ -21,18 +21,6 @@ built around a smart, real-time budget allocation system.
 
 ## Getting started
 
-### With Docker (recommended)
-
-```bash
-cp backend/.env.example backend/.env
-docker compose up --build
-```
-
-- Frontend: http://localhost:5173
-- Backend API docs: http://localhost:8000/docs
-
-### Without Docker
-
 **Backend**
 
 ```bash
