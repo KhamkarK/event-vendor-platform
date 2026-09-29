@@ -1,4 +1,20 @@
-export type EventType = "marriage" | "birthday" | "corporate";
+export type EventType =
+  | "marriage"
+  | "birthday"
+  | "corporate"
+  | "anniversary"
+  | "baby-shower"
+  | "bachelorette-party"
+  | "birthday-party"
+  | "conference"
+  | "corporate-events"
+  | "destination-wedding"
+  | "engagement"
+  | "grahshanti"
+  | "haldi-mehendi-ceremony"
+  | "reception-ceremony"
+  | "sangeet-ceremony"
+  | "wedding-ceremony";
 
 export interface EventItem {
   id: number;
@@ -8,6 +24,7 @@ export interface EventItem {
   event_date: string;
   location: string;
   total_budget: number;
+  guest_count: number;
   created_at: string;
   updated_at: string;
 }

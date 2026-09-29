@@ -14,13 +14,6 @@ export const EVENT_TYPE_CATEGORY_MAP: Record<EventTypeOption["slug"], string[]> 
     "Ballon Decorator",
     "Light Decorator",
   ],
-  "marriage-proposal": [
-    "Event Management Company",
-    "Photography and Videography Services",
-    "Flower decorations",
-    "Light Decorator",
-    "Small Event Venue",
-  ],
   "sangeet-ceremony": [
     "Event Management Company",
     "DJ and Sound system",
@@ -64,13 +57,5 @@ export const EVENT_TYPE_CATEGORY_MAP: Record<EventTypeOption["slug"], string[]> 
     "Light Decorator",
     "Photography and Videography Services",
     "Food / Chef",
-  ],
-  "ring-ceremony": [
-    "Event Management Company",
-    "Jewelers",
-    "Photography and Videography Services",
-    "Flower decorations",
-    "Small Event Venue",
-    "Light Decorator",
   ],
 };

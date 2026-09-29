@@ -7,6 +7,7 @@ export interface CreateEventPayload {
   event_date: string;
   location: string;
   total_budget: number;
+  guest_count: number;
 }
 
 export async function listEvents(): Promise<EventItem[]> {

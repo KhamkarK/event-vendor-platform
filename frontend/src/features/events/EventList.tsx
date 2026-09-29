@@ -15,6 +15,9 @@ const typeBadgeColor: Record<string, string> = {
   birthday: "bg-accent-100 text-accent-700",
   corporate: "bg-teal-50 text-teal-700",
 };
+// Fallback for the newer occasion types (anniversary, baby-shower, etc.),
+// which share one badge color rather than one being hand-picked per type.
+const DEFAULT_TYPE_BADGE_COLOR = "bg-neutral-100 text-neutral-600";
 
 export function EventList() {
   const { data: events, isLoading } = useQuery({ queryKey: ["events"], queryFn: listEvents });
@@ -57,8 +60,12 @@ export function EventList() {
               <Link to={`/events/${event.id}/budget`}>
                 <Card hoverLift className="h-full cursor-pointer">
                   <div className="mb-3 flex items-center justify-between">
-                    <span className={`rounded-full px-2.5 py-1 text-xs font-bold capitalize ${typeBadgeColor[event.event_type]}`}>
-                      {event.event_type}
+                    <span
+                      className={`rounded-full px-2.5 py-1 text-xs font-bold capitalize ${
+                        typeBadgeColor[event.event_type] ?? DEFAULT_TYPE_BADGE_COLOR
+                      }`}
+                    >
+                      {event.event_type.replace(/-/g, " ")}
                     </span>
                     <EventCountdownChip eventDate={event.event_date} />
                   </div>
