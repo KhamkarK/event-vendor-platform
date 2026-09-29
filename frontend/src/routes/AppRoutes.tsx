@@ -21,6 +21,8 @@ import { QuotationManager } from "@/features/vendorDashboard/QuotationManager";
 import { VendorDashboardPage } from "@/features/vendorDashboard/VendorDashboardPage";
 import { VendorDetailPage } from "@/features/vendors/VendorDetailPage";
 import { VendorSearchPage } from "@/features/vendors/VendorSearchPage";
+import { AboutPage } from "@/pages/AboutPage";
+import { ContactPage } from "@/pages/ContactPage";
 import { HomePage } from "@/pages/HomePage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 import { ProtectedRoute } from "@/routes/ProtectedRoute";
@@ -40,6 +42,8 @@ export function AppRoutes() {
 
       <Route element={<AppLayout />}>
         <Route path="/" element={<HomePage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route
           path="/event-types"
           element={

@@ -61,7 +61,14 @@ export function Navbar() {
   const primeDropdownRef = useRef<HTMLDivElement>(null);
   const premiumDropdownRef = useRef<HTMLDivElement>(null);
 
-  const links = user ? navLinksByRole[user.role] ?? [] : [{ label: "Find Vendors", to: "/vendors" }];
+  const links = user
+    ? navLinksByRole[user.role] ?? []
+    : [
+        { label: "Home", to: "/" },
+        { label: "About Us", to: "/about" },
+        { label: "Contact", to: "/contact" },
+        { label: "Find Vendors", to: "/vendors" },
+      ];
 
   const handleLogout = () => {
     logout();
