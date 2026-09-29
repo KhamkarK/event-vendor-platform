@@ -29,6 +29,94 @@ DEFAULT_CATEGORY_TEMPLATES: dict[str, list[dict]] = {
         {"name": "Speakers & Talent", "icon": "mic", "default_percentage": 15},
         {"name": "Logistics & Travel", "icon": "plane", "default_percentage": 15},
     ],
+    # Occasions added to the Create Event dropdown alongside the three
+    # legacy types above. "wedding-ceremony", "birthday-party" and
+    # "corporate-events" reuse the legacy templates they supersede.
+    "wedding-ceremony": [
+        {"name": "Attire & Shopping", "icon": "shirt", "default_percentage": 15},
+        {"name": "Venue Booking", "icon": "landmark", "default_percentage": 25},
+        {"name": "Catering & Decoration", "icon": "utensils", "default_percentage": 30},
+        {"name": "Photography & Makeup", "icon": "camera", "default_percentage": 15},
+        {"name": "Travel & Honeymoon", "icon": "plane", "default_percentage": 15},
+    ],
+    "birthday-party": [
+        {"name": "Venue & Decoration", "icon": "landmark", "default_percentage": 30},
+        {"name": "Catering & Cake", "icon": "cake", "default_percentage": 30},
+        {"name": "Entertainment", "icon": "party-popper", "default_percentage": 20},
+        {"name": "Photography", "icon": "camera", "default_percentage": 10},
+        {"name": "Gifts & Favors", "icon": "gift", "default_percentage": 10},
+    ],
+    "corporate-events": [
+        {"name": "Venue & AV Setup", "icon": "landmark", "default_percentage": 30},
+        {"name": "Catering", "icon": "utensils", "default_percentage": 25},
+        {"name": "Branding & Print", "icon": "badge", "default_percentage": 15},
+        {"name": "Speakers & Talent", "icon": "mic", "default_percentage": 15},
+        {"name": "Logistics & Travel", "icon": "plane", "default_percentage": 15},
+    ],
+    "bachelorette-party": [
+        {"name": "Venue & Decoration", "icon": "landmark", "default_percentage": 25},
+        {"name": "Catering", "icon": "utensils", "default_percentage": 25},
+        {"name": "Entertainment", "icon": "party-popper", "default_percentage": 20},
+        {"name": "Photography", "icon": "camera", "default_percentage": 15},
+        {"name": "Travel & Stay", "icon": "plane", "default_percentage": 15},
+    ],
+    "destination-wedding": [
+        {"name": "Venue & Stay", "icon": "landmark", "default_percentage": 30},
+        {"name": "Travel & Logistics", "icon": "plane", "default_percentage": 20},
+        {"name": "Catering & Decoration", "icon": "utensils", "default_percentage": 25},
+        {"name": "Photography", "icon": "camera", "default_percentage": 15},
+        {"name": "Attire & Shopping", "icon": "shirt", "default_percentage": 10},
+    ],
+    "grahshanti": [
+        {"name": "Pandit & Rituals", "icon": "sparkles", "default_percentage": 35},
+        {"name": "Catering", "icon": "utensils", "default_percentage": 30},
+        {"name": "Decoration", "icon": "landmark", "default_percentage": 20},
+        {"name": "Photography", "icon": "camera", "default_percentage": 15},
+    ],
+    "haldi-mehendi-ceremony": [
+        {"name": "Decoration", "icon": "landmark", "default_percentage": 30},
+        {"name": "Catering", "icon": "utensils", "default_percentage": 25},
+        {"name": "Mehendi & Grooming", "icon": "sparkles", "default_percentage": 25},
+        {"name": "Photography", "icon": "camera", "default_percentage": 20},
+    ],
+    "reception-ceremony": [
+        {"name": "Venue Booking", "icon": "landmark", "default_percentage": 30},
+        {"name": "Catering & Decoration", "icon": "utensils", "default_percentage": 30},
+        {"name": "Entertainment", "icon": "party-popper", "default_percentage": 20},
+        {"name": "Photography", "icon": "camera", "default_percentage": 20},
+    ],
+    "sangeet-ceremony": [
+        {"name": "Venue & Decoration", "icon": "landmark", "default_percentage": 25},
+        {"name": "Entertainment", "icon": "party-popper", "default_percentage": 30},
+        {"name": "Catering", "icon": "utensils", "default_percentage": 25},
+        {"name": "Photography", "icon": "camera", "default_percentage": 20},
+    ],
+    "engagement": [
+        {"name": "Venue & Decoration", "icon": "landmark", "default_percentage": 30},
+        {"name": "Catering", "icon": "utensils", "default_percentage": 25},
+        {"name": "Photography", "icon": "camera", "default_percentage": 20},
+        {"name": "Attire & Shopping", "icon": "shirt", "default_percentage": 15},
+        {"name": "Entertainment", "icon": "party-popper", "default_percentage": 10},
+    ],
+    "anniversary": [
+        {"name": "Venue & Decoration", "icon": "landmark", "default_percentage": 30},
+        {"name": "Catering", "icon": "utensils", "default_percentage": 30},
+        {"name": "Entertainment", "icon": "party-popper", "default_percentage": 20},
+        {"name": "Photography", "icon": "camera", "default_percentage": 20},
+    ],
+    "conference": [
+        {"name": "Venue & AV Setup", "icon": "landmark", "default_percentage": 35},
+        {"name": "Catering", "icon": "utensils", "default_percentage": 20},
+        {"name": "Branding & Print", "icon": "badge", "default_percentage": 15},
+        {"name": "Speakers & Talent", "icon": "mic", "default_percentage": 20},
+        {"name": "Logistics & Travel", "icon": "plane", "default_percentage": 10},
+    ],
+    "baby-shower": [
+        {"name": "Venue & Decoration", "icon": "landmark", "default_percentage": 30},
+        {"name": "Catering & Cake", "icon": "cake", "default_percentage": 30},
+        {"name": "Photography", "icon": "camera", "default_percentage": 20},
+        {"name": "Gifts & Favors", "icon": "gift", "default_percentage": 20},
+    ],
 }
 
 
@@ -45,6 +133,7 @@ class EventService:
             event_date=payload.event_date,
             location=payload.location,
             total_budget=payload.total_budget,
+            guest_count=payload.guest_count,
         )
         event = self.events.create(event)
         self._auto_generate_allocations(event)

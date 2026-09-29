@@ -11,6 +11,7 @@ class EventCreate(BaseModel):
     event_date: date
     location: str = Field(min_length=2, max_length=255)
     total_budget: float = Field(gt=0)
+    guest_count: int = Field(gt=0)
 
 
 class EventUpdate(BaseModel):
@@ -30,5 +31,6 @@ class EventOut(BaseModel):
     event_date: date
     location: str
     total_budget: float
+    guest_count: int
     created_at: datetime
     updated_at: datetime

@@ -13,6 +13,23 @@ class EventType(str, enum.Enum):
     BIRTHDAY = "birthday"
     CORPORATE = "corporate"
 
+    # Occasions offered on the Create Event form going forward (the three
+    # legacy values above are kept only so existing events keep displaying
+    # correctly — they're no longer offered in the picker).
+    ANNIVERSARY = "anniversary"
+    BABY_SHOWER = "baby-shower"
+    BACHELORETTE_PARTY = "bachelorette-party"
+    BIRTHDAY_PARTY = "birthday-party"
+    CONFERENCE = "conference"
+    CORPORATE_EVENTS = "corporate-events"
+    DESTINATION_WEDDING = "destination-wedding"
+    ENGAGEMENT = "engagement"
+    GRAHSHANTI = "grahshanti"
+    HALDI_MEHENDI_CEREMONY = "haldi-mehendi-ceremony"
+    RECEPTION_CEREMONY = "reception-ceremony"
+    SANGEET_CEREMONY = "sangeet-ceremony"
+    WEDDING_CEREMONY = "wedding-ceremony"
+
 
 class Event(Base):
     __tablename__ = "events"
@@ -25,6 +42,7 @@ class Event(Base):
     event_date: Mapped[date] = mapped_column(Date, nullable=False)
     location: Mapped[str] = mapped_column(String(255), nullable=False)
     total_budget: Mapped[float] = mapped_column(Float, nullable=False)
+    guest_count: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
