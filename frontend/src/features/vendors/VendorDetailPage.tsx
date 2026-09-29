@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { ArrowLeft, Heart, MapPin, Package, Star } from "lucide-react";
+import { ArrowLeft, Heart, MapPin, Package, Star, Trash2 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
@@ -11,6 +11,7 @@ import { Card } from "@/components/common/Card";
 import { EmptyState } from "@/components/common/EmptyState";
 import { RangoliSpinner } from "@/components/common/RangoliSpinner";
 import { VerifiedRibbon } from "@/components/common/VerifiedRibbon";
+import { deleteReview } from "@/features/admin/adminApi";
 import { AddReviewModal } from "@/features/vendors/AddReviewModal";
 import { RequestBookingModal } from "@/features/vendors/RequestBookingModal";
 import { getVendorAvailability, getVendorDetail, toggleWishlist } from "@/features/vendors/vendorsApi";
@@ -20,7 +21,9 @@ export function VendorDetailPage() {
   const { vendorId } = useParams<{ vendorId: string }>();
   const id = Number(vendorId);
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuthStore();
+  const queryClient = useQueryClient();
+  const { isAuthenticated, user } = useAuthStore();
+  const isAdmin = user?.role === "admin";
   const [wishlisted, setWishlisted] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
@@ -60,6 +63,23 @@ export function VendorDetailPage() {
       return;
     }
     setShowReviewModal(true);
+  };
+
+  const deleteReviewMutation = useMutation({
+    mutationFn: deleteReview,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["vendor", id] });
+      toast.success("Review deleted");
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.detail ?? "Could not delete review");
+    },
+  });
+
+  const handleDeleteReview = (reviewId: number) => {
+    if (window.confirm("Delete this review? This cannot be undone.")) {
+      deleteReviewMutation.mutate(reviewId);
+    }
   };
 
   if (isLoading || !vendor) {
@@ -157,10 +177,22 @@ export function VendorDetailPage() {
               <Card key={review.id}>
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-semibold text-neutral-800">{review.reviewer_name}</p>
-                  <div className="flex items-center gap-1 text-accent-400">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={14} fill={i < review.rating ? "currentColor" : "none"} />
-                    ))}
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1 text-accent-400">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} size={14} fill={i < review.rating ? "currentColor" : "none"} />
+                      ))}
+                    </div>
+                    {isAdmin && (
+                      <button
+                        onClick={() => handleDeleteReview(review.id)}
+                        className="shrink-0 rounded-full p-1 text-neutral-300 transition-colors hover:bg-red-50 hover:text-red-600"
+                        aria-label="Delete review"
+                        title="Delete review"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    )}
                   </div>
                 </div>
                 {review.comment && <p className="mt-2 text-sm text-neutral-600">{review.comment}</p>}

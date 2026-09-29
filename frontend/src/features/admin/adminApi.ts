@@ -59,3 +59,15 @@ export async function setCustomerPrime(userId: number, prime: boolean): Promise<
   const { data } = await apiClient.post<User>(`/admin/customers/${userId}/prime`, null, { params: { prime } });
   return data;
 }
+
+export async function deleteCustomer(userId: number): Promise<void> {
+  await apiClient.delete(`/admin/customers/${userId}`);
+}
+
+export async function deleteVendor(vendorId: number): Promise<void> {
+  await apiClient.delete(`/admin/vendors/${vendorId}`);
+}
+
+export async function deleteReview(reviewId: number): Promise<void> {
+  await apiClient.delete(`/admin/reviews/${reviewId}`);
+}

@@ -37,6 +37,13 @@ class VendorRepository:
         self.db.refresh(review)
         return review
 
+    def get_review(self, review_id: int) -> VendorReview | None:
+        return self.db.get(VendorReview, review_id)
+
+    def delete_review(self, review: VendorReview) -> None:
+        self.db.delete(review)
+        self.db.commit()
+
     def list_reviews(self, vendor_id: int) -> list[VendorReview]:
         return list(
             self.db.scalars(

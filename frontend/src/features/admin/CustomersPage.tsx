@@ -1,13 +1,13 @@
 import { DndContext, type DragEndEvent, PointerSensor, useDraggable, useDroppable, useSensor, useSensors } from "@dnd-kit/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { BarChart3, Crown, GripVertical, LayoutDashboard, Mail, Phone, ShieldCheck, Sliders, Users } from "lucide-react";
+import { BarChart3, Crown, GripVertical, LayoutDashboard, Mail, Phone, ShieldCheck, Sliders, Trash2, Users } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { MehendiCorner } from "@/assets/MehendiCorner";
 import { RangoliSpinner } from "@/components/common/RangoliSpinner";
 import { Sidebar, type SidebarLink } from "@/components/layout/Sidebar";
-import { listCustomers, setCustomerPrime } from "@/features/admin/adminApi";
+import { deleteCustomer, listCustomers, setCustomerPrime } from "@/features/admin/adminApi";
 import type { User } from "@/types/user";
 
 const sidebarLinks: SidebarLink[] = [
@@ -32,7 +32,7 @@ function columnOf(customer: User): ColumnId {
 /** Read-only card: shows what the customer registered with. The only action
  * this page offers is dragging a customer between Standard and Prime — no
  * approve/block controls, since customer accounts aren't gated. */
-function CustomerDragCard({ customer }: { customer: User }) {
+function CustomerDragCard({ customer, onDelete }: { customer: User; onDelete: (customer: User) => void }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: customer.id });
   const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`, zIndex: 20 } : undefined;
 
@@ -67,11 +67,27 @@ function CustomerDragCard({ customer }: { customer: User }) {
           </span>
         )}
       </div>
+      <button
+        onClick={() => onDelete(customer)}
+        className="shrink-0 rounded-full p-1.5 text-neutral-300 transition-colors hover:bg-red-50 hover:text-red-600"
+        aria-label={`Delete ${customer.full_name}`}
+        title="Delete customer"
+      >
+        <Trash2 size={16} />
+      </button>
     </div>
   );
 }
 
-function KanbanColumn({ id, customers }: { id: ColumnId; customers: User[] }) {
+function KanbanColumn({
+  id,
+  customers,
+  onDelete,
+}: {
+  id: ColumnId;
+  customers: User[];
+  onDelete: (customer: User) => void;
+}) {
   const { setNodeRef, isOver } = useDroppable({ id });
   const meta = columnMeta[id];
 
@@ -92,7 +108,7 @@ function KanbanColumn({ id, customers }: { id: ColumnId; customers: User[] }) {
       {customers.length === 0 ? (
         <p className="px-1 py-6 text-center text-xs text-neutral-400">Drag a customer here</p>
       ) : (
-        customers.map((customer) => <CustomerDragCard key={customer.id} customer={customer} />)
+        customers.map((customer) => <CustomerDragCard key={customer.id} customer={customer} onDelete={onDelete} />)
       )}
     </div>
   );
@@ -110,6 +126,27 @@ export function CustomersPage() {
       toast.success(prime ? "Customer marked Prime" : "Customer moved back to Standard");
     },
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteCustomer,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-customers"] });
+      toast.success("Customer deleted");
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.detail ?? "Could not delete customer");
+    },
+  });
+
+  const handleDelete = (customer: User) => {
+    if (
+      window.confirm(
+        `Delete ${customer.full_name}? This permanently removes their account, events, bookings, and reviews. This cannot be undone.`
+      )
+    ) {
+      deleteMutation.mutate(customer.id);
+    }
+  };
 
   const columns: Record<ColumnId, User[]> = { standard: [], prime: [] };
   (customers ?? []).forEach((c) => columns[columnOf(c)].push(c));
@@ -150,8 +187,8 @@ export function CustomersPage() {
           ) : (
             <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
               <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-4 sm:flex-row">
-                <KanbanColumn id="standard" customers={columns.standard} />
-                <KanbanColumn id="prime" customers={columns.prime} />
+                <KanbanColumn id="standard" customers={columns.standard} onDelete={handleDelete} />
+                <KanbanColumn id="prime" customers={columns.prime} onDelete={handleDelete} />
               </motion.div>
             </DndContext>
           )}

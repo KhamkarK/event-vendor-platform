@@ -1,14 +1,14 @@
 import { DndContext, type DragEndEvent, PointerSensor, useDraggable, useDroppable, useSensor, useSensors } from "@dnd-kit/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { BarChart3, Ban, CalendarDays, Crown, GripVertical, LayoutDashboard, ShieldCheck, Sliders, Star, Users } from "lucide-react";
+import { BarChart3, Ban, CalendarDays, Crown, GripVertical, LayoutDashboard, ShieldCheck, Sliders, Star, Trash2, Users } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
 import { MehendiCorner } from "@/assets/MehendiCorner";
 import { RangoliSpinner } from "@/components/common/RangoliSpinner";
 import { Sidebar, type SidebarLink } from "@/components/layout/Sidebar";
-import { approveVendor, blockVendor, listAllVendors, setFeatured, unblockVendor } from "@/features/admin/adminApi";
+import { approveVendor, blockVendor, deleteVendor, listAllVendors, setFeatured, unblockVendor } from "@/features/admin/adminApi";
 import { VendorAvailabilityModal } from "@/features/admin/VendorAvailabilityModal";
 import type { VendorProfile } from "@/types/user";
 
@@ -34,7 +34,15 @@ function columnOf(vendor: VendorProfile): ColumnId {
   return "pending";
 }
 
-function VendorDragCard({ vendor, onViewAvailability }: { vendor: VendorProfile; onViewAvailability: (vendor: VendorProfile) => void }) {
+function VendorDragCard({
+  vendor,
+  onViewAvailability,
+  onDelete,
+}: {
+  vendor: VendorProfile;
+  onViewAvailability: (vendor: VendorProfile) => void;
+  onDelete: (vendor: VendorProfile) => void;
+}) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: vendor.id });
   const style = transform
     ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`, zIndex: 20 }
@@ -72,6 +80,14 @@ function VendorDragCard({ vendor, onViewAvailability }: { vendor: VendorProfile;
       >
         <CalendarDays size={16} />
       </button>
+      <button
+        onClick={() => onDelete(vendor)}
+        className="shrink-0 rounded-full p-1.5 text-neutral-300 transition-colors hover:bg-red-50 hover:text-red-600"
+        aria-label={`Delete ${vendor.business_name}`}
+        title="Delete vendor"
+      >
+        <Trash2 size={16} />
+      </button>
     </div>
   );
 }
@@ -80,10 +96,12 @@ function KanbanColumn({
   id,
   vendors,
   onViewAvailability,
+  onDelete,
 }: {
   id: ColumnId;
   vendors: VendorProfile[];
   onViewAvailability: (vendor: VendorProfile) => void;
+  onDelete: (vendor: VendorProfile) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id });
   const meta = columnMeta[id];
@@ -102,7 +120,9 @@ function KanbanColumn({
       {vendors.length === 0 ? (
         <p className="px-1 py-6 text-center text-xs text-neutral-400">Drag a vendor here</p>
       ) : (
-        vendors.map((vendor) => <VendorDragCard key={vendor.id} vendor={vendor} onViewAvailability={onViewAvailability} />)
+        vendors.map((vendor) => (
+          <VendorDragCard key={vendor.id} vendor={vendor} onViewAvailability={onViewAvailability} onDelete={onDelete} />
+        ))
       )}
     </div>
   );
@@ -126,10 +146,12 @@ function FeatureKanbanColumn({
   id,
   vendors,
   onViewAvailability,
+  onDelete,
 }: {
   id: FeatureColumnId;
   vendors: VendorProfile[];
   onViewAvailability: (vendor: VendorProfile) => void;
+  onDelete: (vendor: VendorProfile) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id });
   const meta = featureColumnMeta[id];
@@ -151,7 +173,9 @@ function FeatureKanbanColumn({
       {vendors.length === 0 ? (
         <p className="px-1 py-6 text-center text-xs text-neutral-400">Drag a vendor here</p>
       ) : (
-        vendors.map((vendor) => <VendorDragCard key={vendor.id} vendor={vendor} onViewAvailability={onViewAvailability} />)
+        vendors.map((vendor) => (
+          <VendorDragCard key={vendor.id} vendor={vendor} onViewAvailability={onViewAvailability} onDelete={onDelete} />
+        ))
       )}
     </div>
   );
@@ -193,6 +217,26 @@ export function VendorApprovalPage() {
       toast.success(featured ? "Vendor marked Premium" : "Vendor moved back to Standard");
     },
   });
+  const deleteMutation = useMutation({
+    mutationFn: deleteVendor,
+    onSuccess: () => {
+      invalidate();
+      toast.success("Vendor deleted");
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.detail ?? "Could not delete vendor");
+    },
+  });
+
+  const handleDelete = (vendor: VendorProfile) => {
+    if (
+      window.confirm(
+        `Delete ${vendor.business_name}? This permanently removes their account, packages, reviews, and bookings. This cannot be undone.`
+      )
+    ) {
+      deleteMutation.mutate(vendor.id);
+    }
+  };
 
   const columns: Record<ColumnId, VendorProfile[]> = { pending: [], approved: [], blocked: [] };
   (vendors ?? []).forEach((v) => columns[columnOf(v)].push(v));
@@ -263,9 +307,9 @@ export function VendorApprovalPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="flex flex-col gap-4 sm:flex-row"
               >
-                <KanbanColumn id="pending" vendors={columns.pending} onViewAvailability={setAvailabilityVendor} />
-                <KanbanColumn id="approved" vendors={columns.approved} onViewAvailability={setAvailabilityVendor} />
-                <KanbanColumn id="blocked" vendors={columns.blocked} onViewAvailability={setAvailabilityVendor} />
+                <KanbanColumn id="pending" vendors={columns.pending} onViewAvailability={setAvailabilityVendor} onDelete={handleDelete} />
+                <KanbanColumn id="approved" vendors={columns.approved} onViewAvailability={setAvailabilityVendor} onDelete={handleDelete} />
+                <KanbanColumn id="blocked" vendors={columns.blocked} onViewAvailability={setAvailabilityVendor} onDelete={handleDelete} />
               </motion.div>
             </DndContext>
           )}
@@ -295,8 +339,18 @@ export function VendorApprovalPage() {
                   animate={{ opacity: 1, y: 0 }}
                   className="flex flex-col gap-4 sm:flex-row"
                 >
-                  <FeatureKanbanColumn id="standard" vendors={featureColumns.standard} onViewAvailability={setAvailabilityVendor} />
-                  <FeatureKanbanColumn id="premium" vendors={featureColumns.premium} onViewAvailability={setAvailabilityVendor} />
+                  <FeatureKanbanColumn
+                    id="standard"
+                    vendors={featureColumns.standard}
+                    onViewAvailability={setAvailabilityVendor}
+                    onDelete={handleDelete}
+                  />
+                  <FeatureKanbanColumn
+                    id="premium"
+                    vendors={featureColumns.premium}
+                    onViewAvailability={setAvailabilityVendor}
+                    onDelete={handleDelete}
+                  />
                 </motion.div>
               </DndContext>
             )}

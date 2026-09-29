@@ -58,3 +58,18 @@ def list_customers(db: Session = Depends(get_db)):
 @router.post("/customers/{user_id}/prime", response_model=UserOut)
 def set_customer_prime(user_id: int, prime: bool = True, db: Session = Depends(get_db)):
     return AdminService(db).set_customer_prime(user_id, prime)
+
+
+@router.delete("/customers/{user_id}", status_code=204)
+def delete_customer(user_id: int, db: Session = Depends(get_db)):
+    AdminService(db).delete_customer(user_id)
+
+
+@router.delete("/vendors/{vendor_id}", status_code=204)
+def delete_vendor(vendor_id: int, db: Session = Depends(get_db)):
+    AdminService(db).delete_vendor(vendor_id)
+
+
+@router.delete("/reviews/{review_id}", status_code=204)
+def delete_review(review_id: int, db: Session = Depends(get_db)):
+    AdminService(db).delete_review(review_id)
