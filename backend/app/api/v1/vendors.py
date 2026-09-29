@@ -131,3 +131,15 @@ def unblock_date(blocked_id: int, current_user: User = Depends(require_vendor), 
     service = VendorService(db)
     profile = service.get_own_profile(current_user)
     service.unblock_date(profile, blocked_id)
+
+
+# --- Vendor's own reviews (read-only) ---
+
+reviews_router = APIRouter(prefix="/vendors/me/reviews", tags=["vendor-reviews"])
+
+
+@reviews_router.get("", response_model=list[VendorReviewOut])
+def list_my_reviews(current_user: User = Depends(require_vendor), db: Session = Depends(get_db)):
+    service = VendorService(db)
+    profile = service.get_own_profile(current_user)
+    return service.list_own_reviews(profile)

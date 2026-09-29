@@ -19,6 +19,7 @@ import { LedgerPage } from "@/features/vendorDashboard/LedgerPage";
 import { PackageManager } from "@/features/vendorDashboard/PackageManager";
 import { QuotationManager } from "@/features/vendorDashboard/QuotationManager";
 import { VendorDashboardPage } from "@/features/vendorDashboard/VendorDashboardPage";
+import { VendorReviewsPage } from "@/features/vendorDashboard/VendorReviewsPage";
 import { VendorDetailPage } from "@/features/vendors/VendorDetailPage";
 import { VendorSearchPage } from "@/features/vendors/VendorSearchPage";
 import { AboutPage } from "@/pages/AboutPage";
@@ -147,6 +148,14 @@ export function AppRoutes() {
           element={
             <ProtectedRoute allowedRoles={["vendor"]}>
               <LedgerPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/vendor-dashboard/reviews"
+          element={
+            <ProtectedRoute allowedRoles={["vendor"]}>
+              <VendorReviewsPage />
             </ProtectedRoute>
           }
         />

@@ -1,7 +1,18 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { CalendarCheck, ClipboardList, IndianRupee, LayoutDashboard, Package, Plus, TrendingDown, TrendingUp, Wallet } from "lucide-react";
+import {
+  CalendarCheck,
+  ClipboardList,
+  IndianRupee,
+  LayoutDashboard,
+  Package,
+  Plus,
+  Star,
+  TrendingDown,
+  TrendingUp,
+  Wallet,
+} from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -20,6 +31,7 @@ const sidebarLinks: SidebarLink[] = [
   { label: "Packages", to: "/vendor-dashboard/packages", icon: Package },
   { label: "Quotations", to: "/vendor-dashboard/quotations", icon: ClipboardList },
   { label: "Ledger", to: "/vendor-dashboard/ledger", icon: Wallet },
+  { label: "Reviews", to: "/vendor-dashboard/reviews", icon: Star },
 ];
 
 const schema = z.object({

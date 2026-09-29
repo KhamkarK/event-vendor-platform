@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarCheck, ClipboardList, LayoutDashboard, Package, Wallet } from "lucide-react";
+import { CalendarCheck, ClipboardList, LayoutDashboard, Package, Star, Wallet } from "lucide-react";
 import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -20,6 +20,7 @@ const sidebarLinks: SidebarLink[] = [
   { label: "Packages", to: "/vendor-dashboard/packages", icon: Package },
   { label: "Quotations", to: "/vendor-dashboard/quotations", icon: ClipboardList },
   { label: "Ledger", to: "/vendor-dashboard/ledger", icon: Wallet },
+  { label: "Reviews", to: "/vendor-dashboard/reviews", icon: Star },
 ];
 
 export function BookingCalendar() {

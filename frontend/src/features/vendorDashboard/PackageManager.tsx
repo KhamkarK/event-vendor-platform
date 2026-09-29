@@ -9,6 +9,7 @@ import {
   Package as PackageIcon,
   Pencil,
   Plus,
+  Star,
   Trash2,
   Wallet,
   X,
@@ -42,6 +43,7 @@ const sidebarLinks: SidebarLink[] = [
   { label: "Packages", to: "/vendor-dashboard/packages", icon: PackageIcon },
   { label: "Quotations", to: "/vendor-dashboard/quotations", icon: ClipboardList },
   { label: "Ledger", to: "/vendor-dashboard/ledger", icon: Wallet },
+  { label: "Reviews", to: "/vendor-dashboard/reviews", icon: Star },
 ];
 
 const schema = z.object({

@@ -80,6 +80,9 @@ class VendorService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Package not found")
         self.vendors.delete_package(package)
 
+    def list_own_reviews(self, vendor_profile) -> list[VendorReview]:
+        return self.vendors.list_reviews(vendor_profile.id)
+
     def add_review(self, user_id: int, vendor_id: int, payload: VendorReviewCreate) -> VendorReview:
         profile = self.get_vendor_detail(vendor_id)
         review = VendorReview(vendor_id=vendor_id, user_id=user_id, **payload.model_dump())
