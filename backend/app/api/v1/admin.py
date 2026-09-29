@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.core.dependencies import require_admin
 from app.db.session import get_db
 from app.models.user import User
+from app.schemas.auth import TokenResponse
 from app.schemas.user import UserOut, VendorProfileAdminOut, VendorProfileOut
 from app.services.admin_service import AdminService
 
@@ -73,3 +74,13 @@ def delete_vendor(vendor_id: int, db: Session = Depends(get_db)):
 @router.delete("/reviews/{review_id}", status_code=204)
 def delete_review(review_id: int, db: Session = Depends(get_db)):
     AdminService(db).delete_review(review_id)
+
+
+@router.post("/customers/{user_id}/impersonate", response_model=TokenResponse)
+def impersonate_customer(user_id: int, db: Session = Depends(get_db)):
+    return AdminService(db).impersonate_customer(user_id)
+
+
+@router.post("/vendors/{vendor_id}/impersonate", response_model=TokenResponse)
+def impersonate_vendor(vendor_id: int, db: Session = Depends(get_db)):
+    return AdminService(db).impersonate_vendor(vendor_id)

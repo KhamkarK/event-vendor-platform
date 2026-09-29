@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/axios";
-import type { User, VendorProfile } from "@/types/user";
+import type { AuthResponse, User, VendorProfile } from "@/types/user";
 
 export interface AdminDashboardStats {
   total_users: number;
@@ -70,4 +70,14 @@ export async function deleteVendor(vendorId: number): Promise<void> {
 
 export async function deleteReview(reviewId: number): Promise<void> {
   await apiClient.delete(`/admin/reviews/${reviewId}`);
+}
+
+export async function impersonateCustomer(userId: number): Promise<AuthResponse> {
+  const { data } = await apiClient.post<AuthResponse>(`/admin/customers/${userId}/impersonate`);
+  return data;
+}
+
+export async function impersonateVendor(vendorId: number): Promise<AuthResponse> {
+  const { data } = await apiClient.post<AuthResponse>(`/admin/vendors/${vendorId}/impersonate`);
+  return data;
 }

@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { LogOut, Menu, Search, User as UserIcon, X } from "lucide-react";
+import { LogOut, Menu, Search, ShieldAlert, User as UserIcon, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -47,7 +47,7 @@ function displayName(user: { role: string; full_name: string; vendor_profile: { 
 }
 
 export function Navbar() {
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, isAuthenticated, logout, isImpersonating, stopImpersonation } = useAuthStore();
   const openCommandPalette = useUIStore((s) => s.openCommandPalette);
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -75,6 +75,11 @@ export function Navbar() {
     navigate("/login");
   };
 
+  const handleExitImpersonation = () => {
+    stopImpersonation();
+    navigate("/admin");
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
@@ -94,6 +99,20 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-neutral-100 bg-white/80 backdrop-blur-xl">
+      {isImpersonating && user && (
+        <div className="flex items-center justify-center gap-3 bg-amber-500 px-4 py-2 text-xs font-semibold text-white sm:text-sm">
+          <ShieldAlert size={14} />
+          <span>
+            Viewing as {displayName(user)} ({user.role})
+          </span>
+          <button
+            onClick={handleExitImpersonation}
+            className="rounded-full bg-white/20 px-2.5 py-0.5 font-bold uppercase tracking-wide transition-colors hover:bg-white/30"
+          >
+            Exit
+          </button>
+        </div>
+      )}
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-2">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-gradient text-white shadow-glow">

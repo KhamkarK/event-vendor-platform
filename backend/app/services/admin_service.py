@@ -2,11 +2,14 @@ from fastapi import HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.core.security import create_access_token, create_refresh_token
 from app.models.booking import Booking
 from app.models.ledger import LedgerEntry
 from app.models.user import User, UserRole, VendorProfile
 from app.repositories.user_repository import UserRepository
 from app.repositories.vendor_repository import VendorRepository
+from app.schemas.auth import TokenResponse
+from app.schemas.user import UserOut
 
 
 class AdminService:
@@ -93,6 +96,25 @@ class AdminService:
             profile.rating_avg = round(new_avg, 2)
             profile.rating_count = new_count
         self.vendors.delete_review(review)
+
+    def _issue_impersonation_tokens(self, user: User) -> TokenResponse:
+        if not user.is_active:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account is disabled")
+        access_token = create_access_token(subject=str(user.id), role=user.role.value)
+        refresh_token = create_refresh_token(subject=str(user.id))
+        return TokenResponse(access_token=access_token, refresh_token=refresh_token, user=UserOut.model_validate(user))
+
+    def impersonate_customer(self, user_id: int) -> TokenResponse:
+        user = self.users.get_by_id(user_id)
+        if not user or user.role != UserRole.CUSTOMER:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found")
+        return self._issue_impersonation_tokens(user)
+
+    def impersonate_vendor(self, vendor_id: int) -> TokenResponse:
+        profile = self.users.get_vendor_profile(vendor_id)
+        if not profile:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vendor not found")
+        return self._issue_impersonation_tokens(profile.user)
 
     def set_customer_prime(self, user_id: int, prime: bool) -> User:
         user = self.users.get_by_id(user_id)

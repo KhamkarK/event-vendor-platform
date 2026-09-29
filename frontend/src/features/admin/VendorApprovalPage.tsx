@@ -1,15 +1,25 @@
 import { DndContext, type DragEndEvent, PointerSensor, useDraggable, useDroppable, useSensor, useSensors } from "@dnd-kit/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { BarChart3, Ban, CalendarDays, Crown, GripVertical, LayoutDashboard, ShieldCheck, Sliders, Star, Trash2, Users } from "lucide-react";
+import { BarChart3, Ban, CalendarDays, Crown, GripVertical, LayoutDashboard, LogIn, ShieldCheck, Sliders, Star, Trash2, Users } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 import { MehendiCorner } from "@/assets/MehendiCorner";
 import { RangoliSpinner } from "@/components/common/RangoliSpinner";
 import { Sidebar, type SidebarLink } from "@/components/layout/Sidebar";
-import { approveVendor, blockVendor, deleteVendor, listAllVendors, setFeatured, unblockVendor } from "@/features/admin/adminApi";
+import {
+  approveVendor,
+  blockVendor,
+  deleteVendor,
+  impersonateVendor,
+  listAllVendors,
+  setFeatured,
+  unblockVendor,
+} from "@/features/admin/adminApi";
 import { VendorAvailabilityModal } from "@/features/admin/VendorAvailabilityModal";
+import { useAuthStore } from "@/store/authStore";
 import type { VendorProfile } from "@/types/user";
 
 const sidebarLinks: SidebarLink[] = [
@@ -38,10 +48,12 @@ function VendorDragCard({
   vendor,
   onViewAvailability,
   onDelete,
+  onImpersonate,
 }: {
   vendor: VendorProfile;
   onViewAvailability: (vendor: VendorProfile) => void;
   onDelete: (vendor: VendorProfile) => void;
+  onImpersonate: (vendor: VendorProfile) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: vendor.id });
   const style = transform
@@ -81,6 +93,14 @@ function VendorDragCard({
         <CalendarDays size={16} />
       </button>
       <button
+        onClick={() => onImpersonate(vendor)}
+        className="shrink-0 rounded-full p-1.5 text-neutral-300 transition-colors hover:bg-brand-50 hover:text-brand-600"
+        aria-label={`Log in as ${vendor.business_name}`}
+        title="Log in as this vendor"
+      >
+        <LogIn size={16} />
+      </button>
+      <button
         onClick={() => onDelete(vendor)}
         className="shrink-0 rounded-full p-1.5 text-neutral-300 transition-colors hover:bg-red-50 hover:text-red-600"
         aria-label={`Delete ${vendor.business_name}`}
@@ -97,11 +117,13 @@ function KanbanColumn({
   vendors,
   onViewAvailability,
   onDelete,
+  onImpersonate,
 }: {
   id: ColumnId;
   vendors: VendorProfile[];
   onViewAvailability: (vendor: VendorProfile) => void;
   onDelete: (vendor: VendorProfile) => void;
+  onImpersonate: (vendor: VendorProfile) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id });
   const meta = columnMeta[id];
@@ -121,7 +143,13 @@ function KanbanColumn({
         <p className="px-1 py-6 text-center text-xs text-neutral-400">Drag a vendor here</p>
       ) : (
         vendors.map((vendor) => (
-          <VendorDragCard key={vendor.id} vendor={vendor} onViewAvailability={onViewAvailability} onDelete={onDelete} />
+          <VendorDragCard
+            key={vendor.id}
+            vendor={vendor}
+            onViewAvailability={onViewAvailability}
+            onDelete={onDelete}
+            onImpersonate={onImpersonate}
+          />
         ))
       )}
     </div>
@@ -147,11 +175,13 @@ function FeatureKanbanColumn({
   vendors,
   onViewAvailability,
   onDelete,
+  onImpersonate,
 }: {
   id: FeatureColumnId;
   vendors: VendorProfile[];
   onViewAvailability: (vendor: VendorProfile) => void;
   onDelete: (vendor: VendorProfile) => void;
+  onImpersonate: (vendor: VendorProfile) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id });
   const meta = featureColumnMeta[id];
@@ -174,7 +204,13 @@ function FeatureKanbanColumn({
         <p className="px-1 py-6 text-center text-xs text-neutral-400">Drag a vendor here</p>
       ) : (
         vendors.map((vendor) => (
-          <VendorDragCard key={vendor.id} vendor={vendor} onViewAvailability={onViewAvailability} onDelete={onDelete} />
+          <VendorDragCard
+            key={vendor.id}
+            vendor={vendor}
+            onViewAvailability={onViewAvailability}
+            onDelete={onDelete}
+            onImpersonate={onImpersonate}
+          />
         ))
       )}
     </div>
@@ -183,6 +219,8 @@ function FeatureKanbanColumn({
 
 export function VendorApprovalPage() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const startImpersonation = useAuthStore((s) => s.startImpersonation);
   const { data: vendors, isLoading } = useQuery({ queryKey: ["admin-vendors"], queryFn: listAllVendors });
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
   const [availabilityVendor, setAvailabilityVendor] = useState<VendorProfile | null>(null);
@@ -235,6 +273,24 @@ export function VendorApprovalPage() {
       )
     ) {
       deleteMutation.mutate(vendor.id);
+    }
+  };
+
+  const impersonateMutation = useMutation({
+    mutationFn: impersonateVendor,
+    onSuccess: (auth) => {
+      startImpersonation(auth);
+      toast.success(`Logged in as ${auth.user.vendor_profile?.business_name ?? auth.user.full_name}`);
+      navigate("/vendor-dashboard");
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.detail ?? "Could not log in as this vendor");
+    },
+  });
+
+  const handleImpersonate = (vendor: VendorProfile) => {
+    if (window.confirm(`Log in as ${vendor.business_name}? You'll see the app exactly as they do until you exit.`)) {
+      impersonateMutation.mutate(vendor.id);
     }
   };
 
@@ -307,9 +363,27 @@ export function VendorApprovalPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="flex flex-col gap-4 sm:flex-row"
               >
-                <KanbanColumn id="pending" vendors={columns.pending} onViewAvailability={setAvailabilityVendor} onDelete={handleDelete} />
-                <KanbanColumn id="approved" vendors={columns.approved} onViewAvailability={setAvailabilityVendor} onDelete={handleDelete} />
-                <KanbanColumn id="blocked" vendors={columns.blocked} onViewAvailability={setAvailabilityVendor} onDelete={handleDelete} />
+                <KanbanColumn
+                  id="pending"
+                  vendors={columns.pending}
+                  onViewAvailability={setAvailabilityVendor}
+                  onDelete={handleDelete}
+                  onImpersonate={handleImpersonate}
+                />
+                <KanbanColumn
+                  id="approved"
+                  vendors={columns.approved}
+                  onViewAvailability={setAvailabilityVendor}
+                  onDelete={handleDelete}
+                  onImpersonate={handleImpersonate}
+                />
+                <KanbanColumn
+                  id="blocked"
+                  vendors={columns.blocked}
+                  onViewAvailability={setAvailabilityVendor}
+                  onDelete={handleDelete}
+                  onImpersonate={handleImpersonate}
+                />
               </motion.div>
             </DndContext>
           )}
@@ -344,12 +418,14 @@ export function VendorApprovalPage() {
                     vendors={featureColumns.standard}
                     onViewAvailability={setAvailabilityVendor}
                     onDelete={handleDelete}
+                    onImpersonate={handleImpersonate}
                   />
                   <FeatureKanbanColumn
                     id="premium"
                     vendors={featureColumns.premium}
                     onViewAvailability={setAvailabilityVendor}
                     onDelete={handleDelete}
+                    onImpersonate={handleImpersonate}
                   />
                 </motion.div>
               </DndContext>

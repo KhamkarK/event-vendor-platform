@@ -1,13 +1,15 @@
 import { DndContext, type DragEndEvent, PointerSensor, useDraggable, useDroppable, useSensor, useSensors } from "@dnd-kit/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { BarChart3, Crown, GripVertical, LayoutDashboard, Mail, Phone, ShieldCheck, Sliders, Trash2, Users } from "lucide-react";
+import { BarChart3, Crown, GripVertical, LayoutDashboard, LogIn, Mail, Phone, ShieldCheck, Sliders, Trash2, Users } from "lucide-react";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 import { MehendiCorner } from "@/assets/MehendiCorner";
 import { RangoliSpinner } from "@/components/common/RangoliSpinner";
 import { Sidebar, type SidebarLink } from "@/components/layout/Sidebar";
-import { deleteCustomer, listCustomers, setCustomerPrime } from "@/features/admin/adminApi";
+import { deleteCustomer, impersonateCustomer, listCustomers, setCustomerPrime } from "@/features/admin/adminApi";
+import { useAuthStore } from "@/store/authStore";
 import type { User } from "@/types/user";
 
 const sidebarLinks: SidebarLink[] = [
@@ -32,7 +34,15 @@ function columnOf(customer: User): ColumnId {
 /** Read-only card: shows what the customer registered with. The only action
  * this page offers is dragging a customer between Standard and Prime — no
  * approve/block controls, since customer accounts aren't gated. */
-function CustomerDragCard({ customer, onDelete }: { customer: User; onDelete: (customer: User) => void }) {
+function CustomerDragCard({
+  customer,
+  onDelete,
+  onImpersonate,
+}: {
+  customer: User;
+  onDelete: (customer: User) => void;
+  onImpersonate: (customer: User) => void;
+}) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: customer.id });
   const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`, zIndex: 20 } : undefined;
 
@@ -68,6 +78,14 @@ function CustomerDragCard({ customer, onDelete }: { customer: User; onDelete: (c
         )}
       </div>
       <button
+        onClick={() => onImpersonate(customer)}
+        className="shrink-0 rounded-full p-1.5 text-neutral-300 transition-colors hover:bg-brand-50 hover:text-brand-600"
+        aria-label={`Log in as ${customer.full_name}`}
+        title="Log in as this customer"
+      >
+        <LogIn size={16} />
+      </button>
+      <button
         onClick={() => onDelete(customer)}
         className="shrink-0 rounded-full p-1.5 text-neutral-300 transition-colors hover:bg-red-50 hover:text-red-600"
         aria-label={`Delete ${customer.full_name}`}
@@ -83,10 +101,12 @@ function KanbanColumn({
   id,
   customers,
   onDelete,
+  onImpersonate,
 }: {
   id: ColumnId;
   customers: User[];
   onDelete: (customer: User) => void;
+  onImpersonate: (customer: User) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id });
   const meta = columnMeta[id];
@@ -108,7 +128,9 @@ function KanbanColumn({
       {customers.length === 0 ? (
         <p className="px-1 py-6 text-center text-xs text-neutral-400">Drag a customer here</p>
       ) : (
-        customers.map((customer) => <CustomerDragCard key={customer.id} customer={customer} onDelete={onDelete} />)
+        customers.map((customer) => (
+          <CustomerDragCard key={customer.id} customer={customer} onDelete={onDelete} onImpersonate={onImpersonate} />
+        ))
       )}
     </div>
   );
@@ -116,6 +138,8 @@ function KanbanColumn({
 
 export function CustomersPage() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const startImpersonation = useAuthStore((s) => s.startImpersonation);
   const { data: customers, isLoading } = useQuery({ queryKey: ["admin-customers"], queryFn: listCustomers });
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
@@ -145,6 +169,24 @@ export function CustomersPage() {
       )
     ) {
       deleteMutation.mutate(customer.id);
+    }
+  };
+
+  const impersonateMutation = useMutation({
+    mutationFn: impersonateCustomer,
+    onSuccess: (auth) => {
+      startImpersonation(auth);
+      toast.success(`Logged in as ${auth.user.full_name}`);
+      navigate("/");
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.detail ?? "Could not log in as this customer");
+    },
+  });
+
+  const handleImpersonate = (customer: User) => {
+    if (window.confirm(`Log in as ${customer.full_name}? You'll see the app exactly as they do until you exit.`)) {
+      impersonateMutation.mutate(customer.id);
     }
   };
 
@@ -187,8 +229,8 @@ export function CustomersPage() {
           ) : (
             <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
               <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-4 sm:flex-row">
-                <KanbanColumn id="standard" customers={columns.standard} onDelete={handleDelete} />
-                <KanbanColumn id="prime" customers={columns.prime} onDelete={handleDelete} />
+                <KanbanColumn id="standard" customers={columns.standard} onDelete={handleDelete} onImpersonate={handleImpersonate} />
+                <KanbanColumn id="prime" customers={columns.prime} onDelete={handleDelete} onImpersonate={handleImpersonate} />
               </motion.div>
             </DndContext>
           )}
