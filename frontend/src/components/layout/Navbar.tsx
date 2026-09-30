@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { LogOut, Menu, Search, ShieldAlert, User as UserIcon, X } from "lucide-react";
+import { Crown, LogOut, Menu, Search, ShieldAlert, User as UserIcon, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -45,6 +45,15 @@ function displayName(user: { role: string; full_name: string; vendor_profile: { 
     return user.vendor_profile.business_name;
   }
   return user.full_name.split(" ")[0];
+}
+
+/** A Prime customer or a Premium (featured) vendor — surfaced as a badge on
+ * their own account chip so the status is visible, not just inferable from
+ * the "Join"/"Premium Membership" link disappearing. */
+function isPrimeMember(user: { role: string; is_prime: boolean; vendor_profile: { is_featured: boolean } | null }) {
+  if (user.role === "customer") return user.is_prime;
+  if (user.role === "vendor") return !!user.vendor_profile?.is_featured;
+  return false;
 }
 
 export function Navbar() {
@@ -179,6 +188,11 @@ export function Navbar() {
                   <span className="rounded-full bg-brand-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-700">
                     {user.role}
                   </span>
+                  {isPrimeMember(user) && (
+                    <span className="flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-700">
+                      <Crown size={10} /> {user.role === "customer" ? "Prime" : "Premium"}
+                    </span>
+                  )}
                 </button>
                 <AccountDetailsDropdown isOpen={showAccountDropdown} onClose={() => setShowAccountDropdown(false)} user={user} />
               </div>
@@ -268,6 +282,11 @@ export function Navbar() {
                       className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-neutral-700 hover:bg-neutral-50"
                     >
                       <UserIcon size={15} className="text-brand-500" /> {displayName(user)}
+                      {isPrimeMember(user) && (
+                        <span className="flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-700">
+                          <Crown size={10} /> {user.role === "customer" ? "Prime" : "Premium"}
+                        </span>
+                      )}
                     </button>
                   )}
                   <button
