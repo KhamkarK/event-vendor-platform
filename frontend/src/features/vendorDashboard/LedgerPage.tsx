@@ -35,7 +35,7 @@ const sidebarLinks: SidebarLink[] = [
   { label: "Reviews", to: "/vendor-dashboard/reviews", icon: Star },
 ];
 
-const UNLINKED_GROUP = "Unlinked entries";
+const UNLINKED_KEY = "unlinked";
 
 const schema = z.object({
   entry_type: z.enum(["credit", "debit"]),
@@ -45,18 +45,26 @@ const schema = z.object({
 });
 type FormValues = z.infer<typeof schema>;
 
-function groupEntriesByEvent(entries: LedgerEntry[]): [string, LedgerEntry[]][] {
-  const groups = new Map<string, LedgerEntry[]>();
+interface EventGroup {
+  key: string;
+  eventName: string;
+  entries: LedgerEntry[];
+}
+
+function groupEntriesByEvent(entries: LedgerEntry[]): EventGroup[] {
+  const groups = new Map<string, EventGroup>();
   for (const entry of entries) {
-    const key = entry.event_name ?? UNLINKED_GROUP;
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key)!.push(entry);
+    const key = entry.event_id != null ? String(entry.event_id) : UNLINKED_KEY;
+    if (!groups.has(key)) {
+      groups.set(key, { key, eventName: entry.event_name ?? "Unlinked entries", entries: [] });
+    }
+    groups.get(key)!.entries.push(entry);
   }
-  // Keep "Unlinked entries" last so event-linked groups surface first.
-  return Array.from(groups.entries()).sort(([a], [b]) => {
-    if (a === UNLINKED_GROUP) return 1;
-    if (b === UNLINKED_GROUP) return -1;
-    return a.localeCompare(b);
+  // Keep unlinked entries last so event-linked groups surface first.
+  return Array.from(groups.values()).sort((a, b) => {
+    if (a.key === UNLINKED_KEY) return 1;
+    if (b.key === UNLINKED_KEY) return -1;
+    return a.eventName.localeCompare(b.eventName);
   });
 }
 
@@ -129,35 +137,63 @@ export function LedgerPage() {
               <p className="text-sm text-neutral-500">No entries yet — record your first payment.</p>
             ) : (
               <div className="flex flex-col gap-6">
-                {groupedEntries.map(([eventName, entries]) => (
-                  <div key={eventName}>
-                    <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-neutral-500">{eventName}</h3>
-                    <div className="flex flex-col gap-2">
-                      {entries.map((entry, idx) => (
-                        <motion.div key={entry.id} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.03 }}>
-                          <Card className="flex items-center justify-between py-3">
-                            <div className="flex items-center gap-3">
-                              <span
-                                className={`flex h-9 w-9 items-center justify-center rounded-full ${
-                                  entry.entry_type === "credit" ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"
-                                }`}
-                              >
-                                {entry.entry_type === "credit" ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-                              </span>
-                              <div>
-                                <p className="text-sm font-semibold text-neutral-800">{entry.description ?? "No description"}</p>
-                                <p className="text-xs text-neutral-400">{new Date(entry.created_at).toLocaleString()}</p>
+                {groupedEntries.map((group) => {
+                  const advance =
+                    group.key !== UNLINKED_KEY
+                      ? ledger.event_summaries.find((s) => String(s.event_id) === group.key)
+                      : undefined;
+                  return (
+                    <div key={group.key}>
+                      <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-neutral-500">{group.eventName}</h3>
+
+                      {advance && (
+                        <div className="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                          <div className="rounded-xl border border-neutral-200 p-2.5">
+                            <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">Paid</p>
+                            <p className="text-sm font-bold text-emerald-600">₹{advance.paid.toLocaleString()}</p>
+                          </div>
+                          <div className="rounded-xl border border-neutral-200 p-2.5">
+                            <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">Utilized</p>
+                            <p className="text-sm font-bold text-neutral-800">₹{advance.utilized.toLocaleString()}</p>
+                          </div>
+                          <div className="rounded-xl border border-neutral-200 p-2.5">
+                            <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">Remaining</p>
+                            <p className="text-sm font-bold text-brand-600">₹{advance.remaining.toLocaleString()}</p>
+                          </div>
+                          <div className="rounded-xl border border-neutral-200 p-2.5">
+                            <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">Outstanding</p>
+                            <p className="text-sm font-bold text-red-600">₹{advance.outstanding.toLocaleString()}</p>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex flex-col gap-2">
+                        {group.entries.map((entry, idx) => (
+                          <motion.div key={entry.id} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.03 }}>
+                            <Card className="flex items-center justify-between py-3">
+                              <div className="flex items-center gap-3">
+                                <span
+                                  className={`flex h-9 w-9 items-center justify-center rounded-full ${
+                                    entry.entry_type === "credit" ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"
+                                  }`}
+                                >
+                                  {entry.entry_type === "credit" ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+                                </span>
+                                <div>
+                                  <p className="text-sm font-semibold text-neutral-800">{entry.description ?? "No description"}</p>
+                                  <p className="text-xs text-neutral-400">{new Date(entry.created_at).toLocaleString()}</p>
+                                </div>
                               </div>
-                            </div>
-                            <p className={`text-sm font-bold ${entry.entry_type === "credit" ? "text-emerald-600" : "text-red-600"}`}>
-                              {entry.entry_type === "credit" ? "+" : "-"}₹{entry.amount.toLocaleString()}
-                            </p>
-                          </Card>
-                        </motion.div>
-                      ))}
+                              <p className={`text-sm font-bold ${entry.entry_type === "credit" ? "text-emerald-600" : "text-red-600"}`}>
+                                {entry.entry_type === "credit" ? "+" : "-"}₹{entry.amount.toLocaleString()}
+                              </p>
+                            </Card>
+                          </motion.div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </>

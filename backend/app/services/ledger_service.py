@@ -3,15 +3,18 @@ import uuid
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.models.booking import Booking
 from app.models.ledger import Invoice, InvoiceStatus, LedgerEntry
+from app.repositories.booking_repository import BookingRepository
 from app.repositories.ledger_repository import LedgerRepository
-from app.schemas.ledger import InvoiceCreate, LedgerEntryCreate, VendorLedgerSummary
+from app.schemas.ledger import EventAdvanceSummary, InvoiceCreate, LedgerEntryCreate, VendorLedgerSummary
 
 
 class LedgerService:
     def __init__(self, db: Session):
         self.db = db
         self.ledger = LedgerRepository(db)
+        self.bookings = BookingRepository(db)
 
     def add_entry(self, vendor_profile, payload: LedgerEntryCreate) -> LedgerEntry:
         entry = LedgerEntry(vendor_id=vendor_profile.id, **payload.model_dump())
@@ -48,4 +51,46 @@ class LedgerService:
             pending_dues=pending_dues,
             entries=entries,
             invoices=invoices,
+            event_summaries=self._build_event_summaries(vendor_profile.id, entries),
         )
+
+    def _build_event_summaries(self, vendor_id: int, entries: list[LedgerEntry]) -> list[EventAdvanceSummary]:
+        """Advance Paid -> Utilized -> Remaining -> Outstanding per event, derived
+        from this vendor's bookings (total_amount) and ledger entries (credit =
+        paid by customer, debit = refund/payout/expense against that advance)."""
+        bookings: list[Booking] = self.bookings.list_by_vendor(vendor_id)
+
+        event_names: dict[int, str] = {}
+        event_totals: dict[int, float] = {}
+        for booking in bookings:
+            if booking.event_id is None:
+                continue
+            event_totals[booking.event_id] = event_totals.get(booking.event_id, 0.0) + booking.total_amount
+            event_names.setdefault(booking.event_id, booking.event_name or f"Event #{booking.event_id}")
+
+        paid_by_event: dict[int, float] = {}
+        utilized_by_event: dict[int, float] = {}
+        for entry in entries:
+            if entry.event_id is None:
+                continue
+            if entry.entry_type.value == "credit":
+                paid_by_event[entry.event_id] = paid_by_event.get(entry.event_id, 0.0) + entry.amount
+            else:
+                utilized_by_event[entry.event_id] = utilized_by_event.get(entry.event_id, 0.0) + entry.amount
+
+        summaries = []
+        for event_id, total_amount in event_totals.items():
+            paid = paid_by_event.get(event_id, 0.0)
+            utilized = utilized_by_event.get(event_id, 0.0)
+            summaries.append(
+                EventAdvanceSummary(
+                    event_id=event_id,
+                    event_name=event_names[event_id],
+                    total_amount=round(total_amount, 2),
+                    paid=round(paid, 2),
+                    utilized=round(utilized, 2),
+                    remaining=round(paid - utilized, 2),
+                    outstanding=round(max(total_amount - paid, 0.0), 2),
+                )
+            )
+        return summaries

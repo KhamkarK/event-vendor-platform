@@ -47,6 +47,19 @@ class InvoiceOut(BaseModel):
     created_at: datetime
 
 
+class EventAdvanceSummary(BaseModel):
+    """Advance-payment breakdown for one event, derived from the vendor's
+    ledger entries and booking(s) tied to that event — see LedgerService."""
+
+    event_id: int
+    event_name: str
+    total_amount: float
+    paid: float
+    utilized: float
+    remaining: float
+    outstanding: float
+
+
 class VendorLedgerSummary(BaseModel):
     total_credit: float
     total_debit: float
@@ -54,3 +67,4 @@ class VendorLedgerSummary(BaseModel):
     pending_dues: float
     entries: list[LedgerEntryOut]
     invoices: list[InvoiceOut]
+    event_summaries: list[EventAdvanceSummary]

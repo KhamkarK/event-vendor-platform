@@ -61,6 +61,17 @@ export interface Invoice {
   created_at: string;
 }
 
+/** Advance-payment breakdown for one event: Paid -> Utilized -> Remaining -> Outstanding. */
+export interface EventAdvanceSummary {
+  event_id: number;
+  event_name: string;
+  total_amount: number;
+  paid: number;
+  utilized: number;
+  remaining: number;
+  outstanding: number;
+}
+
 export interface VendorLedgerSummary {
   total_credit: number;
   total_debit: number;
@@ -68,4 +79,5 @@ export interface VendorLedgerSummary {
   pending_dues: number;
   entries: LedgerEntry[];
   invoices: Invoice[];
+  event_summaries: EventAdvanceSummary[];
 }
