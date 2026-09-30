@@ -35,6 +35,15 @@ class LedgerEntry(Base):
     vendor: Mapped["VendorProfile"] = relationship("VendorProfile", back_populates="ledger_entries")
     booking: Mapped["Booking | None"] = relationship("Booking", back_populates="ledger_entries")
 
+    @property
+    def event_id(self) -> int | None:
+        """Read-only convenience field for LedgerEntryOut — derived via the linked booking's event."""
+        return self.booking.event_id if self.booking else None
+
+    @property
+    def event_name(self) -> str | None:
+        return self.booking.event_name if self.booking else None
+
 
 class Invoice(Base):
     __tablename__ = "invoices"

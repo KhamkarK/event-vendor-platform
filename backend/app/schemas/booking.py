@@ -57,6 +57,7 @@ class BookingOut(BaseModel):
     # "compare quotations" view doesn't need N extra requests per booking.
     vendor_name: str | None = None
     package_title: str | None = None
+    event_name: str | None = None
     quotations: list[QuotationOut] = []
 
 

@@ -22,6 +22,10 @@ class LedgerEntryOut(BaseModel):
     amount: float
     description: str | None = None
     created_at: datetime
+    # Denormalized read-only fields (via model properties), derived from the
+    # linked booking, so the ledger can be grouped/labeled by event client-side.
+    event_id: int | None = None
+    event_name: str | None = None
 
 
 class InvoiceCreate(BaseModel):

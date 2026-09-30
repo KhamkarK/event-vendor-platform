@@ -13,7 +13,7 @@ import {
   TrendingUp,
   Wallet,
 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
@@ -23,7 +23,8 @@ import { Card } from "@/components/common/Card";
 import { Input } from "@/components/common/Input";
 import { Modal } from "@/components/common/Modal";
 import { Sidebar, type SidebarLink } from "@/components/layout/Sidebar";
-import { addLedgerEntry, getMyLedger } from "@/features/vendorDashboard/vendorDashboardApi";
+import { addLedgerEntry, getMyLedger, listVendorBookings } from "@/features/vendorDashboard/vendorDashboardApi";
+import type { LedgerEntry } from "@/types/booking";
 
 const sidebarLinks: SidebarLink[] = [
   { label: "Overview", to: "/vendor-dashboard", icon: LayoutDashboard, end: true },
@@ -34,17 +35,36 @@ const sidebarLinks: SidebarLink[] = [
   { label: "Reviews", to: "/vendor-dashboard/reviews", icon: Star },
 ];
 
+const UNLINKED_GROUP = "Unlinked entries";
+
 const schema = z.object({
   entry_type: z.enum(["credit", "debit"]),
   amount: z.coerce.number().positive("Enter a valid amount"),
   description: z.string().optional(),
+  booking_id: z.string().optional(),
 });
 type FormValues = z.infer<typeof schema>;
+
+function groupEntriesByEvent(entries: LedgerEntry[]): [string, LedgerEntry[]][] {
+  const groups = new Map<string, LedgerEntry[]>();
+  for (const entry of entries) {
+    const key = entry.event_name ?? UNLINKED_GROUP;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(entry);
+  }
+  // Keep "Unlinked entries" last so event-linked groups surface first.
+  return Array.from(groups.entries()).sort(([a], [b]) => {
+    if (a === UNLINKED_GROUP) return 1;
+    if (b === UNLINKED_GROUP) return -1;
+    return a.localeCompare(b);
+  });
+}
 
 export function LedgerPage() {
   const queryClient = useQueryClient();
   const [modalOpen, setModalOpen] = useState(false);
   const { data: ledger, isLoading } = useQuery({ queryKey: ["ledger"], queryFn: getMyLedger });
+  const { data: bookings } = useQuery({ queryKey: ["vendor-bookings"], queryFn: listVendorBookings });
 
   const {
     register,
@@ -62,6 +82,8 @@ export function LedgerPage() {
       setModalOpen(false);
     },
   });
+
+  const groupedEntries = useMemo(() => (ledger ? groupEntriesByEvent(ledger.entries) : []), [ledger]);
 
   return (
     <div className="flex gap-8">
@@ -102,32 +124,39 @@ export function LedgerPage() {
               </Card>
             </div>
 
-            <h2 className="mb-3 mt-8 text-lg font-bold text-neutral-900">Recent entries</h2>
+            <h2 className="mb-3 mt-8 text-lg font-bold text-neutral-900">Entries by event</h2>
             {ledger.entries.length === 0 ? (
               <p className="text-sm text-neutral-500">No entries yet — record your first payment.</p>
             ) : (
-              <div className="flex flex-col gap-2">
-                {ledger.entries.map((entry, idx) => (
-                  <motion.div key={entry.id} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.03 }}>
-                    <Card className="flex items-center justify-between py-3">
-                      <div className="flex items-center gap-3">
-                        <span
-                          className={`flex h-9 w-9 items-center justify-center rounded-full ${
-                            entry.entry_type === "credit" ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"
-                          }`}
-                        >
-                          {entry.entry_type === "credit" ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-                        </span>
-                        <div>
-                          <p className="text-sm font-semibold text-neutral-800">{entry.description ?? "No description"}</p>
-                          <p className="text-xs text-neutral-400">{new Date(entry.created_at).toLocaleString()}</p>
-                        </div>
-                      </div>
-                      <p className={`text-sm font-bold ${entry.entry_type === "credit" ? "text-emerald-600" : "text-red-600"}`}>
-                        {entry.entry_type === "credit" ? "+" : "-"}₹{entry.amount.toLocaleString()}
-                      </p>
-                    </Card>
-                  </motion.div>
+              <div className="flex flex-col gap-6">
+                {groupedEntries.map(([eventName, entries]) => (
+                  <div key={eventName}>
+                    <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-neutral-500">{eventName}</h3>
+                    <div className="flex flex-col gap-2">
+                      {entries.map((entry, idx) => (
+                        <motion.div key={entry.id} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.03 }}>
+                          <Card className="flex items-center justify-between py-3">
+                            <div className="flex items-center gap-3">
+                              <span
+                                className={`flex h-9 w-9 items-center justify-center rounded-full ${
+                                  entry.entry_type === "credit" ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"
+                                }`}
+                              >
+                                {entry.entry_type === "credit" ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+                              </span>
+                              <div>
+                                <p className="text-sm font-semibold text-neutral-800">{entry.description ?? "No description"}</p>
+                                <p className="text-xs text-neutral-400">{new Date(entry.created_at).toLocaleString()}</p>
+                              </div>
+                            </div>
+                            <p className={`text-sm font-bold ${entry.entry_type === "credit" ? "text-emerald-600" : "text-red-600"}`}>
+                              {entry.entry_type === "credit" ? "+" : "-"}₹{entry.amount.toLocaleString()}
+                            </p>
+                          </Card>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
@@ -135,7 +164,15 @@ export function LedgerPage() {
         )}
 
         <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Add ledger entry">
-          <form onSubmit={handleSubmit((values) => mutation.mutate(values))} className="flex flex-col gap-4">
+          <form
+            onSubmit={handleSubmit((values) =>
+              mutation.mutate({
+                ...values,
+                booking_id: values.booking_id ? Number(values.booking_id) : undefined,
+              })
+            )}
+            className="flex flex-col gap-4"
+          >
             <div className="grid grid-cols-2 gap-2">
               {(["credit", "debit"] as const).map((type) => (
                 <label
@@ -149,6 +186,21 @@ export function LedgerPage() {
             </div>
             <Input label="Amount (₹)" type="number" step="0.01" error={errors.amount?.message} {...register("amount")} />
             <Input label="Description (optional)" placeholder="Advance payment for booking #4" {...register("description")} />
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-neutral-600">Event / booking (optional)</label>
+              <select
+                {...register("booking_id")}
+                defaultValue=""
+                className="rounded-xl border border-neutral-200 p-3 text-sm text-neutral-800 focus:border-brand-400 focus:outline-none"
+              >
+                <option value="">Not linked to an event</option>
+                {bookings?.map((booking) => (
+                  <option key={booking.id} value={booking.id}>
+                    {booking.event_name ?? "Untitled event"} (Booking #{booking.id})
+                  </option>
+                ))}
+              </select>
+            </div>
             <Button type="submit" isLoading={isSubmitting} fullWidth>
               Save entry
             </Button>

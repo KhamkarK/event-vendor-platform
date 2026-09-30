@@ -61,6 +61,11 @@ class Booking(Base):
     def package_title(self) -> str | None:
         return self.package.title if self.package else None
 
+    @property
+    def event_name(self) -> str | None:
+        """Read-only convenience field for BookingOut/LedgerEntryOut — the customer event this booking is for."""
+        return self.event.name if self.event else None
+
 
 class Wishlist(Base):
     __tablename__ = "wishlist_items"

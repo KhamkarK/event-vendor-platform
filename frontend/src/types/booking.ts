@@ -26,6 +26,7 @@ export interface Booking {
   /** Denormalized by the backend so the comparison view doesn't need per-booking lookups. */
   vendor_name: string | null;
   package_title: string | null;
+  event_name: string | null;
   quotations: Quotation[];
 }
 
@@ -44,6 +45,9 @@ export interface LedgerEntry {
   amount: number;
   description: string | null;
   created_at: string;
+  /** Denormalized by the backend via the linked booking, for grouping the ledger by event. */
+  event_id: number | null;
+  event_name: string | null;
 }
 
 export interface Invoice {
