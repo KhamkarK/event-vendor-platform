@@ -1,4 +1,6 @@
-import { apiClient } from "@/lib/axios";
+import axios from "axios";
+
+import { API_BASE_URL, apiClient } from "@/lib/axios";
 import { useAuthStore } from "@/store/authStore";
 import type { AuthResponse, User, VendorProfile } from "@/types/user";
 import type { VendorReview } from "@/types/vendor";
@@ -81,11 +83,14 @@ export interface VendorReviewUpdatePayload {
 
 /** Admin-only edit — used from the vendor dashboard while an admin is impersonating
  * that vendor, so it must always authenticate as the admin (the stashed session),
- * never the currently-active impersonated vendor token. */
+ * never the currently-active impersonated vendor token. Calls the raw axios library
+ * directly (bypassing apiClient's interceptor, which always overwrites the
+ * Authorization header with the currently-active session's token) — the same
+ * pattern apiClient's own token-refresh call uses for the same reason. */
 export async function editReview(reviewId: number, payload: VendorReviewUpdatePayload): Promise<VendorReview> {
   const { adminSession, accessToken } = useAuthStore.getState();
   const token = adminSession?.accessToken ?? accessToken;
-  const { data } = await apiClient.patch<VendorReview>(`/admin/reviews/${reviewId}`, payload, {
+  const { data } = await axios.patch<VendorReview>(`${API_BASE_URL}/admin/reviews/${reviewId}`, payload, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return data;
