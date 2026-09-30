@@ -42,6 +42,11 @@ class VendorReviewCreate(BaseModel):
     booking_id: int | None = None
 
 
+class VendorReviewUpdate(BaseModel):
+    rating: int | None = Field(default=None, ge=1, le=5)
+    comment: str | None = None
+
+
 class VendorReviewOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

@@ -6,6 +6,7 @@ from app.db.session import get_db
 from app.models.user import User
 from app.schemas.auth import TokenResponse
 from app.schemas.user import UserOut, VendorProfileAdminOut, VendorProfileOut
+from app.schemas.vendor import VendorReviewOut, VendorReviewUpdate
 from app.services.admin_service import AdminService
 
 router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(require_admin)])
@@ -74,6 +75,11 @@ def delete_vendor(vendor_id: int, db: Session = Depends(get_db)):
 @router.delete("/reviews/{review_id}", status_code=204)
 def delete_review(review_id: int, db: Session = Depends(get_db)):
     AdminService(db).delete_review(review_id)
+
+
+@router.patch("/reviews/{review_id}", response_model=VendorReviewOut)
+def edit_review(review_id: int, payload: VendorReviewUpdate, db: Session = Depends(get_db)):
+    return AdminService(db).edit_review(review_id, payload)
 
 
 @router.post("/customers/{user_id}/impersonate", response_model=TokenResponse)

@@ -10,6 +10,7 @@ from app.repositories.user_repository import UserRepository
 from app.repositories.vendor_repository import VendorRepository
 from app.schemas.auth import TokenResponse
 from app.schemas.user import UserOut
+from app.schemas.vendor import VendorReviewUpdate
 
 
 class AdminService:
@@ -96,6 +97,20 @@ class AdminService:
             profile.rating_avg = round(new_avg, 2)
             profile.rating_count = new_count
         self.vendors.delete_review(review)
+
+    def edit_review(self, review_id: int, payload: VendorReviewUpdate):
+        review = self.vendors.get_review(review_id)
+        if not review:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Review not found")
+        if payload.rating is not None and payload.rating != review.rating:
+            profile = review.vendor
+            if profile.rating_count > 0:
+                new_avg = ((profile.rating_avg * profile.rating_count) - review.rating + payload.rating) / profile.rating_count
+                profile.rating_avg = round(new_avg, 2)
+            review.rating = payload.rating
+        if payload.comment is not None:
+            review.comment = payload.comment
+        return self.vendors.update_review(review)
 
     def _issue_impersonation_tokens(self, user: User) -> TokenResponse:
         if not user.is_active:

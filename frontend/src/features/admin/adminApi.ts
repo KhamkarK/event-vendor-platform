@@ -1,5 +1,7 @@
 import { apiClient } from "@/lib/axios";
+import { useAuthStore } from "@/store/authStore";
 import type { AuthResponse, User, VendorProfile } from "@/types/user";
+import type { VendorReview } from "@/types/vendor";
 
 export interface AdminDashboardStats {
   total_users: number;
@@ -70,6 +72,23 @@ export async function deleteVendor(vendorId: number): Promise<void> {
 
 export async function deleteReview(reviewId: number): Promise<void> {
   await apiClient.delete(`/admin/reviews/${reviewId}`);
+}
+
+export interface VendorReviewUpdatePayload {
+  rating?: number;
+  comment?: string;
+}
+
+/** Admin-only edit — used from the vendor dashboard while an admin is impersonating
+ * that vendor, so it must always authenticate as the admin (the stashed session),
+ * never the currently-active impersonated vendor token. */
+export async function editReview(reviewId: number, payload: VendorReviewUpdatePayload): Promise<VendorReview> {
+  const { adminSession, accessToken } = useAuthStore.getState();
+  const token = adminSession?.accessToken ?? accessToken;
+  const { data } = await apiClient.patch<VendorReview>(`/admin/reviews/${reviewId}`, payload, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data;
 }
 
 export async function impersonateCustomer(userId: number): Promise<AuthResponse> {

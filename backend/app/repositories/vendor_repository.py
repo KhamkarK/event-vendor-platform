@@ -40,6 +40,11 @@ class VendorRepository:
     def get_review(self, review_id: int) -> VendorReview | None:
         return self.db.get(VendorReview, review_id)
 
+    def update_review(self, review: VendorReview) -> VendorReview:
+        self.db.commit()
+        self.db.refresh(review)
+        return review
+
     def delete_review(self, review: VendorReview) -> None:
         self.db.delete(review)
         self.db.commit()
