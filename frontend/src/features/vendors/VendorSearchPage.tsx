@@ -41,7 +41,7 @@ export function VendorSearchPage() {
       {!isPrimeCustomer && (
         <div className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-accent-200 bg-accent-50 px-4 py-3 text-sm text-accent-800">
           <span className="flex items-center gap-2">
-            <Crown size={16} /> Showing up to 5 vendors across select categories. Upgrade to Prime to search every vendor and category.
+            <Crown size={16} /> Showing up to 5 vendors. Upgrade to Prime to search every vendor.
           </span>
           <button
             onClick={() => setShowPrimeModal(true)}

@@ -16,14 +16,8 @@ from app.schemas.vendor import (
     VendorReviewCreate,
 )
 
-# Non-Prime customers only ever see vendors in these categories, capped to
-# FREE_TIER_RESULT_LIMIT results per search — Prime customers see everything.
-# Must exactly match entries in frontend/src/constants/vendorCategories.ts.
-FREE_TIER_CATEGORIES = [
-    "Marriage hall and Banquet Hall",
-    "Food / Chef",
-    "Photography and Videography Services",
-]
+# Non-Prime customers only ever see up to FREE_TIER_RESULT_LIMIT vendors per
+# search, across any category — Prime customers see everything.
 FREE_TIER_RESULT_LIMIT = 5
 
 
@@ -68,7 +62,7 @@ class VendorService:
             profiles = filtered
 
         if not _is_prime_customer(current_user):
-            profiles = [p for p in profiles if p.category in FREE_TIER_CATEGORIES][:FREE_TIER_RESULT_LIMIT]
+            profiles = profiles[:FREE_TIER_RESULT_LIMIT]
 
         return profiles
 
