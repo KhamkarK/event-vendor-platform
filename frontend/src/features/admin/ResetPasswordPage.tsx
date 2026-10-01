@@ -73,8 +73,8 @@ export function ResetPasswordPage() {
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
-  const mutation = useMutation({
-    mutationFn: ({ kind, id, new_password }: { kind: Tab; id: number; new_password: string }) =>
+  const mutation = useMutation<User | VendorProfile, any, { kind: Tab; id: number; new_password: string }>({
+    mutationFn: ({ kind, id, new_password }) =>
       kind === "vendor" ? resetVendorPassword(id, new_password) : resetCustomerPassword(id, new_password),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-vendors"] });
