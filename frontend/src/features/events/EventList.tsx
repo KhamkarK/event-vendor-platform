@@ -1,6 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { CalendarDays, MapPin, Plus, Wallet } from "lucide-react";
+import { CalendarDays, MapPin, Plus, Trash2, Wallet } from "lucide-react";
+import type { MouseEvent } from "react";
+import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 
 import { Button } from "@/components/common/Button";
@@ -8,7 +10,7 @@ import { Card } from "@/components/common/Card";
 import { EmptyState } from "@/components/common/EmptyState";
 import { EventCountdownChip } from "@/components/common/EventCountdownChip";
 import { RangoliSpinner } from "@/components/common/RangoliSpinner";
-import { listEvents } from "@/features/events/eventsApi";
+import { deleteEvent, listEvents } from "@/features/events/eventsApi";
 
 const typeBadgeColor: Record<string, string> = {
   marriage: "bg-brand-50 text-brand-600",
@@ -20,7 +22,27 @@ const typeBadgeColor: Record<string, string> = {
 const DEFAULT_TYPE_BADGE_COLOR = "bg-neutral-100 text-neutral-600";
 
 export function EventList() {
+  const queryClient = useQueryClient();
   const { data: events, isLoading } = useQuery({ queryKey: ["events"], queryFn: listEvents });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteEvent,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      toast.success("Event deleted");
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.detail ?? "Could not delete event");
+    },
+  });
+
+  const handleDelete = (e: MouseEvent, eventId: number, eventName: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (window.confirm(`Delete "${eventName}"? This also removes its budget, bookings and expenses, and cannot be undone.`)) {
+      deleteMutation.mutate(eventId);
+    }
+  };
 
   return (
     <div>
@@ -58,8 +80,16 @@ export function EventList() {
           {events.map((event, idx) => (
             <motion.div key={event.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}>
               <Link to={`/events/${event.id}/budget`}>
-                <Card hoverLift className="h-full cursor-pointer">
-                  <div className="mb-3 flex items-center justify-between">
+                <Card hoverLift className="relative h-full cursor-pointer">
+                  <button
+                    onClick={(e) => handleDelete(e, event.id, event.name)}
+                    className="absolute right-3 top-3 rounded-full p-1.5 text-neutral-300 transition-colors hover:bg-red-50 hover:text-red-600"
+                    aria-label="Delete event"
+                    title="Delete event"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                  <div className="mb-3 flex items-center justify-between pr-6">
                     <span
                       className={`rounded-full px-2.5 py-1 text-xs font-bold capitalize ${
                         typeBadgeColor[event.event_type] ?? DEFAULT_TYPE_BADGE_COLOR
