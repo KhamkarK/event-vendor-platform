@@ -20,7 +20,10 @@ class BookingStatusUpdate(BaseModel):
 
 
 class QuotationCreate(BaseModel):
-    booking_id: int
+    # Optional because the endpoint always overwrites it from the URL path
+    # (see request_quotation in api/v1/bookings.py) — the request body never
+    # needs to supply it.
+    booking_id: int | None = None
     amount: float = Field(gt=0)
     details: str | None = None
 
