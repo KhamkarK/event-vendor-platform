@@ -7,7 +7,7 @@ from app.models.booking import Booking
 from app.models.ledger import Invoice, InvoiceStatus, LedgerEntry
 from app.repositories.booking_repository import BookingRepository
 from app.repositories.ledger_repository import LedgerRepository
-from app.schemas.ledger import EventAdvanceSummary, InvoiceCreate, LedgerEntryCreate, VendorLedgerSummary
+from app.schemas.ledger import EventAdvanceSummary, InvoiceCreate, LedgerEntryCreate, LedgerEntryUpdate, VendorLedgerSummary
 
 
 class LedgerService:
@@ -19,6 +19,14 @@ class LedgerService:
     def add_entry(self, vendor_profile, payload: LedgerEntryCreate) -> LedgerEntry:
         entry = LedgerEntry(vendor_id=vendor_profile.id, **payload.model_dump())
         return self.ledger.create_entry(entry)
+
+    def update_entry(self, vendor_profile, entry_id: int, payload: LedgerEntryUpdate) -> LedgerEntry:
+        entry = self.ledger.get_entry(entry_id)
+        if not entry or entry.vendor_id != vendor_profile.id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ledger entry not found")
+        for field, value in payload.model_dump(exclude_unset=True).items():
+            setattr(entry, field, value)
+        return self.ledger.update_entry(entry)
 
     def create_invoice(self, vendor_profile, payload: InvoiceCreate) -> Invoice:
         invoice = Invoice(

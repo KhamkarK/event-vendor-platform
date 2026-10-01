@@ -32,6 +32,14 @@ export async function addLedgerEntry(payload: {
   return data;
 }
 
+export async function updateLedgerEntry(
+  entryId: number,
+  payload: Partial<{ entry_type: "credit" | "debit"; amount: number; description: string | null; booking_id: number | null }>
+): Promise<LedgerEntry> {
+  const { data } = await apiClient.patch<LedgerEntry>(`/ledger/me/entries/${entryId}`, payload);
+  return data;
+}
+
 export async function createInvoice(payload: { booking_id: number; amount: number; due_date?: string }): Promise<Invoice> {
   const { data } = await apiClient.post<Invoice>("/ledger/me/invoices", payload);
   return data;

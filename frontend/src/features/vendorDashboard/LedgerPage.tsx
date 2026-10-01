@@ -7,6 +7,7 @@ import {
   IndianRupee,
   LayoutDashboard,
   Package,
+  Pencil,
   Plus,
   Star,
   TrendingDown,
@@ -23,7 +24,7 @@ import { Card } from "@/components/common/Card";
 import { Input } from "@/components/common/Input";
 import { Modal } from "@/components/common/Modal";
 import { Sidebar, type SidebarLink } from "@/components/layout/Sidebar";
-import { addLedgerEntry, getMyLedger, listVendorBookings } from "@/features/vendorDashboard/vendorDashboardApi";
+import { addLedgerEntry, getMyLedger, listVendorBookings, updateLedgerEntry } from "@/features/vendorDashboard/vendorDashboardApi";
 import type { LedgerEntry } from "@/types/booking";
 
 const sidebarLinks: SidebarLink[] = [
@@ -71,6 +72,7 @@ function groupEntriesByEvent(entries: LedgerEntry[]): EventGroup[] {
 export function LedgerPage() {
   const queryClient = useQueryClient();
   const [modalOpen, setModalOpen] = useState(false);
+  const [editingEntry, setEditingEntry] = useState<LedgerEntry | null>(null);
   const { data: ledger, isLoading } = useQuery({ queryKey: ["ledger"], queryFn: getMyLedger });
   const { data: bookings } = useQuery({ queryKey: ["vendor-bookings"], queryFn: listVendorBookings });
 
@@ -81,13 +83,44 @@ export function LedgerPage() {
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({ resolver: zodResolver(schema), defaultValues: { entry_type: "credit" } });
 
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditingEntry(null);
+    reset({ entry_type: "credit", amount: undefined, description: "", booking_id: "" });
+  };
+
+  const openEditModal = (entry: LedgerEntry) => {
+    reset({
+      entry_type: entry.entry_type,
+      amount: entry.amount,
+      description: entry.description ?? "",
+      booking_id: entry.booking_id != null ? String(entry.booking_id) : "",
+    });
+    setEditingEntry(entry);
+  };
+
   const mutation = useMutation({
     mutationFn: addLedgerEntry,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["ledger"] });
       toast.success("Ledger entry added");
-      reset();
-      setModalOpen(false);
+      closeModal();
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: (values: FormValues) =>
+      updateLedgerEntry(editingEntry!.id, {
+        ...values,
+        booking_id: values.booking_id ? Number(values.booking_id) : null,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["ledger"] });
+      toast.success("Ledger entry updated");
+      closeModal();
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.detail ?? "Could not update entry");
     },
   });
 
@@ -184,9 +217,18 @@ export function LedgerPage() {
                                   <p className="text-xs text-neutral-400">{new Date(entry.created_at).toLocaleString()}</p>
                                 </div>
                               </div>
-                              <p className={`text-sm font-bold ${entry.entry_type === "credit" ? "text-emerald-600" : "text-red-600"}`}>
-                                {entry.entry_type === "credit" ? "+" : "-"}₹{entry.amount.toLocaleString()}
-                              </p>
+                              <div className="flex items-center gap-3">
+                                <p className={`text-sm font-bold ${entry.entry_type === "credit" ? "text-emerald-600" : "text-red-600"}`}>
+                                  {entry.entry_type === "credit" ? "+" : "-"}₹{entry.amount.toLocaleString()}
+                                </p>
+                                <button
+                                  onClick={() => openEditModal(entry)}
+                                  aria-label="Edit entry"
+                                  className="rounded-full p-1.5 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700"
+                                >
+                                  <Pencil size={14} />
+                                </button>
+                              </div>
                             </Card>
                           </motion.div>
                         ))}
@@ -199,13 +241,15 @@ export function LedgerPage() {
           </>
         )}
 
-        <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Add ledger entry">
+        <Modal isOpen={modalOpen || !!editingEntry} onClose={closeModal} title={editingEntry ? "Edit ledger entry" : "Add ledger entry"}>
           <form
             onSubmit={handleSubmit((values) =>
-              mutation.mutate({
-                ...values,
-                booking_id: values.booking_id ? Number(values.booking_id) : undefined,
-              })
+              editingEntry
+                ? updateMutation.mutate(values)
+                : mutation.mutate({
+                    ...values,
+                    booking_id: values.booking_id ? Number(values.booking_id) : undefined,
+                  })
             )}
             className="flex flex-col gap-4"
           >
@@ -237,8 +281,8 @@ export function LedgerPage() {
                 ))}
               </select>
             </div>
-            <Button type="submit" isLoading={isSubmitting} fullWidth>
-              Save entry
+            <Button type="submit" isLoading={isSubmitting || updateMutation.isPending} fullWidth>
+              {editingEntry ? "Update entry" : "Save entry"}
             </Button>
           </form>
         </Modal>

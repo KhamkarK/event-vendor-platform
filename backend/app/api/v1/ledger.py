@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.core.dependencies import require_vendor
 from app.db.session import get_db
 from app.models.user import User
-from app.schemas.ledger import InvoiceCreate, InvoiceOut, LedgerEntryCreate, LedgerEntryOut, VendorLedgerSummary
+from app.schemas.ledger import InvoiceCreate, InvoiceOut, LedgerEntryCreate, LedgerEntryOut, LedgerEntryUpdate, VendorLedgerSummary
 from app.services.ledger_service import LedgerService
 from app.services.vendor_service import VendorService
 
@@ -21,6 +21,17 @@ def get_my_ledger(current_user: User = Depends(require_vendor), db: Session = De
 def add_entry(payload: LedgerEntryCreate, current_user: User = Depends(require_vendor), db: Session = Depends(get_db)):
     profile = VendorService(db).get_own_profile(current_user)
     return LedgerService(db).add_entry(profile, payload)
+
+
+@router.patch("/me/entries/{entry_id}", response_model=LedgerEntryOut)
+def update_entry(
+    entry_id: int,
+    payload: LedgerEntryUpdate,
+    current_user: User = Depends(require_vendor),
+    db: Session = Depends(get_db),
+):
+    profile = VendorService(db).get_own_profile(current_user)
+    return LedgerService(db).update_entry(profile, entry_id, payload)
 
 
 @router.post("/me/invoices", response_model=InvoiceOut, status_code=201)

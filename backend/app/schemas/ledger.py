@@ -12,6 +12,16 @@ class LedgerEntryCreate(BaseModel):
     description: str | None = None
 
 
+class LedgerEntryUpdate(BaseModel):
+    """Sent when a vendor edits an existing ledger entry — all fields optional,
+    only the ones provided are changed (see LedgerService.update_entry)."""
+
+    booking_id: int | None = None
+    entry_type: LedgerEntryType | None = None
+    amount: float | None = Field(default=None, gt=0)
+    description: str | None = None
+
+
 class LedgerEntryOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

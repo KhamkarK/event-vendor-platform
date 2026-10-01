@@ -21,6 +21,14 @@ class LedgerRepository:
             )
         )
 
+    def get_entry(self, entry_id: int) -> LedgerEntry | None:
+        return self.db.get(LedgerEntry, entry_id)
+
+    def update_entry(self, entry: LedgerEntry) -> LedgerEntry:
+        self.db.commit()
+        self.db.refresh(entry)
+        return entry
+
     def create_invoice(self, invoice: Invoice) -> Invoice:
         self.db.add(invoice)
         self.db.commit()
