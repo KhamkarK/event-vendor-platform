@@ -14,6 +14,7 @@ import { CreateEventPage } from "@/features/events/CreateEventPage";
 import { EventBookingsPage } from "@/features/events/EventBookingsPage";
 import { EventList } from "@/features/events/EventList";
 import { EventTypesPage } from "@/features/events/EventTypesPage";
+import { ExpensesLandingPage } from "@/features/expenses/ExpensesLandingPage";
 import { ExpensesPage } from "@/features/expenses/ExpensesPage";
 import { PaymentStub } from "@/features/payments/PaymentStub";
 import { BookingCalendar } from "@/features/vendorDashboard/BookingCalendar";
@@ -101,6 +102,14 @@ export function AppRoutes() {
           element={
             <ProtectedRoute allowedRoles={["customer"]}>
               <EventBookingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/expenses"
+          element={
+            <ProtectedRoute allowedRoles={["customer"]}>
+              <ExpensesLandingPage />
             </ProtectedRoute>
           }
         />

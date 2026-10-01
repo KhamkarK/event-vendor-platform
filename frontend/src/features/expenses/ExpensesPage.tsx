@@ -29,7 +29,7 @@ type FormValues = z.infer<typeof schema>;
 /** Prime-only feature: a non-Prime customer who opens this page sees an
  * upsell instead of the expense log (see app/api/v1/expenses.py::require_prime_customer
  * for the matching backend enforcement — this page isn't the only gate). */
-function PrimeUpsell() {
+export function PrimeUpsell() {
   const navigate = useNavigate();
   const [showPrimeModal, setShowPrimeModal] = useState(false);
 

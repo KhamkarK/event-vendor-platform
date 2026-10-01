@@ -19,6 +19,7 @@ const navLinksByRole: Record<string, { label: string; to: string }[]> = {
     { label: "Event Types", to: "/event-types" },
     { label: "Find Vendors", to: "/vendors" },
     { label: "My Events", to: "/events" },
+    { label: "Expenses", to: "/expenses" },
   ],
   vendor: [
     { label: "Dashboard", to: "/vendor-dashboard" },
