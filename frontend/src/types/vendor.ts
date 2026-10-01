@@ -29,6 +29,8 @@ export interface VendorSearchResult extends VendorProfile {
 export interface VendorDetail extends VendorProfile {
   packages: VendorPackage[];
   reviews: VendorReview[];
+  /** Only populated for Prime customers — null otherwise. */
+  contact_number: string | null;
 }
 
 export interface VendorBlockedDate {

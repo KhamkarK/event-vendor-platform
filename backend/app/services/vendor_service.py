@@ -3,11 +3,32 @@ from datetime import date
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.models.user import UserRole
 from app.models.vendor import VendorBlockedDate, VendorPackage, VendorReview
 from app.repositories.booking_repository import BookingRepository
 from app.repositories.user_repository import UserRepository
 from app.repositories.vendor_repository import VendorRepository
-from app.schemas.vendor import VendorBlockedDateCreate, VendorPackageCreate, VendorPackageUpdate, VendorReviewCreate
+from app.schemas.vendor import (
+    VendorBlockedDateCreate,
+    VendorDetailOut,
+    VendorPackageCreate,
+    VendorPackageUpdate,
+    VendorReviewCreate,
+)
+
+# Non-Prime customers only ever see vendors in these categories, capped to
+# FREE_TIER_RESULT_LIMIT results per search — Prime customers see everything.
+# Must exactly match entries in frontend/src/constants/vendorCategories.ts.
+FREE_TIER_CATEGORIES = [
+    "Marriage hall and Banquet Hall",
+    "Food / Chef",
+    "Photography and Videography Services",
+]
+FREE_TIER_RESULT_LIMIT = 5
+
+
+def _is_prime_customer(user) -> bool:
+    return user.role == UserRole.CUSTOMER and user.is_prime
 
 
 class VendorService:
@@ -20,6 +41,7 @@ class VendorService:
     def search(
         self,
         *,
+        current_user,
         category: str | None = None,
         categories: list[str] | None = None,
         location: str | None = None,
@@ -44,13 +66,19 @@ class VendorService:
                 if any(in_budget(p.price) for p in packages) or not packages:
                     filtered.append(profile)
             profiles = filtered
+
+        if not _is_prime_customer(current_user):
+            profiles = [p for p in profiles if p.category in FREE_TIER_CATEGORIES][:FREE_TIER_RESULT_LIMIT]
+
         return profiles
 
-    def get_vendor_detail(self, vendor_id: int):
+    def get_vendor_detail(self, vendor_id: int, current_user) -> VendorDetailOut:
         profile = self.users.get_vendor_profile(vendor_id)
         if not profile:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vendor not found")
-        return profile
+        detail = VendorDetailOut.model_validate(profile)
+        detail.contact_number = profile.user.mobile if _is_prime_customer(current_user) else None
+        return detail
 
     def get_own_profile(self, user) -> "VendorProfile":  # noqa: F821
         if not user.vendor_profile:
@@ -84,7 +112,9 @@ class VendorService:
         return self.vendors.list_reviews(vendor_profile.id)
 
     def add_review(self, user_id: int, vendor_id: int, payload: VendorReviewCreate) -> VendorReview:
-        profile = self.get_vendor_detail(vendor_id)
+        profile = self.users.get_vendor_profile(vendor_id)
+        if not profile:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vendor not found")
         review = VendorReview(vendor_id=vendor_id, user_id=user_id, **payload.model_dump())
         review = self.vendors.create_review(review)
 

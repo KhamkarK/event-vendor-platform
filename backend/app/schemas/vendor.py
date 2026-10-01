@@ -66,6 +66,9 @@ class VendorSearchResult(VendorProfileOut):
 class VendorDetailOut(VendorProfileOut):
     packages: list[VendorPackageOut] = []
     reviews: list[VendorReviewOut] = []
+    # Only populated for Prime customers (see VendorService.get_vendor_detail);
+    # non-Prime customers always get null here.
+    contact_number: str | None = None
 
 
 class VendorBlockedDateCreate(BaseModel):

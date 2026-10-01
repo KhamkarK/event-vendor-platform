@@ -35,6 +35,7 @@ def search_vendors(
     db: Session = Depends(get_db),
 ):
     return VendorService(db).search(
+        current_user=current_user,
         category=category,
         categories=categories,
         location=location,
@@ -46,7 +47,7 @@ def search_vendors(
 
 @router.get("/{vendor_id}", response_model=VendorDetailOut)
 def get_vendor(vendor_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    return VendorService(db).get_vendor_detail(vendor_id)
+    return VendorService(db).get_vendor_detail(vendor_id, current_user)
 
 
 @router.post("/{vendor_id}/reviews", response_model=VendorReviewOut, status_code=201)

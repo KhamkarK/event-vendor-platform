@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { ArrowLeft, Heart, MapPin, Package, Star, Trash2 } from "lucide-react";
+import { ArrowLeft, Crown, Heart, MapPin, Package, Phone, Star, Trash2 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
@@ -12,6 +12,7 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { RangoliSpinner } from "@/components/common/RangoliSpinner";
 import { VerifiedRibbon } from "@/components/common/VerifiedRibbon";
 import { deleteReview } from "@/features/admin/adminApi";
+import { PrimeMembershipModal } from "@/components/layout/PrimeMembershipModal";
 import { AddReviewModal } from "@/features/vendors/AddReviewModal";
 import { RequestBookingModal } from "@/features/vendors/RequestBookingModal";
 import { getVendorAvailability, getVendorDetail, toggleWishlist } from "@/features/vendors/vendorsApi";
@@ -27,6 +28,7 @@ export function VendorDetailPage() {
   const [wishlisted, setWishlisted] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showPrimeModal, setShowPrimeModal] = useState(false);
 
   const { data: vendor, isLoading } = useQuery({
     queryKey: ["vendor", id],
@@ -112,6 +114,18 @@ export function VendorDetailPage() {
                 <span className="flex items-center gap-1">
                   <MapPin size={14} /> {vendor.location}
                 </span>
+              )}
+              {vendor.contact_number ? (
+                <span className="flex items-center gap-1">
+                  <Phone size={14} /> {vendor.contact_number}
+                </span>
+              ) : (
+                <button
+                  onClick={() => setShowPrimeModal(true)}
+                  className="flex items-center gap-1 text-white/80 underline-offset-2 hover:underline"
+                >
+                  <Crown size={14} /> Prime members see contact number
+                </button>
               )}
             </div>
           </div>
@@ -208,6 +222,7 @@ export function VendorDetailPage() {
 
       {vendor && <RequestBookingModal isOpen={showBookingModal} onClose={() => setShowBookingModal(false)} vendor={vendor} />}
       <AddReviewModal isOpen={showReviewModal} onClose={() => setShowReviewModal(false)} vendorId={id} />
+      <PrimeMembershipModal isOpen={showPrimeModal} onClose={() => setShowPrimeModal(false)} />
     </div>
   );
 }

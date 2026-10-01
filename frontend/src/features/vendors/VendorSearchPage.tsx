@@ -1,12 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
-import { SearchX } from "lucide-react";
+import { Crown, SearchX } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 
 import { EmptyState } from "@/components/common/EmptyState";
+import { PrimeMembershipModal } from "@/components/layout/PrimeMembershipModal";
 import { VendorCard } from "@/features/vendors/VendorCard";
 import { VendorFilters } from "@/features/vendors/VendorFilters";
 import { searchVendors, type VendorSearchFilters } from "@/features/vendors/vendorsApi";
+import { useAuthStore } from "@/store/authStore";
 
 export function VendorSearchPage() {
   // Arriving from the Event Types flow (EventTypeCategoriesPage) or the landing
@@ -16,6 +18,9 @@ export function VendorSearchPage() {
   const initialState = location.state as { categories?: string[]; location?: string } | null;
   const initialCategories = initialState?.categories;
   const initialLocation = initialState?.location;
+  const { user } = useAuthStore();
+  const isPrimeCustomer = user?.role === "customer" && user?.is_prime;
+  const [showPrimeModal, setShowPrimeModal] = useState(false);
 
   const [filters, setFilters] = useState<VendorSearchFilters>({
     ...(initialCategories && initialCategories.length > 0 ? { categories: initialCategories } : {}),
@@ -32,6 +37,20 @@ export function VendorSearchPage() {
         <h1 className="text-2xl font-extrabold text-neutral-900">Find the perfect vendor</h1>
         <p className="mt-1 text-sm text-neutral-500">Filter by budget, rating, and location to match your event.</p>
       </div>
+
+      {!isPrimeCustomer && (
+        <div className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-accent-200 bg-accent-50 px-4 py-3 text-sm text-accent-800">
+          <span className="flex items-center gap-2">
+            <Crown size={16} /> Showing up to 5 vendors across select categories. Upgrade to Prime to search every vendor and category.
+          </span>
+          <button
+            onClick={() => setShowPrimeModal(true)}
+            className="shrink-0 font-semibold underline-offset-2 hover:underline"
+          >
+            Upgrade
+          </button>
+        </div>
+      )}
 
       <VendorFilters filters={filters} onChange={setFilters} />
 
@@ -52,6 +71,8 @@ export function VendorSearchPage() {
           </div>
         )}
       </div>
+
+      <PrimeMembershipModal isOpen={showPrimeModal} onClose={() => setShowPrimeModal(false)} />
     </div>
   );
 }
