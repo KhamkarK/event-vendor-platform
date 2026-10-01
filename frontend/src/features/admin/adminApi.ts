@@ -105,3 +105,13 @@ export async function impersonateVendor(vendorId: number): Promise<AuthResponse>
   const { data } = await apiClient.post<AuthResponse>(`/admin/vendors/${vendorId}/impersonate`);
   return data;
 }
+
+export async function resetCustomerPassword(userId: number, newPassword: string): Promise<User> {
+  const { data } = await apiClient.post<User>(`/admin/customers/${userId}/reset-password`, { new_password: newPassword });
+  return data;
+}
+
+export async function resetVendorPassword(vendorId: number, newPassword: string): Promise<VendorProfile> {
+  const { data } = await apiClient.post<VendorProfile>(`/admin/vendors/${vendorId}/reset-password`, { new_password: newPassword });
+  return data;
+}

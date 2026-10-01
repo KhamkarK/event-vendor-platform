@@ -2,7 +2,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.core.security import create_access_token, create_refresh_token
+from app.core.security import create_access_token, create_refresh_token, hash_password
 from app.models.booking import Booking
 from app.models.ledger import LedgerEntry
 from app.models.user import User, UserRole, VendorProfile
@@ -141,6 +141,21 @@ class AdminService:
         self.db.commit()
         self.db.refresh(user)
         return user
+
+    def reset_customer_password(self, user_id: int, new_password: str) -> User:
+        user = self.users.get_by_id(user_id)
+        if not user or user.role != UserRole.CUSTOMER:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found")
+        user.hashed_password = hash_password(new_password)
+        return self.users.update(user)
+
+    def reset_vendor_password(self, vendor_id: int, new_password: str) -> VendorProfile:
+        profile = self.users.get_vendor_profile(vendor_id)
+        if not profile:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vendor not found")
+        profile.user.hashed_password = hash_password(new_password)
+        self.users.update(profile.user)
+        return profile
 
     def get_dashboard_stats(self) -> dict:
         total_users = self.db.scalar(select(func.count()).select_from(User).where(User.role == UserRole.CUSTOMER)) or 0

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.models.user import UserRole
 
@@ -67,3 +67,11 @@ class UserUpdate(BaseModel):
     full_name: str | None = None
     email: str | None = None
     mobile: str | None = None
+
+
+class AdminPasswordReset(BaseModel):
+    """Admin-set password for a vendor or customer account — no email/token
+    flow involved; the admin sets the new password directly (see AdminService
+    .reset_customer_password / .reset_vendor_password)."""
+
+    new_password: str = Field(min_length=8, max_length=128)

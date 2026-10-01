@@ -5,7 +5,7 @@ from app.core.dependencies import require_admin
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.auth import TokenResponse
-from app.schemas.user import UserOut, VendorProfileAdminOut, VendorProfileOut
+from app.schemas.user import AdminPasswordReset, UserOut, VendorProfileAdminOut, VendorProfileOut
 from app.schemas.vendor import VendorReviewOut, VendorReviewUpdate
 from app.services.admin_service import AdminService
 
@@ -90,3 +90,13 @@ def impersonate_customer(user_id: int, db: Session = Depends(get_db)):
 @router.post("/vendors/{vendor_id}/impersonate", response_model=TokenResponse)
 def impersonate_vendor(vendor_id: int, db: Session = Depends(get_db)):
     return AdminService(db).impersonate_vendor(vendor_id)
+
+
+@router.post("/customers/{user_id}/reset-password", response_model=UserOut)
+def reset_customer_password(user_id: int, payload: AdminPasswordReset, db: Session = Depends(get_db)):
+    return AdminService(db).reset_customer_password(user_id, payload.new_password)
+
+
+@router.post("/vendors/{vendor_id}/reset-password", response_model=VendorProfileOut)
+def reset_vendor_password(vendor_id: int, payload: AdminPasswordReset, db: Session = Depends(get_db)):
+    return AdminService(db).reset_vendor_password(vendor_id, payload.new_password)

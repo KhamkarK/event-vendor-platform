@@ -7,6 +7,7 @@ import { AdminDashboardPage } from "@/features/admin/AdminDashboardPage";
 import { CommissionSettings } from "@/features/admin/CommissionSettings";
 import { CustomersPage } from "@/features/admin/CustomersPage";
 import { ReportsPage } from "@/features/admin/ReportsPage";
+import { ResetPasswordPage } from "@/features/admin/ResetPasswordPage";
 import { VendorApprovalPage } from "@/features/admin/VendorApprovalPage";
 import { BudgetAllocator } from "@/features/budget/BudgetAllocator";
 import { CreateEventPage } from "@/features/events/CreateEventPage";
@@ -197,6 +198,14 @@ export function AppRoutes() {
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <ReportsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/reset-password"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <ResetPasswordPage />
             </ProtectedRoute>
           }
         />
