@@ -1,4 +1,19 @@
-import { Flame, Flower2, Heart, Music, PartyPopper, Plane, Wine, type LucideIcon } from "lucide-react";
+import {
+  Baby,
+  Briefcase,
+  Cake,
+  Flame,
+  Flower2,
+  Gem,
+  Heart,
+  HeartHandshake,
+  Music,
+  PartyPopper,
+  Plane,
+  Presentation,
+  Wine,
+  type LucideIcon,
+} from "lucide-react";
 
 import { HERO_IMAGE_URL } from "@/constants/heroImage";
 
@@ -14,13 +29,19 @@ export interface EventTypeOption {
 
 const DESTINATION_WEDDING_IMAGE_URL = "https://images.unsplash.com/photo-1515232389446-a17ce9ca7434?auto=format&fit=crop&w=200&q=70";
 
-/** The occasions customers can browse by on the "Event Types" screen. Purely
- * a discovery front door into Find Vendors (see EventTypeCategoriesPage) —
- * unrelated to the Marriage/Birthday/Corporate event_type used when creating
- * an event and generating its budget. */
+/** The occasions customers can browse by on the "Event Types" screen. Kept in
+ * sync with the occasions offered on the Create Event form
+ * (CreateEventPage.tsx's eventTypeOptions) — same slugs, same alphabetical
+ * order — so a customer sees the same set of occasions everywhere. */
 export const EVENT_TYPES: EventTypeOption[] = [
+  { slug: "anniversary", label: "Anniversary", icon: HeartHandshake, image: HERO_IMAGE_URL },
+  { slug: "baby-shower", label: "Baby Shower", icon: Baby, image: HERO_IMAGE_URL },
   { slug: "bachelorette-party", label: "Bachelorette Party", icon: PartyPopper, image: HERO_IMAGE_URL },
-  { slug: "destination-wedding", label: "Destination wedding", icon: Plane, image: DESTINATION_WEDDING_IMAGE_URL },
+  { slug: "birthday-party", label: "Birthday Party", icon: Cake, image: HERO_IMAGE_URL },
+  { slug: "conference", label: "Conference", icon: Presentation, image: HERO_IMAGE_URL },
+  { slug: "corporate-events", label: "Corporate Events", icon: Briefcase, image: HERO_IMAGE_URL },
+  { slug: "destination-wedding", label: "Destination Wedding", icon: Plane, image: DESTINATION_WEDDING_IMAGE_URL },
+  { slug: "engagement", label: "Engagement", icon: Gem, image: HERO_IMAGE_URL },
   { slug: "grahshanti", label: "Grahshanti", icon: Flame, image: HERO_IMAGE_URL },
   { slug: "haldi-mehendi-ceremony", label: "Haldi And Mehendi Ceremony", icon: Flower2, image: HERO_IMAGE_URL },
   { slug: "reception-ceremony", label: "Reception Ceremony", icon: Wine, image: HERO_IMAGE_URL },
