@@ -21,6 +21,8 @@ export interface Booking {
   total_amount: number;
   advance_amount: number;
   notes: string | null;
+  requested_date: string | null;
+  guest_count: number | null;
   created_at: string;
   updated_at: string;
   /** Denormalized by the backend so the comparison view doesn't need per-booking lookups. */

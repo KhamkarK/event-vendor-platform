@@ -9,7 +9,7 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { PetalBurst } from "@/components/common/PetalBurst";
 import { RangoliSpinner } from "@/components/common/RangoliSpinner";
 import { Sidebar, type SidebarLink } from "@/components/layout/Sidebar";
-import { listVendorBookings, updateBookingStatus } from "@/features/vendorDashboard/vendorDashboardApi";
+import { listVendorBookings, requestQuotation, updateBookingStatus } from "@/features/vendorDashboard/vendorDashboardApi";
 
 const sidebarLinks: SidebarLink[] = [
   { label: "Overview", to: "/vendor-dashboard", icon: LayoutDashboard, end: true },
@@ -54,33 +54,96 @@ export function QuotationManager() {
           ) : (
             <div className="flex flex-col gap-3">
               {requestedBookings.map((booking) => (
-                <Card key={booking.id} className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-semibold text-neutral-800">Booking #{booking.id} — Event #{booking.event_id}</p>
-                    <p className="text-xs capitalize text-neutral-500">Status: {booking.status.replace("_", " ")}</p>
+                <Card key={booking.id} className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-neutral-800">Booking #{booking.id} — Event #{booking.event_id}</p>
+                      <p className="text-xs capitalize text-neutral-500">Status: {booking.status.replace("_", " ")}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => statusMutation.mutate({ id: booking.id, status: "confirmed" })}
+                      >
+                        <CheckCircle2 size={15} /> Confirm
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="danger"
+                        onClick={() => statusMutation.mutate({ id: booking.id, status: "cancelled" })}
+                      >
+                        <XCircle size={15} /> Decline
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => statusMutation.mutate({ id: booking.id, status: "confirmed" })}
-                    >
-                      <CheckCircle2 size={15} /> Confirm
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="danger"
-                      onClick={() => statusMutation.mutate({ id: booking.id, status: "cancelled" })}
-                    >
-                      <XCircle size={15} /> Decline
-                    </Button>
-                  </div>
+
+                  {(booking.requested_date || booking.guest_count || booking.notes) && (
+                    <div className="rounded-xl bg-neutral-50 px-3 py-2 text-xs text-neutral-600">
+                      {booking.requested_date && <p>Date needed: {booking.requested_date}</p>}
+                      {booking.guest_count && <p>Guests: {booking.guest_count}</p>}
+                      {booking.notes && <p>Requirement: {booking.notes}</p>}
+                    </div>
+                  )}
+
+                  {booking.quotations.length > 0 ? (
+                    <p className="text-xs font-semibold text-blue-700">
+                      Quoted ₹{booking.quotations[booking.quotations.length - 1].amount.toLocaleString()}
+                    </p>
+                  ) : (
+                    <QuoteForm bookingId={booking.id} />
+                  )}
                 </Card>
               ))}
             </div>
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+/** Lets the vendor reply to a pending quotation request with an amount + optional details. */
+function QuoteForm({ bookingId }: { bookingId: number }) {
+  const queryClient = useQueryClient();
+  const [amount, setAmount] = useState("");
+  const [details, setDetails] = useState("");
+
+  const mutation = useMutation({
+    mutationFn: () => requestQuotation(bookingId, { amount: Number(amount), details: details || undefined }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["vendor-bookings"] });
+      toast.success("Quotation sent");
+      setAmount("");
+      setDetails("");
+    },
+    onError: (error: any) => toast.error(error?.response?.data?.detail ?? "Could not send quotation"),
+  });
+
+  return (
+    <div className="flex flex-wrap items-end gap-2 border-t border-neutral-100 pt-3">
+      <div className="min-w-[120px] flex-1">
+        <label className="mb-1 block text-xs font-semibold text-neutral-600">Quote amount (₹)</label>
+        <input
+          type="number"
+          min={1}
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="w-full rounded-lg border border-neutral-200 px-2.5 py-1.5 text-sm focus:border-brand-400 focus:outline-none"
+        />
+      </div>
+      <div className="min-w-[160px] flex-[2]">
+        <label className="mb-1 block text-xs font-semibold text-neutral-600">Details (optional)</label>
+        <input
+          type="text"
+          value={details}
+          onChange={(e) => setDetails(e.target.value)}
+          className="w-full rounded-lg border border-neutral-200 px-2.5 py-1.5 text-sm focus:border-brand-400 focus:outline-none"
+        />
+      </div>
+      <Button size="sm" isLoading={mutation.isPending} disabled={!amount} onClick={() => mutation.mutate()}>
+        Send quotation
+      </Button>
     </div>
   );
 }

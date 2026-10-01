@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -11,6 +11,8 @@ class BookingCreate(BaseModel):
     package_id: int | None = None
     budget_category_id: int | None = None
     notes: str | None = None
+    requested_date: date | None = None
+    guest_count: int | None = None
 
 
 class BookingStatusUpdate(BaseModel):
@@ -51,6 +53,8 @@ class BookingOut(BaseModel):
     total_amount: float
     advance_amount: float
     notes: str | None = None
+    requested_date: date | None = None
+    guest_count: int | None = None
     created_at: datetime
     updated_at: datetime
     # Denormalized read-only fields (via model properties) so the customer-facing

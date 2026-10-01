@@ -23,6 +23,9 @@ export function RequestBookingModal({ isOpen, onClose, vendor }: RequestBookingM
   const navigate = useNavigate();
   const [eventId, setEventId] = useState<number | "">("");
   const [packageId, setPackageId] = useState<number | "">("");
+  const [requestedDate, setRequestedDate] = useState("");
+  const [guestCount, setGuestCount] = useState<number | "">("");
+  const [requirement, setRequirement] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const { data: events } = useQuery({ queryKey: ["my-events"], queryFn: listEvents, enabled: isOpen });
@@ -40,7 +43,14 @@ export function RequestBookingModal({ isOpen, onClose, vendor }: RequestBookingM
     }
     setSubmitting(true);
     try {
-      await createBooking({ event_id: eventId, vendor_id: vendor.id, package_id: packageId || undefined });
+      await createBooking({
+        event_id: eventId,
+        vendor_id: vendor.id,
+        package_id: packageId || undefined,
+        requested_date: requestedDate || undefined,
+        guest_count: guestCount || undefined,
+        notes: requirement || undefined,
+      });
       toast.success("Booking request sent to the vendor");
       onClose();
     } catch (error: any) {
@@ -91,6 +101,38 @@ export function RequestBookingModal({ isOpen, onClose, vendor }: RequestBookingM
                 <CalendarX2 className="h-3.5 w-3.5" /> This vendor isn't available on that date.
               </p>
             )}
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-sm font-semibold text-neutral-700">Date needed (optional)</label>
+            <input
+              type="date"
+              value={requestedDate}
+              onChange={(e) => setRequestedDate(e.target.value)}
+              className="w-full rounded-xl border border-neutral-200 px-3 py-2.5 text-sm focus:border-brand-400 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-sm font-semibold text-neutral-700">Guest number (optional)</label>
+            <input
+              type="number"
+              min={1}
+              value={guestCount}
+              onChange={(e) => setGuestCount(e.target.value ? Number(e.target.value) : "")}
+              className="w-full rounded-xl border border-neutral-200 px-3 py-2.5 text-sm focus:border-brand-400 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-sm font-semibold text-neutral-700">Requirement (optional)</label>
+            <textarea
+              value={requirement}
+              onChange={(e) => setRequirement(e.target.value)}
+              rows={3}
+              placeholder="Any specific requirement for the vendor…"
+              className="w-full rounded-xl border border-neutral-200 px-3 py-2.5 text-sm focus:border-brand-400 focus:outline-none"
+            />
           </div>
 
           {vendor.packages.length > 0 && (

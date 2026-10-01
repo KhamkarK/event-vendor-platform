@@ -36,7 +36,9 @@ class BookingService:
             package_id=payload.package_id,
             budget_category_id=payload.budget_category_id,
             notes=payload.notes,
-            status=BookingStatus.INTERESTED,
+            requested_date=payload.requested_date,
+            guest_count=payload.guest_count,
+            status=BookingStatus.QUOTE_REQUESTED,
         )
         return self.bookings.create(booking)
 
@@ -71,26 +73,27 @@ class BookingService:
 
     # --- quotations ---
 
-    def request_quotation(self, user_id: int, payload: QuotationCreate) -> Quotation:
+    def request_quotation(self, vendor_profile, payload: QuotationCreate) -> Quotation:
+        """Vendor responds to a customer's quotation request with an amount + details."""
         booking = self.bookings.get_by_id(payload.booking_id)
-        if not booking:
+        if not booking or booking.vendor_id != vendor_profile.id:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found")
-        booking.status = BookingStatus.QUOTE_REQUESTED
+        booking.status = BookingStatus.QUOTED
         self.bookings.update(booking)
-        quotation = Quotation(booking_id=payload.booking_id, vendor_id=booking.vendor_id, amount=payload.amount, details=payload.details)
+        quotation = Quotation(booking_id=payload.booking_id, vendor_id=vendor_profile.id, amount=payload.amount, details=payload.details)
         return self.bookings.create_quotation(quotation)
 
-    def respond_quotation(self, quotation_id: int, vendor_profile, payload: QuotationRespond) -> Quotation:
+    def respond_quotation(self, user_id: int, quotation_id: int, payload: QuotationRespond) -> Quotation:
+        """Customer accepts/rejects a quotation the vendor sent for their event."""
         quotation = self.bookings.get_quotation(quotation_id)
-        if not quotation or quotation.vendor_id != vendor_profile.id:
+        booking = self.bookings.get_by_id(quotation.booking_id) if quotation else None
+        event = self.events.get_by_id(booking.event_id) if booking else None
+        if not quotation or not booking or not event or event.user_id != user_id:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quotation not found")
         quotation.status = payload.status
         quotation = self.bookings.update_quotation(quotation)
 
-        booking = self.bookings.get_by_id(quotation.booking_id)
-        if booking:
-            if payload.status.value == "accepted":
-                booking.status = BookingStatus.QUOTED
-                booking.total_amount = quotation.amount
+        if payload.status.value == "accepted":
+            booking.total_amount = quotation.amount
             self.bookings.update(booking)
         return quotation

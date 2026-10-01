@@ -43,7 +43,14 @@ export async function addReview(vendorId: number, rating: number, comment?: stri
   return data;
 }
 
-export async function createBooking(payload: { event_id: number; vendor_id: number; package_id?: number }) {
+export async function createBooking(payload: {
+  event_id: number;
+  vendor_id: number;
+  package_id?: number;
+  requested_date?: string;
+  guest_count?: number;
+  notes?: string;
+}) {
   const { data } = await apiClient.post("/bookings", payload);
   return data;
 }

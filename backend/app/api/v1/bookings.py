@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.core.dependencies import get_current_user, require_vendor
+from app.core.dependencies import get_current_user, require_customer, require_vendor
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.booking import (
@@ -51,22 +51,21 @@ def update_booking_status(
 
 @router.post("/{booking_id}/quotations", response_model=QuotationOut, status_code=201)
 def request_quotation(
-    booking_id: int, payload: QuotationCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
+    booking_id: int, payload: QuotationCreate, current_user: User = Depends(require_vendor), db: Session = Depends(get_db)
 ):
     payload.booking_id = booking_id
-    return BookingService(db).request_quotation(current_user.id, payload)
+    profile = VendorService(db).get_own_profile(current_user)
+    return BookingService(db).request_quotation(profile, payload)
 
 
 @router.patch("/quotations/{quotation_id}", response_model=QuotationOut)
 def respond_quotation(
     quotation_id: int,
     payload: QuotationRespond,
-    current_user: User = Depends(require_vendor),
+    current_user: User = Depends(require_customer),
     db: Session = Depends(get_db),
 ):
-    booking_service = BookingService(db)
-    profile = VendorService(db).get_own_profile(current_user)
-    return booking_service.respond_quotation(quotation_id, profile, payload)
+    return BookingService(db).respond_quotation(current_user.id, quotation_id, payload)
 
 
 # --- Wishlist ---

@@ -1,13 +1,15 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { ArrowLeft, Columns3, LayoutList, Package, Store } from "lucide-react";
 import { useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
+import { Button } from "@/components/common/Button";
 import { Card } from "@/components/common/Card";
 import { EmptyState } from "@/components/common/EmptyState";
 import { RangoliSpinner } from "@/components/common/RangoliSpinner";
-import { listEventBookings } from "@/features/events/bookingsApi";
+import { listEventBookings, respondToQuotation } from "@/features/events/bookingsApi";
 import { getEvent } from "@/features/events/eventsApi";
 import type { Booking } from "@/types/booking";
 
@@ -20,14 +22,19 @@ const statusTone: Record<Booking["status"], string> = {
   cancelled: "bg-red-50 text-red-700",
 };
 
-function latestQuotationAmount(booking: Booking): number | null {
+function latestQuotation(booking: Booking) {
   if (!booking.quotations.length) return null;
-  return [...booking.quotations].sort((a, b) => b.created_at.localeCompare(a.created_at))[0].amount;
+  return [...booking.quotations].sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
+}
+
+function latestQuotationAmount(booking: Booking): number | null {
+  return latestQuotation(booking)?.amount ?? null;
 }
 
 export function EventBookingsPage() {
   const { eventId } = useParams<{ eventId: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const id = Number(eventId);
   const [view, setView] = useState<"cards" | "compare">("cards");
 
@@ -36,6 +43,16 @@ export function EventBookingsPage() {
     queryKey: ["event-bookings", id],
     queryFn: () => listEventBookings(id),
     enabled: !!id,
+  });
+
+  const respondMutation = useMutation({
+    mutationFn: ({ quotationId, status }: { quotationId: number; status: "accepted" | "rejected" }) =>
+      respondToQuotation(quotationId, status),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["event-bookings", id] });
+      toast.success("Quotation updated");
+    },
+    onError: (error: any) => toast.error(error?.response?.data?.detail ?? "Could not update quotation"),
   });
 
   const withQuotations = useMemo(() => (bookings ?? []).filter((b) => b.quotations.length > 0), [bookings]);
@@ -134,7 +151,7 @@ export function EventBookingsPage() {
       ) : (
         <div className="flex flex-col gap-3">
           {bookings.map((booking, idx) => {
-            const amount = latestQuotationAmount(booking);
+            const quotation = latestQuotation(booking);
             return (
               <motion.div key={booking.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}>
                 <Card className="flex flex-wrap items-center justify-between gap-3">
@@ -149,12 +166,41 @@ export function EventBookingsPage() {
                         <Package size={12} /> {booking.package_title}
                       </p>
                     )}
+                    {(booking.requested_date || booking.guest_count || booking.notes) && (
+                      <p className="mt-1 text-xs text-neutral-500">
+                        {[
+                          booking.requested_date && `Date: ${booking.requested_date}`,
+                          booking.guest_count && `Guests: ${booking.guest_count}`,
+                          booking.notes && `Requirement: ${booking.notes}`,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </p>
+                    )}
                   </div>
                   <div className="flex items-center gap-3">
-                    {amount !== null && <span className="text-sm font-bold text-neutral-900">₹{amount.toLocaleString()}</span>}
+                    {quotation && <span className="text-sm font-bold text-neutral-900">₹{quotation.amount.toLocaleString()}</span>}
                     <span className={`rounded-full px-2.5 py-1 text-xs font-bold capitalize ${statusTone[booking.status]}`}>
                       {booking.status.replace("_", " ")}
                     </span>
+                    {quotation?.status === "pending" && (
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => respondMutation.mutate({ quotationId: quotation.id, status: "accepted" })}
+                        >
+                          Accept
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="danger"
+                          onClick={() => respondMutation.mutate({ quotationId: quotation.id, status: "rejected" })}
+                        >
+                          Reject
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </Card>
               </motion.div>

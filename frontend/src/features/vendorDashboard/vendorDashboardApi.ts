@@ -17,6 +17,12 @@ export async function respondToQuotation(quotationId: number, status: "accepted"
   return data;
 }
 
+/** Vendor's reply to a customer's quotation request: an amount + details for that booking. */
+export async function requestQuotation(bookingId: number, payload: { amount: number; details?: string }): Promise<Quotation> {
+  const { data } = await apiClient.post<Quotation>(`/bookings/${bookingId}/quotations`, payload);
+  return data;
+}
+
 export async function getMyLedger(): Promise<VendorLedgerSummary> {
   const { data } = await apiClient.get<VendorLedgerSummary>("/ledger/me");
   return data;
