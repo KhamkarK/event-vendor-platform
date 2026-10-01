@@ -48,3 +48,18 @@ export interface BudgetSummary {
   is_over_budget: boolean;
   categories: BudgetAllocation[];
 }
+
+export interface Expense {
+  id: number;
+  event_id: number;
+  budget_allocation_id: number;
+  category_name: string | null;
+  description: string;
+  amount: number;
+  created_at: string;
+}
+
+export interface ExpenseSummary {
+  total_spent: number;
+  expenses: Expense[];
+}

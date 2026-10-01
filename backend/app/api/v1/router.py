@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.v1 import admin, auth, bookings, budget, events, ledger, uploads, users, vendors
+from app.api.v1 import admin, auth, bookings, budget, events, expenses, ledger, uploads, users, vendors
 
 api_router = APIRouter()
 
@@ -8,6 +8,7 @@ api_router.include_router(auth.router)
 api_router.include_router(users.router)
 api_router.include_router(events.router)
 api_router.include_router(budget.router)
+api_router.include_router(expenses.router)
 api_router.include_router(vendors.router)
 api_router.include_router(vendors.package_router)
 api_router.include_router(vendors.blocked_dates_router)

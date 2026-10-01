@@ -3,7 +3,7 @@ import { restrictToVerticalAxis, restrictToParentElement } from "@dnd-kit/modifi
 import { SortableContext, arrayMove, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertTriangle, ArrowLeft, CheckCircle2, ClipboardList, Wallet } from "lucide-react";
+import { AlertTriangle, ArrowLeft, CheckCircle2, ClipboardList, Receipt, Wallet } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
@@ -234,6 +234,9 @@ export function BudgetAllocator() {
       </DndContext>
 
       <div className="mt-6 flex justify-end gap-3">
+        <Button variant="outline" onClick={() => navigate(`/events/${id}/expenses`)}>
+          <Receipt size={16} /> Expenses
+        </Button>
         <Button variant="outline" onClick={() => navigate(`/events/${id}/bookings`)}>
           <ClipboardList size={16} /> View bookings & quotations
         </Button>
