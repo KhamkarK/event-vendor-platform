@@ -8,20 +8,22 @@ from typing import Sequence, Union
 
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy.dialects import postgresql
 
 revision: str = 'a7f3c9d1e825'
 down_revision: Union[str, None] = 'a3f8e1c9b204'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
+
 def upgrade() -> None:
-    # Raw SQL + exception guard rather than Enum.create(checkfirst=True): a
-    # prior failed deploy left this type behind without the table (see the
-    # "already exists" incident this migration was rewritten to fix), and
-    # SQLAlchemy's checkfirst existence check wasn't reliably detecting that
-    # here — this Postgres-native idiom catches "already exists" directly
-    # instead of depending on that pre-check. The column below passes
-    # create_type=False so op.create_table doesn't also try to create it.
+    # Raw SQL + duplicate_object guard: a prior failed deploy left this type
+    # behind without the table (see the "already exists" incident this
+    # migration was rewritten to fix twice already). The column below uses
+    # postgresql.ENUM (not the generic sa.Enum) with create_type=False —
+    # generic sa.Enum's create_type flag doesn't reliably survive SQLAlchemy's
+    # dialect adaptation for Postgres, which is why op.create_table kept
+    # re-issuing its own CREATE TYPE despite create_type=False being set on it.
     op.execute(
         "DO $$ BEGIN "
         "CREATE TYPE advertisement_media_type AS ENUM ('image', 'video'); "
@@ -32,7 +34,11 @@ def upgrade() -> None:
         'advertisements',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('media_url', sa.String(length=500), nullable=False),
-        sa.Column('media_type', sa.Enum('image', 'video', name='advertisement_media_type', create_type=False), nullable=False),
+        sa.Column(
+            'media_type',
+            postgresql.ENUM('image', 'video', name='advertisement_media_type', create_type=False),
+            nullable=False,
+        ),
         sa.Column('link_url', sa.String(length=500), nullable=True),
         sa.Column('is_active', sa.Boolean(), nullable=False),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
