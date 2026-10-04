@@ -14,16 +14,18 @@ down_revision: Union[str, None] = 'a3f8e1c9b204'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-advertisement_media_type = sa.Enum('image', 'video', name='advertisement_media_type')
-
-
 def upgrade() -> None:
-    advertisement_media_type.create(op.get_bind(), checkfirst=True)
+    # Create the enum type ourselves, tolerant of it already existing (a prior
+    # failed deploy attempt left it behind without the table — see the
+    # "already exists" incident this migration was rewritten to fix). The
+    # column below passes create_type=False so op.create_table doesn't also
+    # try to create it a second time in the same migration run.
+    sa.Enum('image', 'video', name='advertisement_media_type').create(op.get_bind(), checkfirst=True)
     op.create_table(
         'advertisements',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('media_url', sa.String(length=500), nullable=False),
-        sa.Column('media_type', advertisement_media_type, nullable=False),
+        sa.Column('media_type', sa.Enum('image', 'video', name='advertisement_media_type', create_type=False), nullable=False),
         sa.Column('link_url', sa.String(length=500), nullable=True),
         sa.Column('is_active', sa.Boolean(), nullable=False),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
@@ -36,4 +38,4 @@ def upgrade() -> None:
 def downgrade() -> None:
     op.drop_index(op.f('ix_advertisements_id'), table_name='advertisements')
     op.drop_table('advertisements')
-    advertisement_media_type.drop(op.get_bind(), checkfirst=True)
+    sa.Enum(name='advertisement_media_type').drop(op.get_bind(), checkfirst=True)
