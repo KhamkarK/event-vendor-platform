@@ -15,12 +15,19 @@ branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
-    # Create the enum type ourselves, tolerant of it already existing (a prior
-    # failed deploy attempt left it behind without the table — see the
-    # "already exists" incident this migration was rewritten to fix). The
-    # column below passes create_type=False so op.create_table doesn't also
-    # try to create it a second time in the same migration run.
-    sa.Enum('image', 'video', name='advertisement_media_type').create(op.get_bind(), checkfirst=True)
+    # Raw SQL + exception guard rather than Enum.create(checkfirst=True): a
+    # prior failed deploy left this type behind without the table (see the
+    # "already exists" incident this migration was rewritten to fix), and
+    # SQLAlchemy's checkfirst existence check wasn't reliably detecting that
+    # here — this Postgres-native idiom catches "already exists" directly
+    # instead of depending on that pre-check. The column below passes
+    # create_type=False so op.create_table doesn't also try to create it.
+    op.execute(
+        "DO $$ BEGIN "
+        "CREATE TYPE advertisement_media_type AS ENUM ('image', 'video'); "
+        "EXCEPTION WHEN duplicate_object THEN null; "
+        "END $$;"
+    )
     op.create_table(
         'advertisements',
         sa.Column('id', sa.Integer(), nullable=False),
@@ -38,4 +45,4 @@ def upgrade() -> None:
 def downgrade() -> None:
     op.drop_index(op.f('ix_advertisements_id'), table_name='advertisements')
     op.drop_table('advertisements')
-    sa.Enum(name='advertisement_media_type').drop(op.get_bind(), checkfirst=True)
+    op.execute("DROP TYPE IF EXISTS advertisement_media_type")
