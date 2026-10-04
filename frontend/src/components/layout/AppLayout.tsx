@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 
+import { AdBanner } from "@/components/layout/AdBanner";
 import { BrochureModal } from "@/components/common/BrochureModal";
 import { CommandPalette } from "@/components/common/CommandPalette";
 import { PageTransition } from "@/components/common/PageTransition";
@@ -11,6 +12,7 @@ export function AppLayout() {
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
+      <AdBanner />
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 pb-20 sm:px-6 lg:px-8 lg:pb-8">
         <PageTransition>
           <Outlet />

@@ -4,6 +4,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { LoginPage } from "@/features/auth/LoginPage";
 import { SignupPage } from "@/features/auth/SignupPage";
 import { AdminDashboardPage } from "@/features/admin/AdminDashboardPage";
+import { AdvertisementsPage } from "@/features/admin/AdvertisementsPage";
 import { CommissionSettings } from "@/features/admin/CommissionSettings";
 import { CustomersPage } from "@/features/admin/CustomersPage";
 import { ReportsPage } from "@/features/admin/ReportsPage";
@@ -208,6 +209,14 @@ export function AppRoutes() {
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <CommissionSettings />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/advertisements"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdvertisementsPage />
             </ProtectedRoute>
           }
         />

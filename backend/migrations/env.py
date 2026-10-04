@@ -17,6 +17,7 @@ from app.models.budget import BudgetCategory, BudgetAllocation  # noqa: E402,F40
 from app.models.vendor import VendorBlockedDate, VendorPackage, VendorReview  # noqa: E402,F401
 from app.models.booking import Booking, Wishlist, Quotation  # noqa: E402,F401
 from app.models.ledger import LedgerEntry, Invoice  # noqa: E402,F401
+from app.models.advertisement import Advertisement  # noqa: E402,F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)

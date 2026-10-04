@@ -1,7 +1,7 @@
 import { DndContext, type DragEndEvent, PointerSensor, useDraggable, useDroppable, useSensor, useSensors } from "@dnd-kit/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { BarChart3, Crown, GripVertical, KeyRound, LayoutDashboard, LogIn, Mail, Phone, ShieldCheck, Sliders, Trash2, Users } from "lucide-react";
+import { BarChart3, Crown, GripVertical, KeyRound, LayoutDashboard, LogIn, Mail, Megaphone, Phone, ShieldCheck, Sliders, Trash2, Users } from "lucide-react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -17,6 +17,7 @@ const sidebarLinks: SidebarLink[] = [
   { label: "Vendors", to: "/admin/vendors", icon: ShieldCheck },
   { label: "Customers", to: "/admin/customers", icon: Users },
   { label: "Commissions", to: "/admin/commissions", icon: Sliders },
+  { label: "Advertisements", to: "/admin/advertisements", icon: Megaphone },
   { label: "Reports", to: "/admin/reports", icon: BarChart3 },
   { label: "Reset Passwords", to: "/admin/reset-password", icon: KeyRound },
 ];

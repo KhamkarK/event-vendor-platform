@@ -55,6 +55,7 @@ class Settings(BaseSettings):
     MEDIA_URL_PREFIX: str = "/media"
     MEDIA_BASE_URL: str = "http://localhost:8000"
     MAX_UPLOAD_MB: float = 5.0
+    MAX_AD_VIDEO_UPLOAD_MB: float = 20.0
 
 
 @lru_cache

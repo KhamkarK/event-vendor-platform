@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { BarChart3, KeyRound, LayoutDashboard, ShieldCheck, Sliders, Users } from "lucide-react";
+import { BarChart3, KeyRound, LayoutDashboard, Megaphone, ShieldCheck, Sliders, Users } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import { MehendiCorner } from "@/assets/MehendiCorner";
@@ -13,6 +13,7 @@ const sidebarLinks: SidebarLink[] = [
   { label: "Vendors", to: "/admin/vendors", icon: ShieldCheck },
   { label: "Customers", to: "/admin/customers", icon: Users },
   { label: "Commissions", to: "/admin/commissions", icon: Sliders },
+  { label: "Advertisements", to: "/admin/advertisements", icon: Megaphone },
   { label: "Reports", to: "/admin/reports", icon: BarChart3 },
   { label: "Reset Passwords", to: "/admin/reset-password", icon: KeyRound },
 ];

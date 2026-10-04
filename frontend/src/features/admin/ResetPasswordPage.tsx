@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { BarChart3, KeyRound, LayoutDashboard, Mail, Phone, Search, ShieldCheck, Sliders, Store, Users } from "lucide-react";
+import { BarChart3, KeyRound, LayoutDashboard, Mail, Megaphone, Phone, Search, ShieldCheck, Sliders, Store, Users } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -22,6 +22,7 @@ const sidebarLinks: SidebarLink[] = [
   { label: "Vendors", to: "/admin/vendors", icon: ShieldCheck },
   { label: "Customers", to: "/admin/customers", icon: Users },
   { label: "Commissions", to: "/admin/commissions", icon: Sliders },
+  { label: "Advertisements", to: "/admin/advertisements", icon: Megaphone },
   { label: "Reports", to: "/admin/reports", icon: BarChart3 },
   { label: "Reset Passwords", to: "/admin/reset-password", icon: KeyRound },
 ];
