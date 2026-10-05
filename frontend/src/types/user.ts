@@ -6,6 +6,8 @@ export interface VendorProfile {
   category: string;
   description: string | null;
   location: string | null;
+  /** Instagram/website link the vendor sets themselves — shown to customers on the search card below the contact number. */
+  profile_url?: string | null;
   documents: string[] | null;
   commission_rate: number;
   rating_avg: number;

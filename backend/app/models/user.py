@@ -63,6 +63,10 @@ class VendorProfile(Base):
     category: Mapped[str] = mapped_column(String(100), nullable=False)  # e.g. Catering, Venue, Photography
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     location: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    # Instagram/website link the vendor sets themselves; shown to customers on
+    # the search-results card (see app/services/vendor_service.py) below the
+    # contact number. Freeform, not validated beyond length.
+    profile_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     documents: Mapped[list | None] = mapped_column(  # list of uploaded document URLs for KYC
         __import__("sqlalchemy").JSON, nullable=True, default=list
     )

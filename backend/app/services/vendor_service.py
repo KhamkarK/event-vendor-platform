@@ -14,6 +14,7 @@ from app.schemas.vendor import (
     VendorPackageCreate,
     VendorPackageUpdate,
     VendorReviewCreate,
+    VendorSearchResult,
 )
 
 # Non-Prime customers only ever see up to FREE_TIER_RESULT_LIMIT vendors per
@@ -64,7 +65,16 @@ class VendorService:
         if not _is_prime_customer(current_user):
             profiles = profiles[:FREE_TIER_RESULT_LIMIT]
 
-        return profiles
+        # contact_number isn't a column on VendorProfile (it proxies the linked
+        # account's mobile), so it has to be set explicitly per result, same as
+        # get_vendor_detail does. Shown to every customer here (see
+        # VendorSearchResult.contact_number for why this one isn't Prime-gated).
+        results = []
+        for profile in profiles:
+            result = VendorSearchResult.model_validate(profile)
+            result.contact_number = profile.user.mobile
+            results.append(result)
+        return results
 
     def get_vendor_detail(self, vendor_id: int, current_user) -> VendorDetailOut:
         profile = self.users.get_vendor_profile(vendor_id)

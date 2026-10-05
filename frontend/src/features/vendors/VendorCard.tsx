@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Heart, MapPin, Star } from "lucide-react";
+import { Heart, Link as LinkIcon, MapPin, Phone, Star } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -49,6 +49,23 @@ export function VendorCard({ vendor }: { vendor: VendorSearchResult }) {
             <div className="flex items-center gap-1.5">
               <h3 className="truncate text-base font-bold text-neutral-900">{vendor.business_name}</h3>
             </div>
+            {vendor.contact_number && (
+              <span className="mt-1 flex items-center gap-1 text-xs text-neutral-500">
+                <Phone size={12} /> {vendor.contact_number}
+              </span>
+            )}
+            {vendor.profile_url && (
+              <a
+                href={vendor.profile_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="mt-1 flex max-w-full items-center gap-1 truncate text-xs text-brand-500 hover:underline"
+              >
+                <LinkIcon size={12} className="shrink-0" />
+                <span className="truncate">{vendor.profile_url}</span>
+              </a>
+            )}
             {vendor.is_approved && <VerifiedRibbon compact className="mt-1.5 w-fit" />}
             <p className="text-xs font-medium text-brand-500">{vendor.category}</p>
 

@@ -13,6 +13,9 @@ class VendorProfileOut(BaseModel):
     category: str
     description: str | None = None
     location: str | None = None
+    # Instagram/website link, shown to customers on the vendor search card
+    # below the contact number (see app/services/vendor_service.py).
+    profile_url: str | None = None
     documents: list[str] | None = None
     commission_rate: float
     rating_avg: float
@@ -44,6 +47,7 @@ class VendorProfileUpdate(BaseModel):
     category: str | None = None
     description: str | None = None
     location: str | None = None
+    profile_url: str | None = None
     documents: list[str] | None = None
 
 

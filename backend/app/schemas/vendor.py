@@ -61,6 +61,12 @@ class VendorReviewOut(BaseModel):
 
 class VendorSearchResult(VendorProfileOut):
     packages: list[VendorPackageOut] = []
+    # Shown on the search-results card for every customer — unlike
+    # VendorDetailOut.contact_number, this is NOT Prime-gated here, because
+    # non-Prime customers are already capped to FREE_TIER_RESULT_LIMIT (5)
+    # vendors per search (see VendorService.search), so the cap itself limits
+    # how many contact numbers a non-Prime customer ever sees.
+    contact_number: str | None = None
 
 
 class VendorDetailOut(VendorProfileOut):

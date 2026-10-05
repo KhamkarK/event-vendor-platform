@@ -1,6 +1,13 @@
-import { Building2, Mail, MapPin, Phone, ShieldCheck, Star, User as UserIcon } from "lucide-react";
+import { Building2, Link as LinkIcon, Mail, MapPin, Phone, ShieldCheck, Star, User as UserIcon } from "lucide-react";
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
+import { Button } from "@/components/common/Button";
+import { Input } from "@/components/common/Input";
 import { Modal } from "@/components/common/Modal";
+import { updateVendorProfile } from "@/features/auth/authApi";
+import { useAuthStore } from "@/store/authStore";
 import type { User } from "@/types/user";
 
 interface AccountDetailsModalProps {
@@ -28,6 +35,61 @@ function Row({ icon, label, value }: { icon: React.ReactNode; label: string; val
  * role has, plus the full vendor-profile block for vendors. Pulled straight
  * from the already-loaded auth user, no extra API call. Shared by the mobile
  * AccountDetailsModal (below) and the desktop AccountDetailsDropdown. */
+function ProfileUrlField({ profile }: { profile: NonNullable<User["vendor_profile"]> }) {
+  const updateUser = useAuthStore((state) => state.updateUser);
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState(profile.profile_url ?? "");
+
+  const mutation = useMutation({
+    mutationFn: () => updateVendorProfile({ profile_url: value.trim() || null }),
+    onSuccess: (updated) => {
+      updateUser({ vendor_profile: updated.vendor_profile });
+      toast.success("Profile URL updated");
+      setEditing(false);
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.detail ?? "Could not update profile URL");
+    },
+  });
+
+  if (!editing) {
+    return (
+      <div className="flex items-start justify-between gap-3 py-2">
+        <Row icon={<LinkIcon size={15} />} label="Profile URL (Instagram/website)" value={profile.profile_url || "Not set"} />
+        <button onClick={() => setEditing(true)} className="mt-3 shrink-0 text-xs font-semibold text-brand-500 hover:underline">
+          Edit
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="py-2">
+      <Input
+        label="Profile URL (Instagram/website)"
+        placeholder="https://instagram.com/yourbusiness"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+      />
+      <div className="mt-2 flex gap-2">
+        <Button type="button" isLoading={mutation.isPending} onClick={() => mutation.mutate()}>
+          Save
+        </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => {
+            setValue(profile.profile_url ?? "");
+            setEditing(false);
+          }}
+        >
+          Cancel
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export function AccountDetailsContent({ user }: { user: User }) {
   const profile = user.vendor_profile;
 
@@ -53,6 +115,7 @@ export function AccountDetailsContent({ user }: { user: User }) {
             <Row icon={<Building2 size={15} />} label="Category" value={profile.category} />
             <Row icon={<MapPin size={15} />} label="Location" value={profile.location} />
             <Row icon={<UserIcon size={15} />} label="Description" value={profile.description} />
+            <ProfileUrlField profile={profile} />
             <Row
               icon={<Star size={15} />}
               label="Rating"

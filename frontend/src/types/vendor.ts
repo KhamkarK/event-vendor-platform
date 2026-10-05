@@ -24,6 +24,8 @@ export interface VendorReview {
 
 export interface VendorSearchResult extends VendorProfile {
   packages: VendorPackage[];
+  /** Shown to every customer, within the existing 5-result cap for non-Prime customers — see backend VendorSearchResult.contact_number. */
+  contact_number: string | null;
 }
 
 export interface VendorDetail extends VendorProfile {

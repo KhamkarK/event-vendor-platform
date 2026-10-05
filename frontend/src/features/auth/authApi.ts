@@ -43,3 +43,10 @@ export async function requestPremiumMembership(): Promise<User> {
   const { data } = await apiClient.post<User>("/users/me/premium-request");
   return data;
 }
+
+/** Lets a vendor update their own business-profile fields (currently just
+ * profile_url — see AccountDetailsModal's "Business details" section). */
+export async function updateVendorProfile(payload: { profile_url?: string | null }): Promise<User> {
+  const { data } = await apiClient.patch<User>("/users/me/vendor-profile", payload);
+  return data;
+}
