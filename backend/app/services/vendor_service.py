@@ -67,12 +67,14 @@ class VendorService:
 
         # contact_number isn't a column on VendorProfile (it proxies the linked
         # account's mobile), so it has to be set explicitly per result, same as
-        # get_vendor_detail does. Shown to every customer here (see
-        # VendorSearchResult.contact_number for why this one isn't Prime-gated).
+        # get_vendor_detail does. Shown only to customers (see
+        # VendorSearchResult.contact_number for why this one isn't Prime-gated,
+        # just role-gated) — a vendor or admin browsing /vendors never sees it.
+        is_customer = current_user.role == UserRole.CUSTOMER
         results = []
         for profile in profiles:
             result = VendorSearchResult.model_validate(profile)
-            result.contact_number = profile.user.mobile
+            result.contact_number = profile.user.mobile if is_customer else None
             results.append(result)
         return results
 
