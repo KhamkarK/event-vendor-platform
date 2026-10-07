@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Check, ChevronDown, SlidersHorizontal } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
+import { Button } from "@/components/common/Button";
 import { Input } from "@/components/common/Input";
 import { VENDOR_CATEGORIES } from "@/constants/vendorCategories";
 import { VENDOR_LOCATIONS } from "@/constants/vendorLocations";
@@ -15,6 +16,8 @@ interface VendorFiltersProps {
 export function VendorFilters({ filters, onChange }: VendorFiltersProps) {
   const selectedCategories = filters.categories ?? [];
   const [open, setOpen] = useState(false);
+  // Ticks are held here until the customer presses OK; only then is the filter applied.
+  const [pending, setPending] = useState<string[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -28,10 +31,19 @@ export function VendorFilters({ filters, onChange }: VendorFiltersProps) {
   }, []);
 
   const toggleCategory = (category: string) => {
-    const next = selectedCategories.includes(category)
-      ? selectedCategories.filter((c) => c !== category)
-      : [...selectedCategories, category];
-    onChange({ ...filters, categories: next.length > 0 ? next : undefined });
+    setPending((current) =>
+      current.includes(category) ? current.filter((c) => c !== category) : [...current, category]
+    );
+  };
+
+  const toggleDropdown = () => {
+    if (!open) setPending(selectedCategories);
+    setOpen((v) => !v);
+  };
+
+  const applyCategories = () => {
+    onChange({ ...filters, categories: pending.length > 0 ? pending : undefined });
+    setOpen(false);
   };
 
   return (
@@ -40,7 +52,7 @@ export function VendorFilters({ filters, onChange }: VendorFiltersProps) {
         <label className="mb-1.5 block text-sm font-medium text-neutral-700">Category</label>
         <button
           type="button"
-          onClick={() => setOpen((v) => !v)}
+          onClick={toggleDropdown}
           className="flex h-[42px] w-full items-center justify-between rounded-xl border border-neutral-200 bg-white px-3 text-sm text-neutral-900 outline-none transition-all duration-150 hover:border-brand-300 focus:border-brand-400 focus:ring-4 focus:ring-brand-100"
         >
           <span className="truncate text-neutral-700">
@@ -60,7 +72,7 @@ export function VendorFilters({ filters, onChange }: VendorFiltersProps) {
               className="absolute z-20 mt-2 max-h-72 w-full overflow-y-auto rounded-xl border border-neutral-100 bg-white py-1.5 shadow-2xl"
             >
               {VENDOR_CATEGORIES.map((category) => {
-                const active = selectedCategories.includes(category);
+                const active = pending.includes(category);
                 return (
                   <label
                     key={category}
@@ -78,6 +90,11 @@ export function VendorFilters({ filters, onChange }: VendorFiltersProps) {
                   </label>
                 );
               })}
+              <div className="sticky bottom-0 border-t border-neutral-100 bg-white px-3 pb-1 pt-2">
+                <Button type="button" fullWidth onClick={applyCategories}>
+                  OK
+                </Button>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
