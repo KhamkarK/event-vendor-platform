@@ -31,6 +31,8 @@ function EventTypeThumbnail({ image, icon: Icon }: { image: string; icon: Lucide
 export function EventTypesPage() {
   const [open, setOpen] = useState(false);
   const [selectedSlugs, setSelectedSlugs] = useState<string[]>([]);
+  // Ticks are held here until the customer presses OK; only then do they become selectedSlugs.
+  const [pendingSlugs, setPendingSlugs] = useState<string[]>([]);
   const [checklistOpen, setChecklistOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -45,7 +47,17 @@ export function EventTypesPage() {
   }, []);
 
   const toggleEventType = (slug: string) => {
-    setSelectedSlugs((current) => (current.includes(slug) ? current.filter((s) => s !== slug) : [...current, slug]));
+    setPendingSlugs((current) => (current.includes(slug) ? current.filter((s) => s !== slug) : [...current, slug]));
+  };
+
+  const toggleDropdown = () => {
+    if (!open) setPendingSlugs(selectedSlugs);
+    setOpen((v) => !v);
+  };
+
+  const applyEventTypes = () => {
+    setSelectedSlugs(pendingSlugs);
+    setOpen(false);
   };
 
   return (
@@ -60,7 +72,7 @@ export function EventTypesPage() {
         <div ref={dropdownRef} className="relative w-full max-w-sm">
           <button
             type="button"
-            onClick={() => setOpen((v) => !v)}
+            onClick={toggleDropdown}
             className="flex w-full items-center justify-between rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm font-medium text-neutral-700 shadow-card transition-colors hover:border-brand-300"
           >
             {selectedSlugs.length === 0
@@ -75,10 +87,10 @@ export function EventTypesPage() {
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
-                className="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border border-neutral-100 bg-white py-1.5 shadow-2xl"
+                className="absolute z-20 mt-2 max-h-80 w-full overflow-y-auto rounded-xl border border-neutral-100 bg-white py-1.5 shadow-2xl"
               >
                 {EVENT_TYPES.map((eventType) => {
-                  const checked = selectedSlugs.includes(eventType.slug);
+                  const checked = pendingSlugs.includes(eventType.slug);
                   return (
                     <label
                       key={eventType.slug}
@@ -97,6 +109,11 @@ export function EventTypesPage() {
                     </label>
                   );
                 })}
+                <div className="sticky bottom-0 border-t border-neutral-100 bg-white px-3 pb-1 pt-2">
+                  <Button type="button" fullWidth onClick={applyEventTypes}>
+                    OK
+                  </Button>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
