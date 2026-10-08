@@ -54,19 +54,28 @@ export function VendorCard({ vendor }: { vendor: VendorSearchResult }) {
                 <Phone size={12} /> {vendor.contact_number}
               </span>
             )}
-            {vendor.profile_urls?.map((url) => (
-              <a
-                key={url}
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="mt-1 flex max-w-full items-center gap-1 truncate text-xs text-brand-500 hover:underline"
-              >
-                <LinkIcon size={12} className="shrink-0" />
-                <span className="truncate">{url}</span>
-              </a>
-            ))}
+            {vendor.profile_urls && vendor.profile_urls.length > 0 ? (
+              <div className="mt-1 text-xs">
+                <span className="font-medium text-neutral-500">Profile:</span>
+                {vendor.profile_urls.map((url) => (
+                  <a
+                    key={url}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="mt-0.5 flex max-w-full items-center gap-1 truncate text-brand-500 hover:underline"
+                  >
+                    <LinkIcon size={12} className="shrink-0" />
+                    <span className="truncate">{url}</span>
+                  </a>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-1 text-xs text-neutral-400">
+                <span className="font-medium text-neutral-500">Profile:</span> Not updated
+              </p>
+            )}
             {vendor.is_approved && <VerifiedRibbon compact className="mt-1.5 w-fit" />}
             <p className="text-xs font-medium text-brand-500">{vendor.category}</p>
 

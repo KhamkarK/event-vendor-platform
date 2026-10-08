@@ -216,10 +216,10 @@ export function VendorDetailPage() {
         )}
       </div>
 
-      {vendor.profile_urls && vendor.profile_urls.length > 0 && (
-        <div className="mt-8">
-          <h2 className="mb-4 text-lg font-bold text-neutral-900">Profile links</h2>
-          <Card>
+      <div className="mt-8">
+        <h2 className="mb-4 text-lg font-bold text-neutral-900">Profile</h2>
+        <Card>
+          {vendor.profile_urls && vendor.profile_urls.length > 0 ? (
             <div className="flex flex-col gap-2">
               {vendor.profile_urls.map((url) => (
                 <a
@@ -234,9 +234,11 @@ export function VendorDetailPage() {
                 </a>
               ))}
             </div>
-          </Card>
-        </div>
-      )}
+          ) : (
+            <p className="text-sm text-neutral-400">Not updated</p>
+          )}
+        </Card>
+      </div>
 
       <div className="mt-8 flex justify-end">
         <Button onClick={handleBookClick}>Request booking</Button>
