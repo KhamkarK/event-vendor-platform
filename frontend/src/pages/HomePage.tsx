@@ -7,6 +7,7 @@ import { DiyaIcon } from "@/assets/DiyaIcon";
 import { ScallopEdge } from "@/assets/ScallopEdge";
 import { Button } from "@/components/common/Button";
 import { Card } from "@/components/common/Card";
+import { FilterDropdown } from "@/components/common/FilterDropdown";
 import { HERO_IMAGE_URL } from "@/constants/heroImage";
 import { VENDOR_CATEGORIES } from "@/constants/vendorCategories";
 import { VENDOR_LOCATIONS } from "@/constants/vendorLocations";
@@ -88,30 +89,20 @@ export function HomePage() {
           onSubmit={handleSearch}
           className="mt-8 flex flex-col gap-2 rounded-2xl bg-white/95 p-3 shadow-xl backdrop-blur sm:flex-row sm:items-center"
         >
-          <select
+          <FilterDropdown
+            placeholder="What are you looking for?"
+            options={VENDOR_CATEGORIES}
             value={searchCategory}
-            onChange={(e) => setSearchCategory(e.target.value)}
-            className="h-11 flex-1 rounded-xl border border-neutral-200 bg-white px-3 text-sm text-neutral-800 outline-none focus:border-brand-400 focus:ring-4 focus:ring-brand-100"
-          >
-            <option value="">What are you looking for?</option>
-            {VENDOR_CATEGORIES.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
-          <select
+            onChange={setSearchCategory}
+            triggerClassName="h-11"
+          />
+          <FilterDropdown
+            placeholder="All locations"
+            options={VENDOR_LOCATIONS}
             value={searchLocation}
-            onChange={(e) => setSearchLocation(e.target.value)}
-            className="h-11 flex-1 rounded-xl border border-neutral-200 bg-white px-3 text-sm text-neutral-800 outline-none focus:border-brand-400 focus:ring-4 focus:ring-brand-100"
-          >
-            <option value="">All locations</option>
-            {VENDOR_LOCATIONS.map((location) => (
-              <option key={location} value={location}>
-                {location}
-              </option>
-            ))}
-          </select>
+            onChange={setSearchLocation}
+            triggerClassName="h-11"
+          />
           <Button type="submit" size="md" fullWidth className="sm:w-auto">
             <Search size={16} /> Search
           </Button>
