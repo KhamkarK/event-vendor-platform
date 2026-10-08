@@ -35,6 +35,12 @@ export function EventTypesPage() {
   const [pendingSlugs, setPendingSlugs] = useState<string[]>([]);
   const [checklistOpen, setChecklistOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // On phones the list can run under the fixed bottom bar; scroll it (and its OK button) into view.
+  useEffect(() => {
+    if (open) panelRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [open]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -84,11 +90,13 @@ export function EventTypesPage() {
           <AnimatePresence>
             {open && (
               <motion.div
+                ref={panelRef}
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
-                className="absolute z-20 mt-2 max-h-80 w-full overflow-y-auto rounded-xl border border-neutral-100 bg-white py-1.5 shadow-2xl"
+                className="absolute z-20 mt-2 w-full scroll-mb-24 overflow-hidden rounded-xl border border-neutral-100 bg-white shadow-2xl"
               >
+                <div className="max-h-[45vh] overflow-y-auto py-1.5 sm:max-h-80">
                 {EVENT_TYPES.map((eventType) => {
                   const checked = pendingSlugs.includes(eventType.slug);
                   return (
@@ -109,7 +117,8 @@ export function EventTypesPage() {
                     </label>
                   );
                 })}
-                <div className="sticky bottom-0 border-t border-neutral-100 bg-white px-3 pb-1 pt-2">
+                </div>
+                <div className="border-t border-neutral-100 bg-white px-3 py-2">
                   <Button type="button" fullWidth onClick={applyEventTypes}>
                     OK
                   </Button>
