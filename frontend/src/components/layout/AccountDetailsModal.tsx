@@ -35,27 +35,53 @@ function Row({ icon, label, value }: { icon: React.ReactNode; label: string; val
  * role has, plus the full vendor-profile block for vendors. Pulled straight
  * from the already-loaded auth user, no extra API call. Shared by the mobile
  * AccountDetailsModal (below) and the desktop AccountDetailsDropdown. */
+const MAX_PROFILE_URLS = 3;
+
 function ProfileUrlField({ profile }: { profile: NonNullable<User["vendor_profile"]> }) {
   const updateUser = useAuthStore((state) => state.updateUser);
+  const savedUrls = profile.profile_urls ?? [];
   const [editing, setEditing] = useState(false);
-  const [value, setValue] = useState(profile.profile_url ?? "");
+  const [urls, setUrls] = useState<string[]>(savedUrls.length ? savedUrls : [""]);
 
   const mutation = useMutation({
-    mutationFn: () => updateVendorProfile({ profile_url: value.trim() || null }),
+    mutationFn: (cleaned: string[]) => updateVendorProfile({ profile_urls: cleaned }),
     onSuccess: (updated) => {
       updateUser({ vendor_profile: updated.vendor_profile });
-      toast.success("Profile URL updated");
+      setUrls(updated.vendor_profile?.profile_urls?.length ? updated.vendor_profile.profile_urls : [""]);
+      toast.success("Profile links updated");
       setEditing(false);
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.detail ?? "Could not update profile URL");
+      const detail = error?.response?.data?.detail;
+      toast.error(typeof detail === "string" ? detail : "Could not update profile links");
     },
   });
+
+  const handleSave = () => {
+    const cleaned = urls.map((url) => url.trim()).filter(Boolean);
+    if (cleaned.some((url) => !/^https?:\/\//i.test(url))) {
+      toast.error("Each link must start with http:// or https://");
+      return;
+    }
+    mutation.mutate(cleaned);
+  };
 
   if (!editing) {
     return (
       <div className="flex items-start justify-between gap-3 py-2">
-        <Row icon={<LinkIcon size={15} />} label="Profile URL (Instagram/website)" value={profile.profile_url || "Not set"} />
+        <Row
+          icon={<LinkIcon size={15} />}
+          label="Profile links (Instagram/website)"
+          value={
+            savedUrls.length
+              ? savedUrls.map((url) => (
+                  <span key={url} className="block truncate">
+                    {url}
+                  </span>
+                ))
+              : "Not set"
+          }
+        />
         <button onClick={() => setEditing(true)} className="mt-3 shrink-0 text-xs font-semibold text-brand-500 hover:underline">
           Edit
         </button>
@@ -65,21 +91,47 @@ function ProfileUrlField({ profile }: { profile: NonNullable<User["vendor_profil
 
   return (
     <div className="py-2">
-      <Input
-        label="Profile URL (Instagram/website)"
-        placeholder="https://instagram.com/yourbusiness"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-      />
-      <div className="mt-2 flex gap-2">
-        <Button type="button" isLoading={mutation.isPending} onClick={() => mutation.mutate()}>
+      <p className="mb-1.5 text-sm font-medium text-neutral-700">Profile links (Instagram/website) — up to {MAX_PROFILE_URLS}</p>
+      <div className="flex flex-col gap-2">
+        {urls.map((url, index) => (
+          <div key={index} className="flex items-center gap-2">
+            <div className="flex-1">
+              <Input
+                placeholder="https://instagram.com/yourbusiness"
+                value={url}
+                onChange={(e) => setUrls((current) => current.map((u, i) => (i === index ? e.target.value : u)))}
+              />
+            </div>
+            {urls.length > 1 && (
+              <button
+                type="button"
+                onClick={() => setUrls((current) => current.filter((_, i) => i !== index))}
+                className="shrink-0 text-xs font-semibold text-red-500 hover:underline"
+              >
+                Remove
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+      {urls.length < MAX_PROFILE_URLS && (
+        <button
+          type="button"
+          onClick={() => setUrls((current) => [...current, ""])}
+          className="mt-2 text-xs font-semibold text-brand-500 hover:underline"
+        >
+          + Add another link
+        </button>
+      )}
+      <div className="mt-3 flex gap-2">
+        <Button type="button" isLoading={mutation.isPending} onClick={handleSave}>
           Save
         </Button>
         <Button
           type="button"
           variant="secondary"
           onClick={() => {
-            setValue(profile.profile_url ?? "");
+            setUrls(savedUrls.length ? savedUrls : [""]);
             setEditing(false);
           }}
         >

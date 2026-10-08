@@ -1,8 +1,10 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.models.user import UserRole
+
+MAX_PROFILE_URLS = 3
 
 
 class VendorProfileOut(BaseModel):
@@ -16,6 +18,9 @@ class VendorProfileOut(BaseModel):
     # Instagram/website link, shown to customers on the vendor search card
     # below the contact number (see app/services/vendor_service.py).
     profile_url: str | None = None
+    # Up to 3 Instagram/website links, shown to customers on the vendor search
+    # card and the vendor detail page.
+    profile_urls: list[str] | None = None
     documents: list[str] | None = None
     commission_rate: float
     rating_avg: float
@@ -48,7 +53,25 @@ class VendorProfileUpdate(BaseModel):
     description: str | None = None
     location: str | None = None
     profile_url: str | None = None
+    profile_urls: list[str] | None = None
     documents: list[str] | None = None
+
+    @field_validator("profile_urls")
+    @classmethod
+    def validate_profile_urls(cls, urls: list[str] | None) -> list[str] | None:
+        if urls is None:
+            return None
+        # Trim, drop blanks and duplicates (order kept).
+        cleaned = list(dict.fromkeys(url.strip() for url in urls if url.strip()))
+        if len(cleaned) > MAX_PROFILE_URLS:
+            raise ValueError(f"At most {MAX_PROFILE_URLS} profile links are allowed")
+        for url in cleaned:
+            if len(url) > 500:
+                raise ValueError("Each profile link must be at most 500 characters")
+            # http(s) only — the links are rendered as clickable anchors for customers.
+            if not url.lower().startswith(("http://", "https://")):
+                raise ValueError("Each profile link must start with http:// or https://")
+        return cleaned
 
 
 class UserOut(BaseModel):

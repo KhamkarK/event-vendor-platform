@@ -8,6 +8,8 @@ export interface VendorProfile {
   location: string | null;
   /** Instagram/website link the vendor sets themselves — shown to customers on the search card below the contact number. */
   profile_url?: string | null;
+  /** Up to 3 Instagram/website links — shown to customers on the search card and the vendor detail page. */
+  profile_urls?: string[] | null;
   documents: string[] | null;
   commission_rate: number;
   rating_avg: number;

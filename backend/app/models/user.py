@@ -7,7 +7,7 @@ a 1:1 extension table, so the base user model stays lean for all roles.
 import enum
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Enum, Float, ForeignKey, Integer, String, Text, func
+from sqlalchemy import JSON, Boolean, DateTime, Enum, Float, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -67,6 +67,9 @@ class VendorProfile(Base):
     # the search-results card (see app/services/vendor_service.py) below the
     # contact number. Freeform, not validated beyond length.
     profile_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    # Up to 3 http(s) links (Instagram/website) shown to customers on the search
+    # card and the vendor detail page; supersedes the single `profile_url` above.
+    profile_urls: Mapped[list | None] = mapped_column(JSON, nullable=True)
     documents: Mapped[list | None] = mapped_column(  # list of uploaded document URLs for KYC
         __import__("sqlalchemy").JSON, nullable=True, default=list
     )

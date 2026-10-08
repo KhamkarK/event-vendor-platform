@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { ArrowLeft, Crown, Heart, MapPin, Package, Phone, Star, Trash2 } from "lucide-react";
+import { ArrowLeft, Crown, Heart, Link as LinkIcon, MapPin, Package, Phone, Star, Trash2 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
@@ -215,6 +215,28 @@ export function VendorDetailPage() {
           </div>
         )}
       </div>
+
+      {vendor.profile_urls && vendor.profile_urls.length > 0 && (
+        <div className="mt-8">
+          <h2 className="mb-4 text-lg font-bold text-neutral-900">Profile links</h2>
+          <Card>
+            <div className="flex flex-col gap-2">
+              {vendor.profile_urls.map((url) => (
+                <a
+                  key={url}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex max-w-full items-center gap-2 text-sm text-brand-500 hover:underline"
+                >
+                  <LinkIcon size={14} className="shrink-0" />
+                  <span className="truncate">{url}</span>
+                </a>
+              ))}
+            </div>
+          </Card>
+        </div>
+      )}
 
       <div className="mt-8 flex justify-end">
         <Button onClick={handleBookClick}>Request booking</Button>

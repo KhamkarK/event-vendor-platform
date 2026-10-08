@@ -54,18 +54,19 @@ export function VendorCard({ vendor }: { vendor: VendorSearchResult }) {
                 <Phone size={12} /> {vendor.contact_number}
               </span>
             )}
-            {vendor.profile_url && (
+            {vendor.profile_urls?.map((url) => (
               <a
-                href={vendor.profile_url}
+                key={url}
+                href={url}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
                 className="mt-1 flex max-w-full items-center gap-1 truncate text-xs text-brand-500 hover:underline"
               >
                 <LinkIcon size={12} className="shrink-0" />
-                <span className="truncate">{vendor.profile_url}</span>
+                <span className="truncate">{url}</span>
               </a>
-            )}
+            ))}
             {vendor.is_approved && <VerifiedRibbon compact className="mt-1.5 w-fit" />}
             <p className="text-xs font-medium text-brand-500">{vendor.category}</p>
 
