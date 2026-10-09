@@ -69,7 +69,7 @@ export function HomePage() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="relative overflow-hidden rounded-3xl bg-neutral-900 bg-cover bg-center px-6 py-16 text-white shadow-glow sm:px-14"
+        className="relative rounded-3xl bg-neutral-900 bg-cover bg-center px-6 py-16 text-white shadow-glow sm:px-14"
         style={{
           backgroundImage: `linear-gradient(to bottom, rgba(20,12,10,0.55), rgba(20,12,10,0.78)), url(${HERO_IMAGE_URL})`,
         }}
