@@ -141,7 +141,7 @@ export function Navbar() {
               className="mt-0.5 hidden whitespace-nowrap text-[9px] italic text-accent-500 sm:block"
               style={{ fontFamily: '"Noto Sans Devanagari", sans-serif' }}
             >
-              तुमचा सोहळा, आमची साथ — प्रत्येक गरजेसाठी योग्य हात!
+              तुमचा सोहळा, आमची साथ — प्रत्येक गरजेसाठी सोहळासेतू!
             </span>
           </span>
         </Link>
