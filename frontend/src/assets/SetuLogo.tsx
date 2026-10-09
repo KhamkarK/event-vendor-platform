@@ -9,7 +9,7 @@ export function SetuLogo({ className }: { className?: string }) {
       <path
         className="origin-bottom animate-flicker"
         d="M12 1.8c1.1 1.5 1.8 2.7 1.8 3.8 0 1.1-.8 1.9-1.8 1.9s-1.8-.8-1.8-1.9c0-1.1.7-2.3 1.8-3.8Z"
-        fill="#e2b04a"
+        fill="#f6b73c"
       />
       <path d="M3 15.5c0-4 4-6.5 9-6.5s9 2.5 9 6.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
       <path d="M7.5 11.2v4.3M12 9.2v6.3M16.5 11.2v4.3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />

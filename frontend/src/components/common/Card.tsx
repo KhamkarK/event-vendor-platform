@@ -16,7 +16,7 @@ export function Card({ children, className, hoverLift = false, glass = false, ac
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      whileHover={hoverLift ? { y: -4, boxShadow: "0 16px 40px -12px rgba(122,31,61,0.25)" } : undefined}
+      whileHover={hoverLift ? { y: -4, boxShadow: "0 16px 40px -12px rgba(15,123,123,0.25)" } : undefined}
       className={clsx(
         "rounded-2xl border border-neutral-100 bg-white p-5 shadow-card",
         glass && "glass-card",
