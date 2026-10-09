@@ -169,11 +169,11 @@ export function EventTypesPage() {
         <AdSlot
           ads={sidebarAds}
           fallbackImages={SIDEBAR_SAMPLE_ADS}
-          className="mt-8 hidden h-[420px] w-full rounded-2xl lg:mt-0 lg:block"
+          className="mt-8 h-40 w-full rounded-2xl sm:h-56 lg:mt-0 lg:h-[420px]"
         />
       </div>
 
-      <AdSlot ads={bottomAds} fallbackImages={BOTTOM_SAMPLE_ADS} className="mt-6 h-20 w-full rounded-2xl" />
+      <AdSlot ads={bottomAds} fallbackImages={BOTTOM_SAMPLE_ADS} className="mt-6 h-16 w-full rounded-2xl sm:h-20" />
 
       <VendorChecklistModal isOpen={checklistOpen} onClose={() => setChecklistOpen(false)} selectedEventTypeSlugs={selectedSlugs} />
     </div>

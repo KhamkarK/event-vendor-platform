@@ -27,7 +27,7 @@ export function AdBanner() {
 
   return (
     <div className="w-full bg-neutral-100">
-      <AdSlot ads={ads} fallbackImages={SAMPLE_ADS} className="mx-auto h-32 w-full max-w-7xl" />
+      <AdSlot ads={ads} fallbackImages={SAMPLE_ADS} className="mx-auto h-20 w-full max-w-7xl sm:h-28 lg:h-32" />
     </div>
   );
 }
