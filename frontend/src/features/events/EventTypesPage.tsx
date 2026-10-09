@@ -10,6 +10,18 @@ import { getActiveAdvertisements } from "@/features/advertisements/advertisement
 import { EVENT_TYPES } from "@/features/events/eventTypes";
 import { VendorChecklistModal } from "@/features/events/VendorChecklistModal";
 
+// Placeholder jewellery banners (frontend/public/sample-ads), shown on a loop
+// until an admin uploads real banners for these two slots — same pattern as
+// the site-wide top banner's own sample ads.
+const SIDEBAR_SAMPLE_ADS = [
+  "/sample-ads/jewellery-sidebar-necklace-sets.png",
+  "/sample-ads/jewellery-sidebar-bangles-rings.png",
+];
+const BOTTOM_SAMPLE_ADS = [
+  "/sample-ads/jewellery-bottom-necklace-sets.png",
+  "/sample-ads/jewellery-bottom-festive-gold.png",
+];
+
 /** The occasion photos are hotlinked (see eventTypes.ts) — some networks
  * (corporate proxies, ad/privacy blockers) can't reach that host, so this
  * falls back to the event type's own Lucide icon instead of a broken-image
@@ -154,10 +166,14 @@ export function EventTypesPage() {
           </div>
         </div>
 
-        <AdSlot ads={sidebarAds} className="mt-8 hidden h-[420px] w-full rounded-2xl lg:mt-0 lg:block" />
+        <AdSlot
+          ads={sidebarAds}
+          fallbackImages={SIDEBAR_SAMPLE_ADS}
+          className="mt-8 hidden h-[420px] w-full rounded-2xl lg:mt-0 lg:block"
+        />
       </div>
 
-      <AdSlot ads={bottomAds} className="mt-10 h-40 w-full rounded-2xl" />
+      <AdSlot ads={bottomAds} fallbackImages={BOTTOM_SAMPLE_ADS} className="mt-10 h-40 w-full rounded-2xl" />
 
       <VendorChecklistModal isOpen={checklistOpen} onClose={() => setChecklistOpen(false)} selectedEventTypeSlugs={selectedSlugs} />
     </div>
