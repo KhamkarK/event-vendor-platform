@@ -1,39 +1,56 @@
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.models.advertisement import Advertisement, AdvertisementMediaType
+from app.models.advertisement import Advertisement, AdvertisementMediaType, AdvertisementPlacement
 
 
 class AdvertisementService:
     def __init__(self, db: Session):
         self.db = db
 
-    def list_active_ordered(self) -> list[Advertisement]:
-        """Every active banner, in the sequence the running banner should show them."""
+    def list_active_ordered(self, placement: AdvertisementPlacement) -> list[Advertisement]:
+        """Every active banner for one placement, in the sequence the running
+        banner should show them."""
         stmt = (
             select(Advertisement)
-            .where(Advertisement.is_active.is_(True))
+            .where(Advertisement.placement == placement, Advertisement.is_active.is_(True))
             .order_by(Advertisement.display_order, Advertisement.created_at)
         )
         return list(self.db.scalars(stmt).all())
 
-    def list_all_ordered(self) -> list[Advertisement]:
-        """Every banner, active and inactive, for the admin management list."""
-        stmt = select(Advertisement).order_by(Advertisement.display_order, Advertisement.created_at)
+    def list_all_ordered(self, placement: AdvertisementPlacement) -> list[Advertisement]:
+        """Every banner for one placement, active and inactive, for the admin
+        management list."""
+        stmt = (
+            select(Advertisement)
+            .where(Advertisement.placement == placement)
+            .order_by(Advertisement.display_order, Advertisement.created_at)
+        )
         return list(self.db.scalars(stmt).all())
 
     def get(self, advertisement_id: int) -> Advertisement | None:
         return self.db.get(Advertisement, advertisement_id)
 
-    def create(self, media_url: str, media_type: AdvertisementMediaType, link_url: str | None) -> Advertisement:
-        """Appends a new banner to the end of the rotation; existing banners are left untouched."""
-        next_order = (self.db.scalar(select(func.max(Advertisement.display_order))) or 0) + 1
+    def create(
+        self,
+        media_url: str,
+        media_type: AdvertisementMediaType,
+        link_url: str | None,
+        placement: AdvertisementPlacement,
+    ) -> Advertisement:
+        """Appends a new banner to the end of its placement's rotation; other
+        placements and existing banners are left untouched."""
+        next_order = (
+            self.db.scalar(select(func.max(Advertisement.display_order)).where(Advertisement.placement == placement))
+            or 0
+        ) + 1
         advertisement = Advertisement(
             media_url=media_url,
             media_type=media_type,
             link_url=link_url,
             is_active=True,
             display_order=next_order,
+            placement=placement,
         )
         self.db.add(advertisement)
         self.db.commit()
@@ -52,9 +69,13 @@ class AdvertisementService:
         return advertisement
 
     def move(self, advertisement_id: int, direction: str) -> Advertisement | None:
-        """Swaps display_order with the adjacent banner in the full admin list,
-        moving it one step earlier ("up") or later ("down") in the rotation."""
-        ordered = self.list_all_ordered()
+        """Swaps display_order with the adjacent banner within the same
+        placement, moving it one step earlier ("up") or later ("down")."""
+        advertisement = self.get(advertisement_id)
+        if not advertisement:
+            return None
+
+        ordered = self.list_all_ordered(advertisement.placement)
         index = next((i for i, ad in enumerate(ordered) if ad.id == advertisement_id), None)
         if index is None:
             return None

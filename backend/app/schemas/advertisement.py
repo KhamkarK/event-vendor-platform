@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
 
-from app.models.advertisement import AdvertisementMediaType
+from app.models.advertisement import AdvertisementMediaType, AdvertisementPlacement
 
 
 class AdvertisementOut(BaseModel):
@@ -14,6 +14,7 @@ class AdvertisementOut(BaseModel):
     link_url: str | None = None
     is_active: bool
     display_order: int
+    placement: AdvertisementPlacement
     created_at: datetime
 
 

@@ -1,19 +1,21 @@
-"""Site-wide advertisement banners: a public read endpoint (so the running
-banner renders for every visitor, logged in or not) plus admin-only
+"""Advertisement banners: a public read endpoint per placement (so each
+running banner renders for every visitor, logged in or not) plus admin-only
 upload/manage endpoints. See app/services/advertisement_service.py for the
-rotation/ordering behavior — multiple banners can be active at once."""
+rotation/ordering behavior — multiple banners can be active within a
+placement at once, and placements (top_banner, event_types_sidebar,
+event_types_bottom) each have their own independent sequence."""
 import uuid
 from pathlib import Path
-from typing import List, Literal, Optional
+from typing import List, Literal
 
-from fastapi import APIRouter, Depends, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, Form, HTTPException, Query, UploadFile, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.dependencies import require_admin
 from app.db.session import get_db
-from app.models.advertisement import AdvertisementMediaType
+from app.models.advertisement import AdvertisementMediaType, AdvertisementPlacement
 from app.schemas.advertisement import AdvertisementOut, AdvertisementUpdate
 from app.services.advertisement_service import AdvertisementService
 
@@ -37,22 +39,33 @@ class AdvertisementMove(BaseModel):
 
 
 @router.get("/active", response_model=List[AdvertisementOut])
-def list_active_advertisements(db: Session = Depends(get_db)):
-    """Public and unauthenticated — the running banner shows on every page,
-    including for logged-out visitors on Home/About/Contact, cycling through
-    every active banner in display_order."""
-    return AdvertisementService(db).list_active_ordered()
+def list_active_advertisements(
+    placement: AdvertisementPlacement = Query(default=AdvertisementPlacement.TOP_BANNER),
+    db: Session = Depends(get_db),
+):
+    """Public and unauthenticated — the running banner for this placement
+    shows on every page that renders it, including for logged-out visitors,
+    cycling through every active banner for that placement in display_order."""
+    return AdvertisementService(db).list_active_ordered(placement)
 
 
 @admin_router.get("", response_model=List[AdvertisementOut])
-def list_all_advertisements(db: Session = Depends(get_db)):
-    """Every banner, active and inactive, for the admin management list."""
-    return AdvertisementService(db).list_all_ordered()
+def list_all_advertisements(
+    placement: AdvertisementPlacement = Query(default=AdvertisementPlacement.TOP_BANNER),
+    db: Session = Depends(get_db),
+):
+    """Every banner for this placement, active and inactive, for the admin management list."""
+    return AdvertisementService(db).list_all_ordered(placement)
 
 
 @admin_router.post("", response_model=AdvertisementOut, status_code=201)
-async def upload_advertisement(file: UploadFile, link_url: str | None = Form(default=None), db: Session = Depends(get_db)):
-    """Appends a new banner to the rotation (does not replace existing ones)."""
+async def upload_advertisement(
+    file: UploadFile,
+    link_url: str | None = Form(default=None),
+    placement: AdvertisementPlacement = Form(default=AdvertisementPlacement.TOP_BANNER),
+    db: Session = Depends(get_db),
+):
+    """Appends a new banner to the given placement's rotation (does not replace existing ones)."""
     extension_and_type = ALLOWED_AD_TYPES.get(file.content_type)
     if not extension_and_type:
         raise HTTPException(
@@ -75,7 +88,7 @@ async def upload_advertisement(file: UploadFile, link_url: str | None = Form(def
     (media_root / filename).write_bytes(contents)
     media_url = f"{settings.MEDIA_BASE_URL}{settings.MEDIA_URL_PREFIX}/{filename}"
 
-    return AdvertisementService(db).create(media_url=media_url, media_type=media_type, link_url=link_url or None)
+    return AdvertisementService(db).create(media_url=media_url, media_type=media_type, link_url=link_url or None, placement=placement)
 
 
 @admin_router.patch("/{advertisement_id}", response_model=AdvertisementOut)
@@ -89,7 +102,7 @@ def update_advertisement(advertisement_id: int, payload: AdvertisementUpdate, db
 
 @admin_router.post("/{advertisement_id}/move", response_model=AdvertisementOut)
 def move_advertisement(advertisement_id: int, payload: AdvertisementMove, db: Session = Depends(get_db)):
-    """Moves one banner up or down in the display sequence."""
+    """Moves one banner up or down within its placement's display sequence."""
     advertisement = AdvertisementService(db).move(advertisement_id, payload.direction)
     if not advertisement:
         raise HTTPException(status_code=404, detail="Advertisement not found")

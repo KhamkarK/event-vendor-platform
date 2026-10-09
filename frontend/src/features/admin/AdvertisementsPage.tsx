@@ -28,7 +28,7 @@ import {
   updateAdvertisement,
   uploadAdvertisement,
 } from "@/features/advertisements/advertisementsApi";
-import type { Advertisement } from "@/types/advertisement";
+import type { Advertisement, AdvertisementPlacement } from "@/types/advertisement";
 
 const sidebarLinks: SidebarLink[] = [
   { label: "Overview", to: "/admin", icon: LayoutDashboard, end: true },
@@ -40,12 +40,28 @@ const sidebarLinks: SidebarLink[] = [
   { label: "Reset Passwords", to: "/admin/reset-password", icon: KeyRound },
 ];
 
-const ADVERTISEMENTS_QUERY_KEY = ["admin-advertisements"];
+const PLACEMENT_TABS: { key: AdvertisementPlacement; label: string; description: string }[] = [
+  {
+    key: "top_banner",
+    label: "Top Banner",
+    description: "Runs below the navbar on every page, for every customer and vendor.",
+  },
+  {
+    key: "event_types_sidebar",
+    label: "Event Types — Sidebar",
+    description: "Runs in the right-hand rail of the \"What are you planning?\" page (tablet width and up).",
+  },
+  {
+    key: "event_types_bottom",
+    label: "Event Types — Bottom",
+    description: "Runs full-width at the bottom of the \"What are you planning?\" page, on every screen size.",
+  },
+];
 
 function BannerRow({ ad, position, total }: { ad: Advertisement; position: number; total: number }) {
   const queryClient = useQueryClient();
   const invalidate = () => {
-    queryClient.invalidateQueries({ queryKey: ADVERTISEMENTS_QUERY_KEY });
+    queryClient.invalidateQueries({ queryKey: ["admin-advertisements"] });
     queryClient.invalidateQueries({ queryKey: ["active-advertisements"] });
   };
 
@@ -130,16 +146,21 @@ export function AdvertisementsPage() {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [linkUrl, setLinkUrl] = useState("");
+  const [placement, setPlacement] = useState<AdvertisementPlacement>("top_banner");
+  const activeTab = PLACEMENT_TABS.find((tab) => tab.key === placement)!;
 
-  const { data: ads, isLoading } = useQuery({ queryKey: ADVERTISEMENTS_QUERY_KEY, queryFn: getAllAdvertisements });
+  const { data: ads, isLoading } = useQuery({
+    queryKey: ["admin-advertisements", placement],
+    queryFn: () => getAllAdvertisements(placement),
+  });
 
   const invalidate = () => {
-    queryClient.invalidateQueries({ queryKey: ADVERTISEMENTS_QUERY_KEY });
+    queryClient.invalidateQueries({ queryKey: ["admin-advertisements"] });
     queryClient.invalidateQueries({ queryKey: ["active-advertisements"] });
   };
 
   const uploadMutation = useMutation({
-    mutationFn: (file: File) => uploadAdvertisement(file, linkUrl || undefined),
+    mutationFn: (file: File) => uploadAdvertisement(file, placement, linkUrl || undefined),
     onSuccess: () => {
       invalidate();
       setLinkUrl("");
@@ -164,10 +185,27 @@ export function AdvertisementsPage() {
       <div className="flex-1">
         <h1 className="text-2xl font-extrabold text-neutral-900">Advertisements</h1>
         <p className="mt-1 text-sm text-neutral-500">
-          Upload one or more images or videos to run as a rotating banner below the navbar on every page, for every
-          customer and vendor. Each banner is cropped to the same fixed-size slot, so adding more never resizes or
-          covers the page — they just take turns, in the order below.
+          Each slot below runs its own independent rotation — add one or more banners and they'll take turns in the
+          order you set, cropped to that slot's fixed size so adding more never resizes or covers the page.
         </p>
+
+        <div className="mt-5 flex flex-wrap gap-2">
+          {PLACEMENT_TABS.map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setPlacement(tab.key)}
+              className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                tab.key === placement
+                  ? "bg-brand-gradient text-white shadow-glow"
+                  : "bg-white text-neutral-600 border border-neutral-200 hover:border-brand-300 hover:text-brand-600"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        <p className="mt-2 text-xs text-neutral-500">{activeTab.description}</p>
 
         {isLoading ? (
           <div className="mt-10 flex justify-center">
@@ -175,7 +213,7 @@ export function AdvertisementsPage() {
           </div>
         ) : (
           <div className="mt-6 flex flex-col gap-6 sm:max-w-2xl">
-            <Card>
+            <Card key={placement}>
               <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">
                 Running sequence ({ads?.length ?? 0})
               </p>
@@ -183,7 +221,7 @@ export function AdvertisementsPage() {
                 <EmptyState
                   icon={Megaphone}
                   title="No banners yet"
-                  description="Upload an image or video below to start the running banner."
+                  description="Upload an image or video below to start the running banner for this slot."
                 />
               ) : (
                 <div className="flex flex-col gap-2.5">
@@ -195,7 +233,9 @@ export function AdvertisementsPage() {
             </Card>
 
             <Card>
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">Add a new banner</p>
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">
+                Add a new banner — {activeTab.label}
+              </p>
               <Input
                 label="Link URL (optional)"
                 placeholder="https://example.com"
@@ -226,8 +266,8 @@ export function AdvertisementsPage() {
                 onChange={(e) => handleFileSelect(e.target.files)}
               />
               <p className="mt-1.5 text-xs text-neutral-400">
-                JPEG, PNG, WEBP, GIF, MP4, or WEBM. Added to the end of the running sequence — it won't replace the
-                others.
+                JPEG, PNG, WEBP, GIF, MP4, or WEBM. Added to the end of this slot's running sequence — it won't affect
+                the other slots.
               </p>
             </Card>
           </div>

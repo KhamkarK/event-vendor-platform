@@ -1,9 +1,13 @@
-"""Site-wide advertisement banners, managed by admins (see app/api/v1/advertisements.py).
+"""Site-wide and page-specific advertisement banners, managed by admins (see
+app/api/v1/advertisements.py).
 
-Multiple banners can be active at once — the running banner slot
-(frontend/src/components/layout/AdBanner.tsx) rotates through every active
-row in `display_order` order. Deactivated rows are kept as history rather
-than deleted; deleting a row via the admin API removes it for good.
+Each banner belongs to one `placement` — the site-wide top banner below the
+navbar, or one of the Event Types page's own slots — and multiple banners can
+be active within a placement at once. The running banner for a placement
+(frontend/src/components/common/AdSlot.tsx) rotates through every active row
+for that placement in `display_order` order. Deactivated rows are kept as
+history rather than deleted; deleting a row via the admin API removes it for
+good.
 """
 import enum
 from datetime import datetime
@@ -19,6 +23,12 @@ class AdvertisementMediaType(str, enum.Enum):
     VIDEO = "video"
 
 
+class AdvertisementPlacement(str, enum.Enum):
+    TOP_BANNER = "top_banner"
+    EVENT_TYPES_SIDEBAR = "event_types_sidebar"
+    EVENT_TYPES_BOTTOM = "event_types_bottom"
+
+
 class Advertisement(Base):
     __tablename__ = "advertisements"
 
@@ -29,10 +39,16 @@ class Advertisement(Base):
     )
     link_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    # Position in the running-banner rotation and in the admin management list;
-    # lower sorts first. Set to (current max + 1) on upload so new banners are
-    # appended, and swapped between neighbors by AdvertisementService.move().
+    # Position in the running-banner rotation and in the admin management list,
+    # scoped within its own placement; lower sorts first. Set to (current max
+    # within the placement + 1) on upload, and swapped between neighbors in the
+    # same placement by AdvertisementService.move().
     display_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    placement: Mapped[AdvertisementPlacement] = mapped_column(
+        Enum(AdvertisementPlacement, name="advertisement_placement"),
+        default=AdvertisementPlacement.TOP_BANNER,
+        nullable=False,
+    )
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
