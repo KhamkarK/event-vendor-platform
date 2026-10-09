@@ -173,7 +173,7 @@ export function EventTypesPage() {
         />
       </div>
 
-      <AdSlot ads={bottomAds} fallbackImages={BOTTOM_SAMPLE_ADS} className="mt-10 h-40 w-full rounded-2xl" />
+      <AdSlot ads={bottomAds} fallbackImages={BOTTOM_SAMPLE_ADS} className="mt-6 h-20 w-full rounded-2xl" />
 
       <VendorChecklistModal isOpen={checklistOpen} onClose={() => setChecklistOpen(false)} selectedEventTypeSlugs={selectedSlugs} />
     </div>
