@@ -81,7 +81,7 @@ export function HomePage() {
           Budget your big day. Book the right vendors. Every time.
         </h1>
         <p className="mt-3 max-w-xl font-display text-lg italic text-accent-300 sm:text-xl">
-          तुमचा सोहळा, आमची साथ — प्रत्येक गरजेसाठी योग्य हात!
+          तुमचा सोहळा, आमची साथ — प्रत्येक गरजेसाठी सोहळासेतू!
         </p>
         <p className="mt-4 max-w-xl text-white/85">
           SohalaSetu turns event planning chaos into a clear budget, a curated vendor marketplace, and one place to track
