@@ -7,9 +7,9 @@ const ROTATE_INTERVAL_MS = 5000;
 function AdvertisementSlide({ ad }: { ad: Advertisement }) {
   const media =
     ad.media_type === "video" ? (
-      <video src={ad.media_url} autoPlay muted loop playsInline className="h-full w-full object-cover" />
+      <video src={ad.media_url} autoPlay muted loop playsInline className="h-full w-full object-contain" />
     ) : (
-      <img src={ad.media_url} alt="Advertisement" className="h-full w-full object-cover" />
+      <img src={ad.media_url} alt="Advertisement" className="h-full w-full object-contain" />
     );
   return ad.link_url ? (
     <a href={ad.link_url} target="_blank" rel="noopener noreferrer" className="block h-full w-full">
@@ -28,9 +28,11 @@ interface AdSlotProps {
    * no live banner for this placement, rather than a filler image. */
   fallbackImages?: string[];
   /** Sizing/position classes for the outer box — callers control the slot's
-   * fixed dimensions (e.g. "h-32 w-full" or "h-96 w-full"). Combined with
-   * overflow-hidden here so every slide, whatever its native size, is cropped
-   * into that same box and the slot never resizes or covers other content. */
+   * fixed dimensions (e.g. "h-32 w-full" or "h-96 w-full"). Every slide is
+   * scaled to fit fully inside that box (object-contain, no cropping) against
+   * a neutral fill, so the slot never resizes or covers other content but
+   * also never hides part of a banner whose own aspect ratio differs from
+   * the box's. */
   className: string;
 }
 
@@ -46,7 +48,7 @@ export function AdSlot({ ads, fallbackImages = [], className }: AdSlotProps) {
       ? ads.map((ad) => ({ key: String(ad.id), node: <AdvertisementSlide ad={ad} /> }))
       : fallbackImages.map((src) => ({
           key: src,
-          node: <img src={src} alt="Sample advertisement" className="h-full w-full object-cover" />,
+          node: <img src={src} alt="Sample advertisement" className="h-full w-full object-contain" />,
         }));
 
   // Reset to the first slide whenever the slide count changes (e.g. the real
@@ -64,7 +66,7 @@ export function AdSlot({ ads, fallbackImages = [], className }: AdSlotProps) {
   if (slides.length === 0) return null;
 
   return (
-    <div className={`relative overflow-hidden ${className}`}>
+    <div className={`relative overflow-hidden bg-neutral-100 ${className}`}>
       {slides.map((slide, i) => (
         <div
           key={slide.key}
