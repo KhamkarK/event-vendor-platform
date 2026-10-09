@@ -1,9 +1,9 @@
-"""Site-wide advertisement banner, managed by admins (see app/api/v1/advertisements.py).
+"""Site-wide advertisement banners, managed by admins (see app/api/v1/advertisements.py).
 
-Only one Advertisement is ever "active" at a time — uploading a new one
-(AdvertisementService.create) deactivates whatever was active before, so the
-single banner slot (frontend/src/components/layout/AdBanner.tsx) always shows
-the most recent upload. Deactivated rows are kept as history rather than deleted.
+Multiple banners can be active at once — the running banner slot
+(frontend/src/components/layout/AdBanner.tsx) rotates through every active
+row in `display_order` order. Deactivated rows are kept as history rather
+than deleted; deleting a row via the admin API removes it for good.
 """
 import enum
 from datetime import datetime
@@ -29,6 +29,10 @@ class Advertisement(Base):
     )
     link_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    # Position in the running-banner rotation and in the admin management list;
+    # lower sorts first. Set to (current max + 1) on upload so new banners are
+    # appended, and swapped between neighbors by AdvertisementService.move().
+    display_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
