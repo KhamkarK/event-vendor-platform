@@ -134,18 +134,26 @@ export function VendorFilters({ filters, onChange }: VendorFiltersProps) {
           onChange={(e) => onChange({ ...filters, max_budget: e.target.value ? Number(e.target.value) : undefined })}
         />
       </div>
-      <div className="w-full sm:w-32">
-        <Input
-          label="Min rating"
-          type="number"
-          min={0}
-          max={5}
-          step={0.5}
-          placeholder="Any"
-          icon={<SlidersHorizontal size={16} />}
-          value={filters.min_rating ?? ""}
-          onChange={(e) => onChange({ ...filters, min_rating: e.target.value ? Number(e.target.value) : undefined })}
-        />
+      <div className="w-full sm:w-40">
+        <label className="mb-1.5 block text-sm font-medium text-neutral-700">Min rating</label>
+        <div className="relative">
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">
+            <SlidersHorizontal size={16} />
+          </span>
+          <select
+            className="h-[42px] w-full appearance-none rounded-xl border border-neutral-200 bg-white pl-10 pr-8 text-sm text-neutral-900 outline-none transition-all duration-150 hover:border-brand-300 focus:border-brand-400 focus:ring-4 focus:ring-brand-100"
+            value={filters.min_rating ?? ""}
+            onChange={(e) => onChange({ ...filters, min_rating: e.target.value ? Number(e.target.value) : undefined })}
+          >
+            <option value="">Any</option>
+            <option value="1">1★ &amp; up</option>
+            <option value="2">2★ &amp; up</option>
+            <option value="3">3★ &amp; up</option>
+            <option value="4">4★ &amp; up</option>
+            <option value="5">5★ only</option>
+          </select>
+          <ChevronDown size={16} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+        </div>
       </div>
     </div>
   );

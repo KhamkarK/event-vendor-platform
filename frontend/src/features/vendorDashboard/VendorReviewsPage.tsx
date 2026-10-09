@@ -117,13 +117,16 @@ export function VendorReviewsPage() {
         <form onSubmit={handleSubmit((values) => editMutation.mutate(values))} className="flex flex-col gap-4">
           <div className="w-full">
             <label className="mb-1.5 block text-sm font-medium text-neutral-700">Rating (1-5)</label>
-            <input
-              type="number"
-              min={1}
-              max={5}
+            <select
               className="h-[42px] w-full rounded-xl border border-neutral-200 bg-white px-3 text-sm text-neutral-900 outline-none transition-all duration-150 focus:border-brand-400 focus:ring-4 focus:ring-brand-100"
               {...register("rating")}
-            />
+            >
+              <option value={1}>1</option>
+              <option value={2}>2</option>
+              <option value={3}>3</option>
+              <option value={4}>4</option>
+              <option value={5}>5</option>
+            </select>
             {errors.rating?.message && <p className="mt-1 text-xs font-medium text-red-500">{errors.rating.message}</p>}
           </div>
           <div className="w-full">
