@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect } from "react";
 
-const PETAL_COLORS = ["#e08e0b", "#f7a71e", "#a91d43", "#df5c7d", "#fcc242"];
+const PETAL_COLORS = ["#cf9a35", "#e2b04a", "#7a1f3d", "#c05a7b", "#e8c16f"];
 
 interface Petal {
   id: number;

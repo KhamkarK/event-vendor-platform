@@ -34,12 +34,12 @@ export function RangoliSpinner({ size = 40, className = "", label }: RangoliSpin
               transition={{ duration: 1.6, repeat: Infinity, delay: i * 0.1, ease: "easeInOut" }}
             />
           ))}
-          <circle cx="20" cy="20" r="3.5" fill="#e08e0b" />
+          <circle cx="20" cy="20" r="3.5" fill="#cf9a35" />
         </g>
         <defs>
           <linearGradient id="rangoli-gradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#a91d43" />
-            <stop offset="100%" stopColor="#e08e0b" />
+            <stop offset="0%" stopColor="#7a1f3d" />
+            <stop offset="100%" stopColor="#cf9a35" />
           </linearGradient>
         </defs>
       </motion.svg>
