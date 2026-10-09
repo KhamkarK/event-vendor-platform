@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 
-import { DiyaIcon } from "@/assets/DiyaIcon";
+import { SetuLogo } from "@/assets/SetuLogo";
 import { Button } from "@/components/common/Button";
 import { Input } from "@/components/common/Input";
 import { HERO_IMAGE_URL } from "@/constants/heroImage";
@@ -56,7 +56,7 @@ export function LoginPage() {
       >
         <div className="mb-6 flex flex-col items-center text-center">
           <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-gradient text-white shadow-glow">
-            <DiyaIcon className="h-[22px] w-[22px]" />
+            <SetuLogo className="h-[24px] w-[24px]" />
           </span>
           <h1 className="text-2xl font-extrabold text-neutral-900">Welcome back</h1>
           <p className="mt-1 text-sm text-neutral-500">Log in to plan your next event</p>

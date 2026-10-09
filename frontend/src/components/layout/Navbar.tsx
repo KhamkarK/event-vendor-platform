@@ -3,7 +3,7 @@ import { Crown, LogOut, Menu, Search, ShieldAlert, User as UserIcon, X } from "l
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { DiyaIcon } from "@/assets/DiyaIcon";
+import { SetuLogo } from "@/assets/SetuLogo";
 import { Button } from "@/components/common/Button";
 import { AccountDetailsDropdown } from "@/components/layout/AccountDetailsDropdown";
 import { AccountDetailsModal } from "@/components/layout/AccountDetailsModal";
@@ -127,10 +127,15 @@ export function Navbar() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-2">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-gradient text-white shadow-glow">
-            <DiyaIcon className="h-[18px] w-[18px]" />
+            <SetuLogo className="h-[20px] w-[20px]" />
           </span>
-          <span className="font-display text-lg font-semibold tracking-tight text-neutral-900">
-            Event<span className="text-brand-500">Karma</span>
+          <span className="flex flex-col leading-none">
+            <span className="font-display text-lg font-semibold tracking-tight text-neutral-900">
+              Sohala<span className="text-brand-500">Setu</span>
+            </span>
+            <span lang="mr" className="mt-0.5 text-[11px] font-medium text-neutral-500" style={{ fontFamily: '"Noto Sans Devanagari", sans-serif' }}>
+              (सोहळासेतू)
+            </span>
           </span>
         </Link>
 

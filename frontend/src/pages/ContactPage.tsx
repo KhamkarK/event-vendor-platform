@@ -14,7 +14,7 @@ export function ContactPage() {
     <div className="mx-auto max-w-2xl">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-2xl font-extrabold text-neutral-900">Contact Us</h1>
-        <p className="mt-1 text-sm text-neutral-500">Reach out to the EventKarma team using the details below.</p>
+        <p className="mt-1 text-sm text-neutral-500">Reach out to the SohalaSetu team using the details below.</p>
       </motion.div>
 
       <Card className="mt-6">

@@ -81,7 +81,7 @@ export function HomePage() {
           Budget your big day. Book the right vendors. Every time.
         </h1>
         <p className="mt-4 max-w-xl text-white/85">
-          EventKarma turns event planning chaos into a clear budget, a curated vendor marketplace, and one place to track
+          SohalaSetu turns event planning chaos into a clear budget, a curated vendor marketplace, and one place to track
           every booking — for weddings, birthdays, and corporate events alike.
         </p>
 

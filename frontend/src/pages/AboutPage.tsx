@@ -31,11 +31,11 @@ export function AboutPage() {
   return (
     <div className="mx-auto max-w-3xl">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl font-extrabold text-neutral-900">About EventKarma</h1>
+        <h1 className="text-2xl font-extrabold text-neutral-900">About SohalaSetu (सोहळासेतू)</h1>
         <p className="mt-3 text-sm leading-relaxed text-neutral-600">
-          EventKarma turns event planning chaos into a clear budget, a curated vendor marketplace, and one place to
+          SohalaSetu turns event planning chaos into a clear budget, a curated vendor marketplace, and one place to
           track every booking — for weddings, birthdays, and corporate events alike. Whether you&apos;re planning a
-          wedding ceremony, a corporate conference, or a baby shower, EventKarma helps you set a realistic budget,
+          wedding ceremony, a corporate conference, or a baby shower, SohalaSetu helps you set a realistic budget,
           discover the right vendors for your occasion and location, and keep every booking, payment and review
           organized in one place.
         </p>

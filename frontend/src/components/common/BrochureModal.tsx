@@ -25,7 +25,7 @@ const roleCopy: Record<UserRole, { greeting: string; tagline: string }> = {
     tagline: "Set a budget, shortlist vendors, and book your event — all from one dashboard.",
   },
   vendor: {
-    greeting: "Grow your business with EventKarma",
+    greeting: "Grow your business with SohalaSetu",
     tagline: "List your packages, respond to quotations, and manage bookings in one place.",
   },
   admin: {
@@ -70,7 +70,7 @@ export function BrochureModal() {
       </div>
 
       <div className="px-2 pt-6">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-brand-600">How EventKarma works</p>
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-brand-600">How SohalaSetu works</p>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {steps.map((step, i) => (
             <motion.div

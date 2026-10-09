@@ -8,7 +8,7 @@ import { requestPrimeMembership } from "@/features/auth/authApi";
 import { useAuthStore } from "@/store/authStore";
 
 const PRIME_PRICE = 1;
-const COUPON_CODE = "EventKarma";
+const COUPON_CODE = "SohalaSetu";
 
 interface PrimeMembershipModalProps {
   isOpen: boolean;
