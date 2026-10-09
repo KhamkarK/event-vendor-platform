@@ -136,6 +136,13 @@ export function Navbar() {
             <span lang="mr" className="mt-0.5 text-[11px] font-medium text-neutral-500" style={{ fontFamily: '"Noto Sans Devanagari", sans-serif' }}>
               (सोहळासेतू)
             </span>
+            <span
+              lang="mr"
+              className="mt-0.5 hidden whitespace-nowrap text-[9px] italic text-accent-500 sm:block"
+              style={{ fontFamily: '"Noto Sans Devanagari", sans-serif' }}
+            >
+              तुमचा सोहळा, आमची साथ — प्रत्येक गरजेसाठी योग्य हात!
+            </span>
           </span>
         </Link>
 
