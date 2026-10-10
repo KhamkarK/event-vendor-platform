@@ -1,16 +1,12 @@
 import { motion } from "framer-motion";
-import { ArrowRight, LogIn, Search, Sparkles, Store, Wallet } from "lucide-react";
-import { type FormEvent, useState } from "react";
+import { ArrowRight, LogIn, Sparkles, Store, Wallet } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { DiyaIcon } from "@/assets/DiyaIcon";
 import { ScallopEdge } from "@/assets/ScallopEdge";
 import { Button } from "@/components/common/Button";
 import { Card } from "@/components/common/Card";
-import { FilterDropdown } from "@/components/common/FilterDropdown";
 import { HERO_IMAGE_URL } from "@/constants/heroImage";
-import { VENDOR_CATEGORIES } from "@/constants/vendorCategories";
-import { VENDOR_LOCATIONS } from "@/constants/vendorLocations";
 import { useAuthStore } from "@/store/authStore";
 
 const POPULAR_SEARCHES = [
@@ -41,8 +37,6 @@ const features = [
 export function HomePage() {
   const { isAuthenticated, user } = useAuthStore();
   const navigate = useNavigate();
-  const [searchCategory, setSearchCategory] = useState("");
-  const [searchLocation, setSearchLocation] = useState("");
 
   const primaryCta = isAuthenticated
     ? user?.role === "vendor"
@@ -52,15 +46,10 @@ export function HomePage() {
         : "/events/new"
     : "/signup";
 
-  // Hands the picked category/location to Find Vendors via router state — the
-  // same mechanism the Event Types flow already uses to arrive pre-filtered.
-  const goToVendors = (categories?: string[], location?: string) => {
-    navigate("/vendors", { state: { categories, location } });
-  };
-
-  const handleSearch = (e: FormEvent) => {
-    e.preventDefault();
-    goToVendors(searchCategory ? [searchCategory] : undefined, searchLocation || undefined);
+  // Hands the picked category to Find Vendors via router state — the same
+  // mechanism the Event Types flow already uses to arrive pre-filtered.
+  const goToVendors = (categories: string[]) => {
+    navigate("/vendors", { state: { categories } });
   };
 
   return (
@@ -87,29 +76,6 @@ export function HomePage() {
           SohalaSetu turns event planning chaos into a clear budget, a curated vendor marketplace, and one place to track
           every booking — for weddings, birthdays, and corporate events alike.
         </p>
-
-        <form
-          onSubmit={handleSearch}
-          className="mt-8 flex flex-col gap-2 rounded-2xl bg-white/95 p-3 shadow-xl backdrop-blur sm:flex-row sm:items-center"
-        >
-          <FilterDropdown
-            placeholder="What are you looking for?"
-            options={VENDOR_CATEGORIES}
-            value={searchCategory}
-            onChange={setSearchCategory}
-            triggerClassName="h-11"
-          />
-          <FilterDropdown
-            placeholder="All locations"
-            options={VENDOR_LOCATIONS}
-            value={searchLocation}
-            onChange={setSearchLocation}
-            triggerClassName="h-11"
-          />
-          <Button type="submit" size="md" fullWidth className="sm:w-auto">
-            <Search size={16} /> Search
-          </Button>
-        </form>
 
         <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/70">
           <span className="font-semibold text-white/90">Popular:</span>
