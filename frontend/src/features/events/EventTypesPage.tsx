@@ -166,7 +166,10 @@ export function EventTypesPage() {
             </Button>
           </div>
 
-          <AdSlot ads={bottomAds} fallbackImages={BOTTOM_SAMPLE_ADS} className="mt-8 h-48 w-full rounded-2xl sm:h-64 lg:h-80" />
+          {/* These banners are wide, short strips (~13:1), so this box stays
+           * short to match — a taller box just leaves empty space above a
+           * small banner since object-contain won't stretch it to fill. */}
+          <AdSlot ads={bottomAds} fallbackImages={BOTTOM_SAMPLE_ADS} className="mt-8 h-16 w-full rounded-2xl sm:h-24 lg:h-28" />
         </div>
 
         <AdSlot
