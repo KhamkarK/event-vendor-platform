@@ -18,8 +18,8 @@ def upgrade() -> None:
     # Prime becomes free/default for every customer going forward (see
     # AuthService.signup); this one-time backfill brings existing customer
     # accounts in line so nobody is left on the old paid/admin-granted flag.
-    op.execute("UPDATE users SET is_prime = true WHERE role = 'customer' AND is_prime = false")
+    op.execute("UPDATE users SET is_prime = true WHERE role = 'CUSTOMER' AND is_prime = false")
 
 
 def downgrade() -> None:
-    op.execute("UPDATE users SET is_prime = false WHERE role = 'customer'")
+    op.execute("UPDATE users SET is_prime = false WHERE role = 'CUSTOMER'")
