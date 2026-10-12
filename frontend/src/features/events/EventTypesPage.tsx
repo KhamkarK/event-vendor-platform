@@ -46,10 +46,9 @@ function EventTypeThumbnail({ image, icon: Icon }: { image: string; icon: Lucide
  *
  * Two admin-manageable ad slots (see features/admin/AdvertisementsPage.tsx)
  * fill the otherwise-empty space on this page: a sidebar slot alongside the
- * picker, and a second slot sitting just below the picker/button row so it
- * fills the empty space there instead of trailing the page as a thin
- * full-width strip. Both render nothing until an admin uploads a banner for
- * them, so there's no empty placeholder box when unused. */
+ * picker, and a full-width strip just below the whole picker/sidebar row.
+ * Both render nothing until an admin uploads a banner for them, so there's no
+ * empty placeholder box when unused. */
 export function EventTypesPage() {
   const [open, setOpen] = useState(false);
   const [selectedSlugs, setSelectedSlugs] = useState<string[]>([]);
@@ -165,11 +164,6 @@ export function EventTypesPage() {
               Find Vendors
             </Button>
           </div>
-
-          {/* These banners are wide, short strips (~13:1), so this box stays
-           * short to match — a taller box just leaves empty space above a
-           * small banner since object-contain won't stretch it to fill. */}
-          <AdSlot ads={bottomAds} fallbackImages={BOTTOM_SAMPLE_ADS} className="mt-8 h-16 w-full rounded-2xl sm:h-24 lg:h-28" />
         </div>
 
         <AdSlot
@@ -178,6 +172,12 @@ export function EventTypesPage() {
           className="mt-8 h-40 w-full rounded-2xl sm:h-56 lg:mt-0 lg:h-[420px]"
         />
       </div>
+
+      {/* Full width so it lines up with the sidebar ad's right edge instead of
+       * stopping at the left column — these banners are wide, short strips
+       * (~13:1), so the box stays short to match rather than leaving empty
+       * space above a small banner (object-contain won't stretch it to fill). */}
+      <AdSlot ads={bottomAds} fallbackImages={BOTTOM_SAMPLE_ADS} className="mt-6 h-16 w-full rounded-2xl sm:h-24 lg:h-28" />
 
       <VendorChecklistModal isOpen={checklistOpen} onClose={() => setChecklistOpen(false)} selectedEventTypeSlugs={selectedSlugs} />
     </div>
