@@ -46,9 +46,10 @@ function EventTypeThumbnail({ image, icon: Icon }: { image: string; icon: Lucide
  *
  * Two admin-manageable ad slots (see features/admin/AdvertisementsPage.tsx)
  * fill the otherwise-empty space on this page: a sidebar slot alongside the
- * picker on larger screens, and a full-width slot at the bottom. Both render
- * nothing until an admin uploads a banner for them, so there's no empty
- * placeholder box when unused. */
+ * picker, and a second slot sitting just below the picker/button row so it
+ * fills the empty space there instead of trailing the page as a thin
+ * full-width strip. Both render nothing until an admin uploads a banner for
+ * them, so there's no empty placeholder box when unused. */
 export function EventTypesPage() {
   const [open, setOpen] = useState(false);
   const [selectedSlugs, setSelectedSlugs] = useState<string[]>([]);
@@ -164,6 +165,8 @@ export function EventTypesPage() {
               Find Vendors
             </Button>
           </div>
+
+          <AdSlot ads={bottomAds} fallbackImages={BOTTOM_SAMPLE_ADS} className="mt-8 h-48 w-full rounded-2xl sm:h-64 lg:h-80" />
         </div>
 
         <AdSlot
@@ -172,8 +175,6 @@ export function EventTypesPage() {
           className="mt-8 h-40 w-full rounded-2xl sm:h-56 lg:mt-0 lg:h-[420px]"
         />
       </div>
-
-      <AdSlot ads={bottomAds} fallbackImages={BOTTOM_SAMPLE_ADS} className="mt-6 h-16 w-full rounded-2xl sm:h-20" />
 
       <VendorChecklistModal isOpen={checklistOpen} onClose={() => setChecklistOpen(false)} selectedEventTypeSlugs={selectedSlugs} />
     </div>
