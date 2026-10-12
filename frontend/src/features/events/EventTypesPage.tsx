@@ -46,7 +46,8 @@ function EventTypeThumbnail({ image, icon: Icon }: { image: string; icon: Lucide
  *
  * Two admin-manageable ad slots (see features/admin/AdvertisementsPage.tsx)
  * fill the otherwise-empty space on this page: a sidebar slot alongside the
- * picker, and a full-width strip just below the whole picker/sidebar row.
+ * picker, and a second slot sitting just below the picker/button row, filling
+ * the empty space there instead of trailing the page as a disconnected strip.
  * Both render nothing until an admin uploads a banner for them, so there's no
  * empty placeholder box when unused. */
 export function EventTypesPage() {
@@ -164,6 +165,16 @@ export function EventTypesPage() {
               Find Vendors
             </Button>
           </div>
+
+          {/* Sits right under the picker, filling the top of the empty space
+           * next to the (taller) sidebar ad. These banners are wide, short
+           * strips (~13:1), so the box stays short to match — a taller box
+           * just leaves empty space above a small banner, since object-contain
+           * won't stretch it to fill. Some leftover space below this is
+           * unavoidable since the sidebar card is taller than this column's
+           * own content; that's fine on mobile too, where it just flows
+           * beneath the button at full width before the sidebar ad. */}
+          <AdSlot ads={bottomAds} fallbackImages={BOTTOM_SAMPLE_ADS} className="mt-8 h-16 w-full rounded-2xl sm:h-24 lg:h-28" />
         </div>
 
         <AdSlot
@@ -172,12 +183,6 @@ export function EventTypesPage() {
           className="mt-8 h-40 w-full rounded-2xl sm:h-56 lg:mt-0 lg:h-[420px]"
         />
       </div>
-
-      {/* Full width so it lines up with the sidebar ad's right edge instead of
-       * stopping at the left column — these banners are wide, short strips
-       * (~13:1), so the box stays short to match rather than leaving empty
-       * space above a small banner (object-contain won't stretch it to fill). */}
-      <AdSlot ads={bottomAds} fallbackImages={BOTTOM_SAMPLE_ADS} className="mt-6 h-16 w-full rounded-2xl sm:h-24 lg:h-28" />
 
       <VendorChecklistModal isOpen={checklistOpen} onClose={() => setChecklistOpen(false)} selectedEventTypeSlugs={selectedSlugs} />
     </div>
