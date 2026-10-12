@@ -34,6 +34,9 @@ class AuthService:
             mobile=payload.mobile,
             hashed_password=hash_password(payload.password),
             role=payload.role,
+            # Prime is now free/default for every customer account; vendor and
+            # admin signups are unaffected (is_prime has no effect for them).
+            is_prime=(payload.role == UserRole.CUSTOMER),
         )
         user = self.users.create(user)
 
