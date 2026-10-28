@@ -14,6 +14,14 @@ import { VENDOR_LOCATIONS } from "@/constants/vendorLocations";
 import { createEvent } from "@/features/events/eventsApi";
 import type { EventType } from "@/types/event";
 
+// Customers can backdate an event by at most 2 days (e.g. logging one just
+// held); anything older than that is rejected both here and on the backend.
+const MIN_EVENT_DATE = (() => {
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 2);
+  return cutoff.toISOString().slice(0, 10);
+})();
+
 const schema = z.object({
   name: z.string().min(2, "Give your event a name"),
   event_type: z.enum([
@@ -31,7 +39,10 @@ const schema = z.object({
     "sangeet-ceremony",
     "wedding-ceremony",
   ]),
-  event_date: z.string().min(1, "Pick a date"),
+  event_date: z
+    .string()
+    .min(1, "Pick a date")
+    .refine((value) => value >= MIN_EVENT_DATE, "Event date can't be more than 2 days in the past"),
   location: z.string().min(1, "Location is required"),
   total_budget: z.coerce.number().positive("Enter a valid budget"),
   guest_count: z.coerce.number().int("Enter a whole number").positive("Enter number of guests"),
@@ -116,7 +127,13 @@ export function CreateEventPage() {
           <Input label="Event name" placeholder="e.g. Riya & Arjun's Wedding" error={errors.name?.message} {...register("name")} />
 
           <div className="grid grid-cols-2 gap-4">
-            <Input label="Event date" type="date" error={errors.event_date?.message} {...register("event_date")} />
+            <Input
+              label="Event date"
+              type="date"
+              min={MIN_EVENT_DATE}
+              error={errors.event_date?.message}
+              {...register("event_date")}
+            />
             <div>
               <label className="mb-1.5 block text-sm font-medium text-neutral-700">Location</label>
               <div className="relative">
