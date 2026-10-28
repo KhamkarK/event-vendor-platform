@@ -28,6 +28,7 @@ const schema = z
     business_name: z.string().optional(),
     category: z.string().optional(),
     location: z.string().optional(),
+    service_locations: z.array(z.string()).optional(),
   })
   .refine((data) => data.role !== "vendor" || !!data.business_name, {
     message: "Business name is required for vendors",
@@ -53,16 +54,26 @@ export function SignupPage() {
   const navigate = useNavigate();
   const setSession = useAuthStore((s) => s.setSession);
   const [role, setRole] = useState<UserRole>("customer");
+  const [serviceLocations, setServiceLocations] = useState<string[]>([]);
   const {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({ resolver: zodResolver(schema), defaultValues: { role: "customer" } });
+  } = useForm<FormValues>({ resolver: zodResolver(schema), defaultValues: { role: "customer", service_locations: [] } });
 
   const selectRole = (value: UserRole) => {
     setRole(value);
     setValue("role", value as "customer" | "vendor");
+  };
+
+  const toggleServiceLocation = (location: string) => {
+    setServiceLocations((current) => {
+      const next = current.includes(location) ? current.filter((l) => l !== location) : [...current, location];
+      setValue("service_locations", next);
+      return next;
+    });
   };
 
   const onSubmit = async (values: FormValues) => {
@@ -186,6 +197,27 @@ export function SignupPage() {
                   </select>
                 </div>
                 {errors.location?.message && <p className="mt-1 text-xs font-medium text-red-500">{errors.location.message}</p>}
+              </div>
+              <div className="col-span-2 w-full">
+                <label className="mb-1.5 block text-sm font-medium text-neutral-700">Also serves (optional)</label>
+                <div className="flex flex-wrap gap-2">
+                  {VENDOR_LOCATIONS.filter((loc) => loc !== watch("location")).map((loc) => {
+                    const active = serviceLocations.includes(loc);
+                    return (
+                      <button
+                        type="button"
+                        key={loc}
+                        onClick={() => toggleServiceLocation(loc)}
+                        className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                          active ? "border-brand-400 bg-brand-50 text-brand-700" : "border-neutral-200 text-neutral-600 hover:border-neutral-300"
+                        }`}
+                      >
+                        {loc}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="mt-1 text-xs text-neutral-400">Other towns you&apos;re also willing to travel to and serve.</p>
               </div>
             </motion.div>
           )}

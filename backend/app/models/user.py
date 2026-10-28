@@ -63,6 +63,10 @@ class VendorProfile(Base):
     category: Mapped[str] = mapped_column(String(100), nullable=False)  # e.g. Catering, Venue, Photography
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     location: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    # Other towns (besides `location`, their primary/home base) this vendor is
+    # also willing to travel to and serve — lets them show up in a customer's
+    # Find Vendors search for those towns too (see VendorService.search).
+    service_locations: Mapped[list | None] = mapped_column(JSON, nullable=True, default=list)
     # Instagram/website link the vendor sets themselves; shown to customers on
     # the search-results card (see app/services/vendor_service.py) below the
     # contact number. Freeform, not validated beyond length.

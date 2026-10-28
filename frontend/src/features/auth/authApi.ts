@@ -16,6 +16,7 @@ export interface SignupPayload {
   business_name?: string;
   category?: string;
   location?: string;
+  service_locations?: string[];
 }
 
 export async function loginRequest(payload: LoginPayload): Promise<AuthResponse> {
@@ -44,9 +45,12 @@ export async function requestPremiumMembership(): Promise<User> {
   return data;
 }
 
-/** Lets a vendor update their own business-profile fields (currently just
- * profile_urls — see AccountDetailsModal's "Business details" section). */
-export async function updateVendorProfile(payload: { profile_urls?: string[] | null }): Promise<User> {
+/** Lets a vendor update their own business-profile fields (profile_urls and
+ * service_locations — see AccountDetailsModal's "Business details" section). */
+export async function updateVendorProfile(payload: {
+  profile_urls?: string[] | null;
+  service_locations?: string[] | null;
+}): Promise<User> {
   const { data } = await apiClient.patch<User>("/users/me/vendor-profile", payload);
   return data;
 }

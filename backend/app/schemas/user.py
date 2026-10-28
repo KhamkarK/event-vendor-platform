@@ -15,6 +15,9 @@ class VendorProfileOut(BaseModel):
     category: str
     description: str | None = None
     location: str | None = None
+    # Other towns this vendor also serves besides `location` (their primary
+    # base) — see app/services/vendor_service.py's search-matching.
+    service_locations: list[str] | None = None
     # Instagram/website link, shown to customers on the vendor search card
     # below the contact number (see app/services/vendor_service.py).
     profile_url: str | None = None
@@ -52,6 +55,7 @@ class VendorProfileUpdate(BaseModel):
     category: str | None = None
     description: str | None = None
     location: str | None = None
+    service_locations: list[str] | None = None
     profile_url: str | None = None
     profile_urls: list[str] | None = None
     documents: list[str] | None = None
@@ -72,6 +76,14 @@ class VendorProfileUpdate(BaseModel):
             if not url.lower().startswith(("http://", "https://")):
                 raise ValueError("Each profile link must start with http:// or https://")
         return cleaned
+
+    @field_validator("service_locations")
+    @classmethod
+    def validate_service_locations(cls, locations: list[str] | None) -> list[str] | None:
+        if locations is None:
+            return None
+        # Trim, drop blanks and duplicates (order kept) — same shape as profile_urls above.
+        return list(dict.fromkeys(loc.strip() for loc in locations if loc.strip()))
 
 
 class UserOut(BaseModel):

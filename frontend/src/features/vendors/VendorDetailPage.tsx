@@ -115,6 +115,11 @@ export function VendorDetailPage() {
                   <MapPin size={14} /> {vendor.location}
                 </span>
               )}
+              {vendor.service_locations && vendor.service_locations.length > 0 && (
+                <span className="flex items-center gap-1 text-white/80">
+                  <MapPin size={14} /> Also serves: {vendor.service_locations.join(", ")}
+                </span>
+              )}
               {vendor.contact_number ? (
                 <span className="flex items-center gap-1">
                   <Phone size={14} /> {vendor.contact_number}

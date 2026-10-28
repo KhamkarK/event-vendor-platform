@@ -45,8 +45,20 @@ class VendorService:
         max_budget: float | None = None,
     ):
         profiles = self.users.list_vendor_profiles(
-            category=category, categories=categories, location=location, min_rating=min_rating, max_budget=max_budget
+            category=category, categories=categories, min_rating=min_rating, max_budget=max_budget
         )
+
+        if location:
+            # A profile matches if the searched location is its primary base
+            # OR one of the other towns it's said it also serves.
+            needle = location.strip().lower()
+            def serves(profile) -> bool:
+                if profile.location and needle in profile.location.lower():
+                    return True
+                return any(needle == loc.lower() for loc in (profile.service_locations or []))
+
+            profiles = [p for p in profiles if serves(p)]
+
         if min_budget is not None or max_budget is not None:
             def in_budget(price: float) -> bool:
                 if min_budget is not None and price < min_budget:

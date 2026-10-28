@@ -46,11 +46,13 @@ class UserRepository:
         *,
         category: str | None = None,
         categories: list[str] | None = None,
-        location: str | None = None,
         min_rating: float | None = None,
         max_budget: float | None = None,
         only_approved: bool = True,
     ) -> list[VendorProfile]:
+        # Note: location is deliberately NOT filtered here — a vendor can also
+        # serve locations beyond their primary one (service_locations), so
+        # VendorService.search does that matching itself, after this query.
         stmt = select(VendorProfile)
         if only_approved:
             stmt = stmt.where(VendorProfile.is_approved.is_(True), VendorProfile.is_blocked.is_(False))
@@ -60,8 +62,6 @@ class UserRepository:
             stmt = stmt.where(VendorProfile.category.in_(categories))
         elif category:
             stmt = stmt.where(VendorProfile.category.ilike(f"%{category}%"))
-        if location:
-            stmt = stmt.where(VendorProfile.location.ilike(f"%{location}%"))
         if min_rating is not None:
             stmt = stmt.where(VendorProfile.rating_avg >= min_rating)
         # Highest-rated vendors first; more reviews breaks a tie on average rating.

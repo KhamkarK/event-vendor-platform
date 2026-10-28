@@ -6,6 +6,8 @@ export interface VendorProfile {
   category: string;
   description: string | null;
   location: string | null;
+  /** Other towns (besides `location`, their primary/home base) this vendor also serves — shown to customers as "Also serves". */
+  service_locations?: string[] | null;
   /** Instagram/website link the vendor sets themselves — shown to customers on the search card below the contact number. */
   profile_url?: string | null;
   /** Up to 3 Instagram/website links — shown to customers on the search card and the vendor detail page. */

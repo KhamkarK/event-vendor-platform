@@ -16,6 +16,8 @@ class SignupRequest(BaseModel):
     business_name: str | None = None
     category: str | None = None
     location: str | None = None
+    # Optional: other towns besides `location` this vendor also serves.
+    service_locations: list[str] | None = None
 
 
 class LoginRequest(BaseModel):

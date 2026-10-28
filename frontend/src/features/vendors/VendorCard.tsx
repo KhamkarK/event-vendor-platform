@@ -89,6 +89,9 @@ export function VendorCard({ vendor }: { vendor: VendorSearchResult }) {
                 </span>
               )}
             </div>
+            {vendor.service_locations && vendor.service_locations.length > 0 && (
+              <p className="mt-1 truncate text-[11px] text-neutral-400">Also serves: {vendor.service_locations.join(", ")}</p>
+            )}
 
             <div className="mt-auto pt-3 text-sm">
               {cheapestPackage !== null ? (

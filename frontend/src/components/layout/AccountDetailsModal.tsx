@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { Button } from "@/components/common/Button";
 import { Input } from "@/components/common/Input";
 import { Modal } from "@/components/common/Modal";
+import { VENDOR_LOCATIONS } from "@/constants/vendorLocations";
 import { updateVendorProfile } from "@/features/auth/authApi";
 import { useAuthStore } from "@/store/authStore";
 import type { User } from "@/types/user";
@@ -142,6 +143,86 @@ function ProfileUrlField({ profile }: { profile: NonNullable<User["vendor_profil
   );
 }
 
+/** Lets a vendor pick other towns they're also willing to travel to and
+ * serve, besides their primary `location` set at signup — shown to customers
+ * as "Also serves" (see VendorCard/VendorDetailPage). Same in-place
+ * edit/save/cancel pattern as ProfileUrlField above. */
+function ServiceLocationsField({ profile }: { profile: NonNullable<User["vendor_profile"]> }) {
+  const updateUser = useAuthStore((state) => state.updateUser);
+  const saved = profile.service_locations ?? [];
+  const [editing, setEditing] = useState(false);
+  const [selected, setSelected] = useState<string[]>(saved);
+
+  const mutation = useMutation({
+    mutationFn: (locations: string[]) => updateVendorProfile({ service_locations: locations }),
+    onSuccess: (updated) => {
+      updateUser({ vendor_profile: updated.vendor_profile });
+      setSelected(updated.vendor_profile?.service_locations ?? []);
+      toast.success("Service locations updated");
+      setEditing(false);
+    },
+    onError: (error: any) => {
+      const detail = error?.response?.data?.detail;
+      toast.error(typeof detail === "string" ? detail : "Could not update service locations");
+    },
+  });
+
+  const toggle = (location: string) => {
+    setSelected((current) => (current.includes(location) ? current.filter((l) => l !== location) : [...current, location]));
+  };
+
+  if (!editing) {
+    return (
+      <div className="flex items-start justify-between gap-3 py-2">
+        <Row icon={<MapPin size={15} />} label="Also serves" value={saved.length ? saved.join(", ") : "Not set"} />
+        <button onClick={() => setEditing(true)} className="mt-3 shrink-0 text-xs font-semibold text-brand-500 hover:underline">
+          Edit
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="py-2">
+      <p className="mb-1.5 text-sm font-medium text-neutral-700">
+        Also serves — other towns you&apos;re willing to travel to and serve
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {VENDOR_LOCATIONS.filter((location) => location !== profile.location).map((location) => {
+          const active = selected.includes(location);
+          return (
+            <button
+              key={location}
+              type="button"
+              onClick={() => toggle(location)}
+              className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                active ? "border-brand-400 bg-brand-50 text-brand-700" : "border-neutral-200 text-neutral-600 hover:border-neutral-300"
+              }`}
+            >
+              {location}
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-3 flex gap-2">
+        <Button type="button" isLoading={mutation.isPending} onClick={() => mutation.mutate(selected)}>
+          Save
+        </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => {
+            setSelected(saved);
+            setEditing(false);
+          }}
+        >
+          Cancel
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export function AccountDetailsContent({ user }: { user: User }) {
   const profile = user.vendor_profile;
 
@@ -166,6 +247,7 @@ export function AccountDetailsContent({ user }: { user: User }) {
             <Row icon={<Building2 size={15} />} label="Business name" value={profile.business_name} />
             <Row icon={<Building2 size={15} />} label="Category" value={profile.category} />
             <Row icon={<MapPin size={15} />} label="Location" value={profile.location} />
+            <ServiceLocationsField profile={profile} />
             <Row icon={<UserIcon size={15} />} label="Description" value={profile.description} />
             <ProfileUrlField profile={profile} />
             <Row

@@ -41,11 +41,18 @@ class AuthService:
         user = self.users.create(user)
 
         if payload.role == UserRole.VENDOR:
+            # Trim/dedupe/drop blanks, same as VendorProfileUpdate.service_locations.
+            service_locations = (
+                list(dict.fromkeys(loc.strip() for loc in payload.service_locations if loc.strip()))
+                if payload.service_locations
+                else None
+            )
             profile = VendorProfile(
                 user_id=user.id,
                 business_name=payload.business_name,
                 category=payload.category,
                 location=payload.location,
+                service_locations=service_locations,
             )
             self.users.create_vendor_profile(profile)
             self.db.refresh(user)
