@@ -73,7 +73,7 @@ export function HomePage() {
           तुमचा सोहळा, आमची साथ — प्रत्येक गरजेसाठी सोहळासेतू!
         </p>
         <p className="mt-4 max-w-xl text-white/85">
-          SohalaSetu turns event planning chaos into a clear budget, a curated vendor marketplace, and one place to track
+          SOHALLASETU turns event planning chaos into a clear budget, a curated vendor marketplace, and one place to track
           every booking — for weddings, birthdays, and corporate events alike.
         </p>
 

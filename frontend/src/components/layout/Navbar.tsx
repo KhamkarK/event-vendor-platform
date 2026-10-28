@@ -131,7 +131,7 @@ export function Navbar() {
           </span>
           <span className="flex flex-col leading-none">
             <span className="font-display text-lg font-semibold tracking-tight text-neutral-900">
-              Sohala<span className="text-brand-500">Setu</span>
+              SOHALLA<span className="text-brand-500">SETU</span>
             </span>
             <span lang="mr" className="mt-0.5 text-[11px] font-medium text-neutral-500" style={{ fontFamily: '"Noto Sans Devanagari", sans-serif' }}>
               (सोहळासेतू)

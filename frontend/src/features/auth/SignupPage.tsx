@@ -73,7 +73,7 @@ export function SignupPage() {
         mobile: values.mobile || undefined,
       });
       setSession(auth);
-      toast.success(`Welcome to SohalaSetu, ${auth.user.full_name.split(" ")[0]}!`);
+      toast.success(`Welcome to SOHALLASETU, ${auth.user.full_name.split(" ")[0]}!`);
       const redirectByRole = { customer: "/vendors", vendor: "/vendor-dashboard", admin: "/admin" } as const;
       navigate(redirectByRole[auth.user.role]);
     } catch (error: any) {
