@@ -19,6 +19,8 @@ export interface VendorProfile {
   is_approved: boolean;
   is_blocked: boolean;
   is_featured: boolean;
+  /** The date this vendor's Premium grant ends — null if none is active. */
+  featured_until?: string | null;
   featured_requested: boolean;
   created_at: string;
   /** Only present on admin endpoints (Vendor Management, Commissions) — who actually registered as this vendor. */

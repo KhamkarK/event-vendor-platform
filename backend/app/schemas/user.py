@@ -1,6 +1,6 @@
-from datetime import datetime
+from datetime import date, datetime
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from app.models.user import UserRole
 
@@ -31,8 +31,20 @@ class VendorProfileOut(BaseModel):
     is_approved: bool
     is_blocked: bool
     is_featured: bool
+    # The date this vendor's Premium grant ends; None means no grant is active
+    # (or, for vendors from before this feature existed, none was ever set).
+    featured_until: date | None = None
     featured_requested: bool
     created_at: datetime
+
+    @model_validator(mode="after")
+    def _expire_featured(self) -> "VendorProfileOut":
+        """Auto-reverts a lapsed Premium grant to Standard for every consumer
+        of this schema (search results, vendor detail, admin board) the
+        moment it's read — no background job needed to flip the DB column."""
+        if self.is_featured and self.featured_until is not None and self.featured_until < date.today():
+            self.is_featured = False
+        return self
 
 
 class VendorProfileAdminOut(VendorProfileOut):

@@ -7,6 +7,9 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 import { MehendiCorner } from "@/assets/MehendiCorner";
+import { Button } from "@/components/common/Button";
+import { Input } from "@/components/common/Input";
+import { Modal } from "@/components/common/Modal";
 import { RangoliSpinner } from "@/components/common/RangoliSpinner";
 import { Sidebar, type SidebarLink } from "@/components/layout/Sidebar";
 import {
@@ -84,6 +87,9 @@ function VendorDragCard({
           <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-accent-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-accent-700">
             <Crown size={10} /> Requested
           </span>
+        )}
+        {vendor.is_featured && vendor.featured_until && (
+          <p className="mt-1 text-[10px] font-medium text-accent-600">Premium until {vendor.featured_until}</p>
         )}
       </div>
       <button
@@ -219,6 +225,45 @@ function FeatureKanbanColumn({
   );
 }
 
+/** Shown when an admin drags a vendor into the Premium column — Premium now
+ * requires an end date (see AdminService.set_featured), after which the
+ * vendor automatically reverts to Standard with no further action needed. */
+function PremiumEndDateModal({
+  vendor,
+  onClose,
+  onConfirm,
+  isSubmitting,
+}: {
+  vendor: VendorProfile | null;
+  onClose: () => void;
+  onConfirm: (featuredUntil: string) => void;
+  isSubmitting: boolean;
+}) {
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const [featuredUntil, setFeaturedUntil] = useState(todayStr);
+
+  return (
+    <Modal isOpen={!!vendor} onClose={onClose} title="Set Premium end date" maxWidthClassName="max-w-sm">
+      {vendor && (
+        <div className="flex flex-col gap-4">
+          <p className="text-sm text-neutral-600">
+            Mark <span className="font-semibold">{vendor.business_name}</span> as Premium until:
+          </p>
+          <Input type="date" min={todayStr} value={featuredUntil} onChange={(e) => setFeaturedUntil(e.target.value)} />
+          <div className="flex gap-2">
+            <Button type="button" isLoading={isSubmitting} onClick={() => onConfirm(featuredUntil)}>
+              Confirm
+            </Button>
+            <Button type="button" variant="secondary" onClick={onClose}>
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+    </Modal>
+  );
+}
+
 export function VendorApprovalPage() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -226,6 +271,7 @@ export function VendorApprovalPage() {
   const { data: vendors, isLoading } = useQuery({ queryKey: ["admin-vendors"], queryFn: listAllVendors });
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
   const [availabilityVendor, setAvailabilityVendor] = useState<VendorProfile | null>(null);
+  const [premiumDragVendor, setPremiumDragVendor] = useState<VendorProfile | null>(null);
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["admin-vendors"] });
 
@@ -251,10 +297,15 @@ export function VendorApprovalPage() {
     },
   });
   const featureMutation = useMutation({
-    mutationFn: ({ id, featured }: { id: number; featured: boolean }) => setFeatured(id, featured),
+    mutationFn: ({ id, featured, featuredUntil }: { id: number; featured: boolean; featuredUntil?: string }) =>
+      setFeatured(id, featured, featuredUntil),
     onSuccess: (_, { featured }) => {
       invalidate();
+      setPremiumDragVendor(null);
       toast.success(featured ? "Vendor marked Premium" : "Vendor moved back to Standard");
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.detail ?? "Could not update Premium status");
     },
   });
   const deleteMutation = useMutation({
@@ -336,7 +387,12 @@ export function VendorApprovalPage() {
     const to = over.id as FeatureColumnId;
     if (from === to) return;
 
-    featureMutation.mutate({ id: vendorId, featured: to === "premium" });
+    if (to === "premium") {
+      // Premium requires an end date — collect it in a modal before applying.
+      setPremiumDragVendor(vendor);
+    } else {
+      featureMutation.mutate({ id: vendorId, featured: false });
+    }
   };
 
   return (
@@ -440,6 +496,15 @@ export function VendorApprovalPage() {
         isOpen={!!availabilityVendor}
         onClose={() => setAvailabilityVendor(null)}
         vendor={availabilityVendor}
+      />
+
+      <PremiumEndDateModal
+        vendor={premiumDragVendor}
+        onClose={() => setPremiumDragVendor(null)}
+        onConfirm={(featuredUntil) => {
+          if (premiumDragVendor) featureMutation.mutate({ id: premiumDragVendor.id, featured: true, featuredUntil });
+        }}
+        isSubmitting={featureMutation.isPending}
       />
     </div>
   );

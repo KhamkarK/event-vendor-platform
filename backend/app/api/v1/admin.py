@@ -1,3 +1,5 @@
+from datetime import date
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
@@ -48,8 +50,8 @@ def set_commission(vendor_id: int, rate: float, db: Session = Depends(get_db)):
 
 
 @router.post("/vendors/{vendor_id}/feature", response_model=VendorProfileOut)
-def set_featured(vendor_id: int, featured: bool = True, db: Session = Depends(get_db)):
-    return AdminService(db).set_featured(vendor_id, featured)
+def set_featured(vendor_id: int, featured: bool = True, featured_until: date | None = None, db: Session = Depends(get_db)):
+    return AdminService(db).set_featured(vendor_id, featured, featured_until)
 
 
 @router.get("/customers", response_model=list[UserOut])
