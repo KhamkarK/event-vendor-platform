@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.v1 import admin, advertisements, auth, bookings, budget, events, expenses, ledger, uploads, users, vendors
+from app.api.v1 import admin, advertisements, auth, bookings, budget, events, expenses, ledger, metal_rates, uploads, users, vendors
 
 api_router = APIRouter()
 
@@ -20,3 +20,5 @@ api_router.include_router(admin.router)
 api_router.include_router(uploads.router)
 api_router.include_router(advertisements.router)
 api_router.include_router(advertisements.admin_router)
+api_router.include_router(metal_rates.router)
+api_router.include_router(metal_rates.admin_router)

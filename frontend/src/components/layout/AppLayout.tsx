@@ -7,11 +7,13 @@ import { PageTransition } from "@/components/common/PageTransition";
 import { Footer } from "@/components/layout/Footer";
 import { MobileTabBar } from "@/components/layout/MobileTabBar";
 import { Navbar } from "@/components/layout/Navbar";
+import { RateTicker } from "@/components/layout/RateTicker";
 
 export function AppLayout() {
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
+      <RateTicker />
       <AdBanner />
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 pb-20 sm:px-6 lg:px-8 lg:pb-8">
         <PageTransition>

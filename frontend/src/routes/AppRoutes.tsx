@@ -7,6 +7,7 @@ import { AdminDashboardPage } from "@/features/admin/AdminDashboardPage";
 import { AdvertisementsPage } from "@/features/admin/AdvertisementsPage";
 import { CommissionSettings } from "@/features/admin/CommissionSettings";
 import { CustomersPage } from "@/features/admin/CustomersPage";
+import { MetalRatesSettings } from "@/features/admin/MetalRatesSettings";
 import { ReportsPage } from "@/features/admin/ReportsPage";
 import { ResetPasswordPage } from "@/features/admin/ResetPasswordPage";
 import { VendorApprovalPage } from "@/features/admin/VendorApprovalPage";
@@ -217,6 +218,14 @@ export function AppRoutes() {
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <AdvertisementsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/metal-rates"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <MetalRatesSettings />
             </ProtectedRoute>
           }
         />
