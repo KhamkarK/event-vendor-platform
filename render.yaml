@@ -51,7 +51,7 @@ services:
       # JSON-decodes list-typed env vars before the app's own
       # comma-splitting validator ever runs.
       - key: BACKEND_CORS_ORIGINS
-        value: '["https://event-vendor-platform-web-tmpg.onrender.com"]'
+        value: '["https://event-vendor-platform-web-tmpg.onrender.com","https://www.sohallasetu.in","https://sohallasetu.in"]'
 
   - type: web
     name: event-vendor-platform-web
