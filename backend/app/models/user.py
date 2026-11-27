@@ -5,9 +5,9 @@ distinguished by the `role` column. Vendor-specific fields live in `VendorProfil
 a 1:1 extension table, so the base user model stays lean for all roles.
 """
 import enum
-from datetime import datetime
+from datetime import date, datetime
 
-from sqlalchemy import JSON, Boolean, DateTime, Enum, Float, ForeignKey, Integer, String, Text, func
+from sqlalchemy import JSON, Boolean, Date, DateTime, Enum, Float, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -88,6 +88,12 @@ class VendorProfile(Base):
     # Set by the vendor via "Premium Membership" (POST /users/me/premium-request);
     # cleared once admin promotes them to Premium via AdminService.set_featured.
     featured_requested: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    # The date this vendor's Premium grant ends. Required whenever admin sets
+    # is_featured=True (see AdminService.set_featured); once this date has
+    # passed, VendorProfileOut auto-expires is_featured back to False for
+    # every consumer (search, vendor detail, admin board) with no background
+    # job needed — see its _expire_featured validator.
+    featured_until: Mapped[date | None] = mapped_column(Date, nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

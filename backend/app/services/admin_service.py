@@ -1,3 +1,5 @@
+from datetime import date
+
 from fastapi import HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -54,13 +56,24 @@ class AdminService:
         self.db.refresh(profile)
         return profile
 
-    def set_featured(self, vendor_id: int, featured: bool) -> VendorProfile:
+    def set_featured(self, vendor_id: int, featured: bool, featured_until: date | None = None) -> VendorProfile:
         profile = self.users.get_vendor_profile(vendor_id)
         if not profile:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vendor not found")
-        profile.is_featured = featured
         if featured:
+            if not featured_until:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail="An end date is required to mark a vendor Premium",
+                )
+            if featured_until < date.today():
+                raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="End date must be today or later")
+            profile.is_featured = True
+            profile.featured_until = featured_until
             profile.featured_requested = False
+        else:
+            profile.is_featured = False
+            profile.featured_until = None
         self.db.commit()
         self.db.refresh(profile)
         return profile

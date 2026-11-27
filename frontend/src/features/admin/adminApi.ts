@@ -49,8 +49,12 @@ export async function setCommission(vendorId: number, rate: number): Promise<Ven
   return data;
 }
 
-export async function setFeatured(vendorId: number, featured: boolean): Promise<VendorProfile> {
-  const { data } = await apiClient.post<VendorProfile>(`/admin/vendors/${vendorId}/feature`, null, { params: { featured } });
+/** `featuredUntil` (YYYY-MM-DD) is required by the backend when `featured` is
+ * true — see AdminService.set_featured's validation. */
+export async function setFeatured(vendorId: number, featured: boolean, featuredUntil?: string | null): Promise<VendorProfile> {
+  const { data } = await apiClient.post<VendorProfile>(`/admin/vendors/${vendorId}/feature`, null, {
+    params: { featured, featured_until: featuredUntil ?? undefined },
+  });
   return data;
 }
 
