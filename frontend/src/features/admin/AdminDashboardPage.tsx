@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { BarChart3, CircleDollarSign, KeyRound, LayoutDashboard, Megaphone, ShieldCheck, Sliders, Store, Users } from "lucide-react";
+import { BarChart3, CircleDollarSign, Coins, KeyRound, LayoutDashboard, Megaphone, ShieldCheck, Sliders, Store, Users } from "lucide-react";
 
 import { MehendiCorner } from "@/assets/MehendiCorner";
 import { AnimatedCounter } from "@/components/common/AnimatedCounter";
@@ -15,6 +15,7 @@ const sidebarLinks: SidebarLink[] = [
   { label: "Customers", to: "/admin/customers", icon: Users },
   { label: "Commissions", to: "/admin/commissions", icon: Sliders },
   { label: "Advertisements", to: "/admin/advertisements", icon: Megaphone },
+  { label: "Metal Rates", to: "/admin/metal-rates", icon: Coins },
   { label: "Reports", to: "/admin/reports", icon: BarChart3 },
   { label: "Reset Passwords", to: "/admin/reset-password", icon: KeyRound },
 ];
