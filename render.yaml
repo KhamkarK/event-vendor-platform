@@ -69,4 +69,4 @@ services:
       # dashboard ever changes again. This is baked in at build time, so a
       # change here only takes effect on the next deploy of this service.
       - key: VITE_API_BASE_URL
-        value: https://event-vendor-platform-api-x4c6.onrender.com/api/v1
+        value: https://event-vendor-platform-api-cluk.onrender.com/api/v1
