@@ -57,6 +57,12 @@ class Settings(BaseSettings):
     MAX_UPLOAD_MB: float = 5.0
     MAX_AD_VIDEO_UPLOAD_MB: float = 20.0
 
+    # Temporary: when True, new vendor signups skip admin approval and are
+    # logged in immediately (see AuthService.signup). Not declared in
+    # render.yaml on purpose — toggle it via an env var directly on the
+    # Render service's Environment tab, with no deploy/PR needed either way.
+    AUTO_APPROVE_VENDORS: bool = False
+
 
 @lru_cache
 def get_settings() -> Settings:

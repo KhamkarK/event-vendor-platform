@@ -1,6 +1,7 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.core.security import create_access_token, create_refresh_token, decode_token, hash_password, verify_password
 from app.models.user import User, UserRole, VendorProfile
 from app.repositories.user_repository import UserRepository
@@ -53,6 +54,9 @@ class AuthService:
                 category=payload.category,
                 location=payload.location,
                 service_locations=service_locations,
+                # Temporary: AUTO_APPROVE_VENDORS lets new vendors skip the
+                # admin-review queue and log in right away (see config.py).
+                is_approved=settings.AUTO_APPROVE_VENDORS,
             )
             self.users.create_vendor_profile(profile)
             self.db.refresh(user)
