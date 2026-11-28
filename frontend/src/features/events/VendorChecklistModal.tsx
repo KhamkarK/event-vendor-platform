@@ -49,12 +49,12 @@ export function VendorChecklistModal({ isOpen, onClose, selectedEventTypeSlugs }
     <Modal isOpen={isOpen} onClose={onClose} maxWidthClassName="max-w-3xl">
       <div className="mb-4 -mt-2">
         <h2 className="text-xl font-extrabold text-neutral-900">{title || "Your occasions"}</h2>
-        <p className="mt-1 text-sm text-neutral-500">Select all the vendors you need for your event.</p>
+        <p className="mt-1 text-sm text-neutral-500">Select all the service providers you need for your event.</p>
       </div>
 
       <div className="border-t border-neutral-100 pt-4">
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-sm font-bold text-neutral-900">Your Vendor Checklist</h3>
+          <h3 className="text-sm font-bold text-neutral-900">Your Service Provider Checklist</h3>
           <span className="text-xs font-medium text-neutral-500">{checked.length} Selected</span>
         </div>
 
@@ -85,7 +85,7 @@ export function VendorChecklistModal({ isOpen, onClose, selectedEventTypeSlugs }
             Select All
           </Button>
           <Button size="sm" onClick={handleSearchVendors} disabled={checked.length === 0}>
-            Search Vendors
+            Search Service Providers
           </Button>
         </div>
       </div>

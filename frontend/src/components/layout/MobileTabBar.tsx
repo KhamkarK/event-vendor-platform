@@ -46,7 +46,7 @@ export function MobileTabBar() {
   if (!isAuthenticated || !user) {
     tabs = [
       { label: "Home", to: "/", icon: Home, end: true },
-      { label: "Vendors", to: "/vendors", icon: Store },
+      { label: "Providers", to: "/vendors", icon: Store },
       { label: "Log in", to: "/login", icon: ClipboardList },
     ];
   } else if (user.role === "vendor") {
@@ -66,7 +66,7 @@ export function MobileTabBar() {
   } else if (user.role === "admin") {
     tabs = [
       { label: "Overview", to: "/admin", icon: BarChart3, end: true },
-      { label: "Vendors", to: "/admin/vendors", icon: ShieldCheck },
+      { label: "Providers", to: "/admin/vendors", icon: ShieldCheck },
       { label: "Customers", to: "/admin/customers", icon: Users },
       { label: "Fees", to: "/admin/commissions", icon: Sliders },
       { label: "Reports", to: "/admin/reports", icon: ClipboardList },
@@ -74,7 +74,7 @@ export function MobileTabBar() {
   } else {
     tabs = [
       { label: "Home", to: "/", icon: Home, end: true },
-      { label: "Vendors", to: "/vendors", icon: Store },
+      { label: "Providers", to: "/vendors", icon: Store },
       { label: "Events", to: "/events", icon: CalendarDays },
       { label: "Search", icon: Search, onClick: openCommandPalette },
     ];

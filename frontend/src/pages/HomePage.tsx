@@ -24,13 +24,13 @@ const features = [
   },
   {
     icon: Store,
-    title: "Curated Vendor Marketplace",
+    title: "Curated Service Provider Marketplace",
     description: "Search by budget, rating and location. View packages, photos and verified reviews.",
   },
   {
     icon: Sparkles,
-    title: "Vendor Khatabook",
-    description: "Vendors track advances, dues and invoices with a familiar ledger-style accounting view.",
+    title: "Service Provider Khatabook",
+    description: "Service providers track advances, dues and invoices with a familiar ledger-style accounting view.",
   },
 ];
 
@@ -67,13 +67,13 @@ export function HomePage() {
           <DiyaIcon className="h-3.5 w-3.5" /> Plan smarter, celebrate better
         </span>
         <h1 className="max-w-2xl text-3xl font-extrabold leading-tight sm:text-5xl">
-          Budget your big day. Book the right vendors. Every time.
+          Budget your big day. Book the right service providers. Every time.
         </h1>
         <p className="mt-3 max-w-xl font-display text-lg italic text-accent-300 sm:text-xl">
           तुमचा सोहळा, आमची साथ — प्रत्येक गरजेसाठी सोहळासेतू!
         </p>
         <p className="mt-4 max-w-xl text-white/85">
-          SOHALLASETU turns event planning chaos into a clear budget, a curated vendor marketplace, and one place to track
+          SOHALLASETU turns event planning chaos into a clear budget, a curated service provider marketplace, and one place to track
           every booking — for weddings, birthdays, and corporate events alike.
         </p>
 
@@ -106,7 +106,7 @@ export function HomePage() {
           )}
           <Link to="/vendors">
             <Button size="lg" variant="ghost" className="!text-white hover:!bg-white/10">
-              Browse vendors
+              Browse service providers
             </Button>
           </Link>
         </div>

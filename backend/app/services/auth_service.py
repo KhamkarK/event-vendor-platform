@@ -25,7 +25,7 @@ class AuthService:
         if payload.role == UserRole.VENDOR and not (payload.business_name and payload.category and payload.location):
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="business_name, category and location are required for vendor signup",
+                detail="business_name, category and location are required for service provider signup",
             )
 
         user = User(
@@ -95,12 +95,12 @@ class AuthService:
         profile = user.vendor_profile
         if profile and profile.is_blocked:
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, detail="Your vendor account has been blocked. Please contact support."
+                status_code=status.HTTP_403_FORBIDDEN, detail="Your service provider account has been blocked. Please contact support."
             )
         if not profile or not profile.is_approved:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Your vendor account is pending admin approval. You can log in once it has been approved.",
+                detail="Your service provider account is pending admin approval. You can log in once it has been approved.",
             )
 
     def _issue_tokens(self, user: User) -> TokenResponse:

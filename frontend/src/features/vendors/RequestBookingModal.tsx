@@ -38,7 +38,7 @@ export function RequestBookingModal({ isOpen, onClose, vendor }: RequestBookingM
 
   const handleSubmit = async () => {
     if (!eventId) {
-      toast.error("Choose an event to book this vendor for");
+      toast.error("Choose an event to book this service provider for");
       return;
     }
     setSubmitting(true);
@@ -51,7 +51,7 @@ export function RequestBookingModal({ isOpen, onClose, vendor }: RequestBookingM
         guest_count: guestCount || undefined,
         notes: requirement || undefined,
       });
-      toast.success("Booking request sent to the vendor");
+      toast.success("Booking request sent to the service provider");
       onClose();
     } catch (error: any) {
       toast.error(error?.response?.data?.detail ?? "Could not send the booking request");
@@ -91,14 +91,14 @@ export function RequestBookingModal({ isOpen, onClose, vendor }: RequestBookingM
                 return (
                   <option key={event.id} value={event.id} disabled={unavailable}>
                     {event.name} — {event.event_date}
-                    {unavailable ? " (vendor unavailable)" : ""}
+                    {unavailable ? " (service provider unavailable)" : ""}
                   </option>
                 );
               })}
             </select>
             {eventId && unavailableSet.has(events.find((e) => e.id === eventId)?.event_date ?? "") && (
               <p className="mt-1.5 flex items-center gap-1 text-xs font-medium text-red-600">
-                <CalendarX2 className="h-3.5 w-3.5" /> This vendor isn't available on that date.
+                <CalendarX2 className="h-3.5 w-3.5" /> This service provider isn't available on that date.
               </p>
             )}
           </div>
@@ -130,7 +130,7 @@ export function RequestBookingModal({ isOpen, onClose, vendor }: RequestBookingM
               value={requirement}
               onChange={(e) => setRequirement(e.target.value)}
               rows={3}
-              placeholder="Any specific requirement for the vendor…"
+              placeholder="Any specific requirement for the service provider…"
               className="w-full rounded-xl border border-neutral-200 px-3 py-2.5 text-sm focus:border-brand-400 focus:outline-none"
             />
           </div>

@@ -14,7 +14,7 @@ import type { User } from "@/types/user";
 
 const sidebarLinks: SidebarLink[] = [
   { label: "Overview", to: "/admin", icon: LayoutDashboard, end: true },
-  { label: "Vendors", to: "/admin/vendors", icon: ShieldCheck },
+  { label: "Service Providers", to: "/admin/vendors", icon: ShieldCheck },
   { label: "Customers", to: "/admin/customers", icon: Users },
   { label: "Commissions", to: "/admin/commissions", icon: Sliders },
   { label: "Advertisements", to: "/admin/advertisements", icon: Megaphone },

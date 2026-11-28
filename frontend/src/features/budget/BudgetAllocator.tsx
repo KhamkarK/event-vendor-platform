@@ -241,7 +241,7 @@ export function BudgetAllocator() {
           <ClipboardList size={16} /> View bookings & quotations
         </Button>
         <Button variant="outline" onClick={() => navigate("/vendors")}>
-          <Wallet size={16} /> Find vendors for this budget
+          <Wallet size={16} /> Find service providers for this budget
         </Button>
       </div>
 

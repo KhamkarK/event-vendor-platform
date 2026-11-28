@@ -51,7 +51,7 @@ export function VendorDetailPage() {
 
   const handleWishlist = async () => {
     if (!isAuthenticated) {
-      toast.error("Log in to save vendors to your wishlist");
+      toast.error("Log in to save service providers to your wishlist");
       return;
     }
     const result = await toggleWishlist(id);
@@ -87,7 +87,7 @@ export function VendorDetailPage() {
   if (isLoading || !vendor) {
     return (
       <div className="flex h-96 items-center justify-center">
-        <RangoliSpinner label="Loading vendor…" />
+        <RangoliSpinner label="Loading service provider…" />
       </div>
     );
   }
@@ -147,7 +147,7 @@ export function VendorDetailPage() {
       <div className="mt-8">
         <h2 className="mb-4 text-lg font-bold text-neutral-900">Packages</h2>
         {vendor.packages.length === 0 ? (
-          <EmptyState icon={Package} title="No packages listed yet" description="This vendor hasn't published any packages." />
+          <EmptyState icon={Package} title="No packages listed yet" description="This service provider hasn't published any packages." />
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {vendor.packages.map((pkg) => (
@@ -177,7 +177,7 @@ export function VendorDetailPage() {
       <div className="mt-8">
         <h2 className="mb-4 text-lg font-bold text-neutral-900">Availability</h2>
         <Card>
-          <BlockedDatesList dates={unavailableDates ?? []} emptyLabel="No unavailable dates — this vendor is open on all upcoming dates" />
+          <BlockedDatesList dates={unavailableDates ?? []} emptyLabel="No unavailable dates — this service provider is open on all upcoming dates" />
         </Card>
       </div>
 

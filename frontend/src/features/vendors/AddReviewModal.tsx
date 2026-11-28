@@ -51,7 +51,7 @@ export function AddReviewModal({ isOpen, onClose, vendorId }: AddReviewModalProp
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Rate this vendor">
+    <Modal isOpen={isOpen} onClose={handleClose} title="Rate this service provider">
       <div className="flex flex-col gap-4">
         <div>
           <label className="mb-1.5 block text-sm font-semibold text-neutral-700">Your rating</label>
@@ -78,7 +78,7 @@ export function AddReviewModal({ isOpen, onClose, vendorId }: AddReviewModalProp
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             rows={3}
-            placeholder="Share your experience with this vendor…"
+            placeholder="Share your experience with this service provider…"
             className="w-full rounded-xl border border-neutral-200 px-3 py-2.5 text-sm text-neutral-900 outline-none transition-all duration-150 placeholder:text-neutral-400 focus:border-brand-400 focus:ring-4 focus:ring-brand-100"
           />
         </div>

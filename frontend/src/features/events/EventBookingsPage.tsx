@@ -67,7 +67,7 @@ export function EventBookingsPage() {
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-extrabold text-neutral-900">{event ? `${event.name} — Bookings` : "Bookings"}</h1>
-          <p className="mt-1 text-sm text-neutral-500">Every vendor you&apos;ve reached out to for this event, in one place.</p>
+          <p className="mt-1 text-sm text-neutral-500">Every service provider you&apos;ve reached out to for this event, in one place.</p>
         </div>
         {canCompare && (
           <div className="flex items-center gap-1 rounded-xl border border-neutral-200 p-1">
@@ -98,11 +98,11 @@ export function EventBookingsPage() {
       ) : !bookings || bookings.length === 0 ? (
         <EmptyState
           icon={Store}
-          title="No vendor bookings yet"
-          description="Reach out to vendors from the marketplace and they'll show up here."
+          title="No service provider bookings yet"
+          description="Reach out to service providers from the marketplace and they'll show up here."
           action={
             <Link to="/vendors">
-              <span className="text-sm font-semibold text-brand-600 hover:underline">Browse vendors</span>
+              <span className="text-sm font-semibold text-brand-600 hover:underline">Browse service providers</span>
             </Link>
           }
         />
@@ -111,7 +111,7 @@ export function EventBookingsPage() {
           <table className="w-full min-w-[560px] text-sm">
             <thead>
               <tr className="border-b border-neutral-100 text-left text-xs font-bold uppercase tracking-wide text-neutral-400">
-                <th className="px-4 py-3">Vendor</th>
+                <th className="px-4 py-3">Service Provider</th>
                 <th className="px-4 py-3">Package</th>
                 <th className="px-4 py-3">Quoted amount</th>
                 <th className="px-4 py-3">Status</th>
@@ -132,7 +132,7 @@ export function EventBookingsPage() {
                       className={`border-b border-neutral-50 last:border-0 ${idx === 0 ? "bg-emerald-50/40" : ""}`}
                     >
                       <td className="px-4 py-3 font-semibold text-neutral-800">
-                        {booking.vendor_name ?? `Vendor #${booking.vendor_id}`}
+                        {booking.vendor_name ?? `Service Provider #${booking.vendor_id}`}
                         {idx === 0 && <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">Lowest</span>}
                       </td>
                       <td className="px-4 py-3 text-neutral-600">{booking.package_title ?? "—"}</td>
@@ -158,7 +158,7 @@ export function EventBookingsPage() {
                   <div>
                     <div className="flex items-center gap-2">
                       <Link to={`/vendors/${booking.vendor_id}`} className="font-semibold text-neutral-800 hover:text-brand-600">
-                        {booking.vendor_name ?? `Vendor #${booking.vendor_id}`}
+                        {booking.vendor_name ?? `Service Provider #${booking.vendor_id}`}
                       </Link>
                     </div>
                     {booking.package_title && (

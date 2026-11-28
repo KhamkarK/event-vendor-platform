@@ -64,7 +64,7 @@ export function VendorReviewsPage() {
 
   return (
     <div className="flex gap-8">
-      <Sidebar title="Vendor" links={sidebarLinks} />
+      <Sidebar title="Service Provider" links={sidebarLinks} />
       <div className="flex-1">
         <h1 className="text-2xl font-extrabold text-neutral-900">Reviews</h1>
         <p className="mt-1 text-sm text-neutral-500">

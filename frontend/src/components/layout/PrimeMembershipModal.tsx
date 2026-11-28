@@ -57,7 +57,7 @@ export function PrimeMembershipBody() {
     <>
       <div className="flex items-start gap-3 rounded-xl bg-accent-50 p-3 text-sm text-accent-700">
         <Sparkles size={16} className="mt-0.5 shrink-0" />
-        <p>Get unlimited vendor details across all categories with Prime Membership.</p>
+        <p>Get unlimited service provider details across all categories with Prime Membership.</p>
       </div>
 
       {pending ? (

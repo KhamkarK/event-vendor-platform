@@ -27,7 +27,7 @@ import type { VendorProfile } from "@/types/user";
 
 const sidebarLinks: SidebarLink[] = [
   { label: "Overview", to: "/admin", icon: LayoutDashboard, end: true },
-  { label: "Vendors", to: "/admin/vendors", icon: ShieldCheck },
+  { label: "Service Providers", to: "/admin/vendors", icon: ShieldCheck },
   { label: "Customers", to: "/admin/customers", icon: Users },
   { label: "Commissions", to: "/admin/commissions", icon: Sliders },
   { label: "Advertisements", to: "/admin/advertisements", icon: Megaphone },
@@ -105,7 +105,7 @@ function VendorDragCard({
         onClick={() => onImpersonate(vendor)}
         className="shrink-0 rounded-full p-1.5 text-neutral-300 transition-colors hover:bg-brand-50 hover:text-brand-600"
         aria-label={`Log in as ${vendor.business_name}`}
-        title="Log in as this vendor"
+        title="Log in as this service provider"
       >
         <LogIn size={16} />
       </button>
@@ -113,7 +113,7 @@ function VendorDragCard({
         onClick={() => onDelete(vendor)}
         className="shrink-0 rounded-full p-1.5 text-neutral-300 transition-colors hover:bg-red-50 hover:text-red-600"
         aria-label={`Delete ${vendor.business_name}`}
-        title="Delete vendor"
+        title="Delete service provider"
       >
         <Trash2 size={16} />
       </button>
@@ -149,7 +149,7 @@ function KanbanColumn({
         <span className="rounded-full bg-white/70 px-2 py-0.5 text-[10px] font-bold text-neutral-500">{vendors.length}</span>
       </div>
       {vendors.length === 0 ? (
-        <p className="px-1 py-6 text-center text-xs text-neutral-400">Drag a vendor here</p>
+        <p className="px-1 py-6 text-center text-xs text-neutral-400">Drag a service provider here</p>
       ) : (
         vendors.map((vendor) => (
           <VendorDragCard
@@ -210,7 +210,7 @@ function FeatureKanbanColumn({
         <span className="rounded-full bg-white/70 px-2 py-0.5 text-[10px] font-bold text-neutral-500">{vendors.length}</span>
       </div>
       {vendors.length === 0 ? (
-        <p className="px-1 py-6 text-center text-xs text-neutral-400">Drag a vendor here</p>
+        <p className="px-1 py-6 text-center text-xs text-neutral-400">Drag a service provider here</p>
       ) : (
         vendors.map((vendor) => (
           <VendorDragCard
@@ -280,21 +280,21 @@ export function VendorApprovalPage() {
     mutationFn: approveVendor,
     onSuccess: () => {
       invalidate();
-      toast.success("Vendor approved");
+      toast.success("Service provider approved");
     },
   });
   const blockMutation = useMutation({
     mutationFn: blockVendor,
     onSuccess: () => {
       invalidate();
-      toast.success("Vendor blocked");
+      toast.success("Service provider blocked");
     },
   });
   const unblockMutation = useMutation({
     mutationFn: unblockVendor,
     onSuccess: () => {
       invalidate();
-      toast.success("Vendor unblocked");
+      toast.success("Service provider unblocked");
     },
   });
   const featureMutation = useMutation({
@@ -303,7 +303,7 @@ export function VendorApprovalPage() {
     onSuccess: (_, { featured }) => {
       invalidate();
       setPremiumDragVendor(null);
-      toast.success(featured ? "Vendor marked Premium" : "Vendor moved back to Standard");
+      toast.success(featured ? "Service provider marked Premium" : "Service provider moved back to Standard");
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.detail ?? "Could not update Premium status");
@@ -313,10 +313,10 @@ export function VendorApprovalPage() {
     mutationFn: deleteVendor,
     onSuccess: () => {
       invalidate();
-      toast.success("Vendor deleted");
+      toast.success("Service provider deleted");
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.detail ?? "Could not delete vendor");
+      toast.error(error?.response?.data?.detail ?? "Could not delete service provider");
     },
   });
 
@@ -338,7 +338,7 @@ export function VendorApprovalPage() {
       navigate("/vendor-dashboard");
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.detail ?? "Could not log in as this vendor");
+      toast.error(error?.response?.data?.detail ?? "Could not log in as this service provider");
     },
   });
 
@@ -373,7 +373,7 @@ export function VendorApprovalPage() {
       else if (from === "blocked") unblockMutation.mutate(vendorId);
     } else if (to === "pending") {
       if (from === "blocked") unblockMutation.mutate(vendorId);
-      else toast.error("An approved vendor can't be moved back to pending here.");
+      else toast.error("An approved service provider can't be moved back to pending here.");
     }
   };
 
@@ -402,18 +402,18 @@ export function VendorApprovalPage() {
       <div className="flex-1">
         <div className="relative">
           <MehendiCorner className="pointer-events-none absolute -right-1 -top-2 h-10 w-10 text-brand-200" />
-          <h1 className="text-2xl font-extrabold text-neutral-900">Vendor Management</h1>
-          <p className="mt-1 text-sm text-neutral-500">Drag a vendor between columns to approve, block, or reinstate them.</p>
+          <h1 className="text-2xl font-extrabold text-neutral-900">Service Provider Management</h1>
+          <p className="mt-1 text-sm text-neutral-500">Drag a service provider between columns to approve, block, or reinstate them.</p>
         </div>
 
         <div className="mt-6">
           {isLoading ? (
             <div className="flex h-64 items-center justify-center">
-              <RangoliSpinner label="Loading vendors…" />
+              <RangoliSpinner label="Loading service providers…" />
             </div>
           ) : !vendors || vendors.length === 0 ? (
             <div className="flex h-40 items-center justify-center rounded-2xl border border-dashed border-neutral-200 text-sm text-neutral-400">
-              No vendors yet — they&apos;ll appear here once they sign up.
+              No service providers yet — they&apos;ll appear here once they sign up.
             </div>
           ) : (
             <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
@@ -450,20 +450,20 @@ export function VendorApprovalPage() {
 
         <div className="mt-10">
           <h2 className="flex items-center gap-1.5 text-lg font-bold text-neutral-900">
-            <Crown size={16} className="text-accent-500" /> Premium Vendors
+            <Crown size={16} className="text-accent-500" /> Premium Service Providers
           </h2>
           <p className="mt-1 text-sm text-neutral-500">
-            Drag an approved vendor into Premium to feature them (only approved, unblocked vendors are eligible).
+            Drag an approved service provider into Premium to feature them (only approved, unblocked service providers are eligible).
           </p>
 
           <div className="mt-4">
             {isLoading ? (
               <div className="flex h-64 items-center justify-center">
-                <RangoliSpinner label="Loading vendors…" />
+                <RangoliSpinner label="Loading service providers…" />
               </div>
             ) : activeVendors.length === 0 ? (
               <div className="flex h-40 items-center justify-center rounded-2xl border border-dashed border-neutral-200 text-sm text-neutral-400">
-                No approved vendors yet — approve a vendor above to feature them here.
+                No approved service providers yet — approve a service provider above to feature them here.
               </div>
             ) : (
               <DndContext sensors={sensors} onDragEnd={handleFeatureDragEnd}>

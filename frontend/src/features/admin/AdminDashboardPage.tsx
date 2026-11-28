@@ -11,7 +11,7 @@ import { getDashboardStats } from "@/features/admin/adminApi";
 
 const sidebarLinks: SidebarLink[] = [
   { label: "Overview", to: "/admin", icon: LayoutDashboard, end: true },
-  { label: "Vendors", to: "/admin/vendors", icon: ShieldCheck },
+  { label: "Service Providers", to: "/admin/vendors", icon: ShieldCheck },
   { label: "Customers", to: "/admin/customers", icon: Users },
   { label: "Commissions", to: "/admin/commissions", icon: Sliders },
   { label: "Advertisements", to: "/admin/advertisements", icon: Megaphone },
@@ -22,8 +22,8 @@ const sidebarLinks: SidebarLink[] = [
 
 const statCards = [
   { key: "total_users" as const, label: "Customers", icon: Users, color: "text-blue-500 bg-blue-50" },
-  { key: "total_vendors" as const, label: "Total vendors", icon: Store, color: "text-brand-500 bg-brand-50" },
-  { key: "approved_vendors" as const, label: "Approved vendors", icon: ShieldCheck, color: "text-emerald-500 bg-emerald-50" },
+  { key: "total_vendors" as const, label: "Total service providers", icon: Store, color: "text-brand-500 bg-brand-50" },
+  { key: "approved_vendors" as const, label: "Approved service providers", icon: ShieldCheck, color: "text-emerald-500 bg-emerald-50" },
   { key: "pending_vendors" as const, label: "Pending approvals", icon: Sliders, color: "text-amber-500 bg-amber-50" },
   { key: "total_bookings" as const, label: "Total bookings", icon: BarChart3, color: "text-purple-500 bg-purple-50" },
   { key: "total_transacted_volume" as const, label: "Transacted volume", icon: CircleDollarSign, color: "text-accent-500 bg-accent-50", isCurrency: true },
@@ -39,7 +39,7 @@ export function AdminDashboardPage() {
         <div className="relative">
           <MehendiCorner className="pointer-events-none absolute -right-1 -top-2 h-10 w-10 text-brand-200" />
           <h1 className="text-2xl font-extrabold text-neutral-900">Platform Overview</h1>
-          <p className="mt-1 text-sm text-neutral-500">Monitor vendors, bookings, and transacted volume at a glance.</p>
+          <p className="mt-1 text-sm text-neutral-500">Monitor service providers, bookings, and transacted volume at a glance.</p>
         </div>
 
         {isLoading || !stats ? (
