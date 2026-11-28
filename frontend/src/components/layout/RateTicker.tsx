@@ -20,8 +20,8 @@ export function RateTicker() {
   if (isLoading || !rate || (rate.gold_rate_per_10g == null && rate.silver_rate_per_kg == null)) return null;
 
   const parts: string[] = [];
-  if (rate.gold_rate_per_10g != null) parts.push(`Today Gold Rate (10g): ${INR.format(rate.gold_rate_per_10g)}`);
-  if (rate.silver_rate_per_kg != null) parts.push(`Today Silver Rate (1kg): ${INR.format(rate.silver_rate_per_kg)}`);
+  if (rate.gold_rate_per_10g != null) parts.push(`Today's Gold Rate (10g): ${INR.format(rate.gold_rate_per_10g)}`);
+  if (rate.silver_rate_per_kg != null) parts.push(`Today's Silver Rate (1kg): ${INR.format(rate.silver_rate_per_kg)}`);
   const text = parts.join("   •   ");
 
   return (
