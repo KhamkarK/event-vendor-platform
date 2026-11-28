@@ -23,11 +23,11 @@ class BookingService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
         vendor = self.users.get_vendor_profile(payload.vendor_id)
         if not vendor or not vendor.is_approved or vendor.is_blocked:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vendor not available")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Service provider not available")
         if event.event_date in self.vendor_service.get_unavailable_dates(payload.vendor_id):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail=f"This vendor is not available on {event.event_date.isoformat()}.",
+                detail=f"This service provider is not available on {event.event_date.isoformat()}.",
             )
 
         booking = Booking(

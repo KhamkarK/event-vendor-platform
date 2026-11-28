@@ -12,18 +12,18 @@ const pillars = [
   },
   {
     icon: Store,
-    title: "Curated Vendor Marketplace",
-    description: "Search verified vendors by category, budget, rating and location. Compare packages, photos and reviews.",
+    title: "Curated Service Provider Marketplace",
+    description: "Search verified service providers by category, budget, rating and location. Compare packages, photos and reviews.",
   },
   {
     icon: Sparkles,
-    title: "Vendor Khatabook",
-    description: "Vendors track advances, dues and invoices with a familiar ledger-style accounting view.",
+    title: "Service Provider Khatabook",
+    description: "Service providers track advances, dues and invoices with a familiar ledger-style accounting view.",
   },
   {
     icon: ShieldCheck,
-    title: "Verified & Approved Vendors",
-    description: "Every vendor on the platform is reviewed and approved before they can list packages or take bookings.",
+    title: "Verified & Approved Service Providers",
+    description: "Every service provider on the platform is reviewed and approved before they can list packages or take bookings.",
   },
 ];
 

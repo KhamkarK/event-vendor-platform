@@ -19,7 +19,7 @@ import type { User, VendorProfile } from "@/types/user";
 
 const sidebarLinks: SidebarLink[] = [
   { label: "Overview", to: "/admin", icon: LayoutDashboard, end: true },
-  { label: "Vendors", to: "/admin/vendors", icon: ShieldCheck },
+  { label: "Service Providers", to: "/admin/vendors", icon: ShieldCheck },
   { label: "Customers", to: "/admin/customers", icon: Users },
   { label: "Commissions", to: "/admin/commissions", icon: Sliders },
   { label: "Advertisements", to: "/admin/advertisements", icon: Megaphone },
@@ -29,6 +29,10 @@ const sidebarLinks: SidebarLink[] = [
 ];
 
 type Tab = "vendor" | "customer";
+
+// "vendor" stays the internal tab/role key (matches the API); this is purely
+// the user-facing label for the tab buttons and loading/empty copy below.
+const TAB_LABELS: Record<Tab, string> = { vendor: "Service Providers", customer: "Customers" };
 
 const schema = z
   .object({
@@ -101,7 +105,7 @@ export function ResetPasswordPage() {
           <MehendiCorner className="pointer-events-none absolute -right-1 -top-2 h-10 w-10 text-brand-200" />
           <h1 className="text-2xl font-extrabold text-neutral-900">Reset Passwords</h1>
           <p className="mt-1 text-sm text-neutral-500">
-            Search for a vendor or customer and set a new password for their account directly.
+            Search for a service provider or customer and set a new password for their account directly.
           </p>
         </div>
 
@@ -113,11 +117,11 @@ export function ResetPasswordPage() {
                 setTab(t);
                 setSearch("");
               }}
-              className={`rounded-xl px-4 py-2 text-sm font-semibold capitalize transition-colors ${
+              className={`rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
                 tab === t ? "bg-brand-500 text-white shadow-glow" : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
               }`}
             >
-              {t}s
+              {TAB_LABELS[t]}
             </button>
           ))}
         </div>
@@ -135,11 +139,11 @@ export function ResetPasswordPage() {
         <div className="mt-4 flex flex-col gap-2">
           {isLoading ? (
             <div className="flex h-40 items-center justify-center">
-              <RangoliSpinner label={`Loading ${tab}s…`} />
+              <RangoliSpinner label={`Loading ${TAB_LABELS[tab]}…`} />
             </div>
           ) : rows.length === 0 ? (
             <div className="flex h-32 items-center justify-center rounded-2xl border border-dashed border-neutral-200 text-sm text-neutral-400">
-              No {tab}s match your search.
+              No {TAB_LABELS[tab]} match your search.
             </div>
           ) : tab === "vendor" ? (
             filteredVendors.map((vendor: VendorProfile, idx: number) => (

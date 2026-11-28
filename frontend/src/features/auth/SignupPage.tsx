@@ -31,23 +31,23 @@ const schema = z
     service_locations: z.array(z.string()).optional(),
   })
   .refine((data) => data.role !== "vendor" || !!data.business_name, {
-    message: "Business name is required for vendors",
+    message: "Business name is required for service providers",
     path: ["business_name"],
   })
   .refine((data) => data.role !== "vendor" || !!data.category, {
-    message: "Category is required for vendors",
+    message: "Category is required for service providers",
     path: ["category"],
   })
   .refine((data) => data.role !== "vendor" || !!data.location, {
-    message: "Location is required for vendors",
+    message: "Location is required for service providers",
     path: ["location"],
   });
 
 type FormValues = z.infer<typeof schema>;
 
 const roleOptions: { value: UserRole; label: string; description: string }[] = [
-  { value: "customer", label: "Plan an event", description: "Create events & book vendors" },
-  { value: "vendor", label: "I'm a vendor", description: "List packages & manage bookings" },
+  { value: "customer", label: "Plan an event", description: "Create events & book service providers" },
+  { value: "vendor", label: "I'm a Service Provider", description: "List packages & manage bookings" },
 ];
 
 export function SignupPage() {
@@ -110,7 +110,7 @@ export function SignupPage() {
             <SetuLogo className="h-[24px] w-[24px]" />
           </span>
           <h1 className="text-2xl font-extrabold text-neutral-900">Create your account</h1>
-          <p className="mt-1 text-sm text-neutral-500">Plan events smarter, or grow your vendor business</p>
+          <p className="mt-1 text-sm text-neutral-500">Plan events smarter, or grow your service provider business</p>
         </div>
 
         <div className="mb-5 grid grid-cols-2 gap-3">

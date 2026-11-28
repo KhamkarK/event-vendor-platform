@@ -48,19 +48,19 @@ export function CommandPalette() {
     const base: CommandItem[] = [];
 
     if (!isAuthenticated || !user) {
-      base.push({ label: "Browse vendors", icon: Store, action: go("/vendors") });
+      base.push({ label: "Browse service providers", icon: Store, action: go("/vendors") });
       return base;
     }
 
     if (user.role === "customer") {
       base.push(
-        { label: "Find vendors", icon: Store, action: go("/vendors") },
+        { label: "Find service providers", icon: Store, action: go("/vendors") },
         { label: "My events", icon: CalendarDays, action: go("/events") },
-        { label: "Create new event", hint: "budget & vendors", icon: Plus, action: go("/events/new") }
+        { label: "Create new event", hint: "budget & service providers", icon: Plus, action: go("/events/new") }
       );
     } else if (user.role === "vendor") {
       base.push(
-        { label: "Vendor dashboard", icon: LayoutDashboard, action: go("/vendor-dashboard") },
+        { label: "Service Provider dashboard", icon: LayoutDashboard, action: go("/vendor-dashboard") },
         { label: "Availability calendar", icon: CalendarCheck, action: go("/vendor-dashboard/calendar") },
         { label: "Quotations & requests", icon: ClipboardList, action: go("/vendor-dashboard/quotations") },
         { label: "Ledger", icon: Wallet, action: go("/vendor-dashboard/ledger") }
@@ -68,7 +68,7 @@ export function CommandPalette() {
     } else if (user.role === "admin") {
       base.push(
         { label: "Platform overview", icon: LayoutDashboard, action: go("/admin") },
-        { label: "Vendor management", icon: ShieldCheck, action: go("/admin/vendors") },
+        { label: "Service Provider management", icon: ShieldCheck, action: go("/admin/vendors") },
         { label: "Commission settings", icon: Sliders, action: go("/admin/commissions") },
         { label: "Reports & analytics", icon: BarChart3, action: go("/admin/reports") }
       );

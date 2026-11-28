@@ -10,7 +10,7 @@ import { getDashboardStats, listAllVendors } from "@/features/admin/adminApi";
 
 const sidebarLinks: SidebarLink[] = [
   { label: "Overview", to: "/admin", icon: LayoutDashboard, end: true },
-  { label: "Vendors", to: "/admin/vendors", icon: ShieldCheck },
+  { label: "Service Providers", to: "/admin/vendors", icon: ShieldCheck },
   { label: "Customers", to: "/admin/customers", icon: Users },
   { label: "Commissions", to: "/admin/commissions", icon: Sliders },
   { label: "Advertisements", to: "/admin/advertisements", icon: Megaphone },
@@ -29,7 +29,7 @@ function ChartTooltip({ active, payload, label }: any) {
   return (
     <div className="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs shadow-lg">
       <p className="font-semibold text-neutral-700">{label}</p>
-      <p className="text-neutral-600">{payload[0].value} vendors</p>
+      <p className="text-neutral-600">{payload[0].value} service providers</p>
     </div>
   );
 }
@@ -62,15 +62,15 @@ export function ReportsPage() {
         <div className="relative">
           <MehendiCorner className="pointer-events-none absolute -right-1 -top-2 h-10 w-10 text-brand-200" />
           <h1 className="text-2xl font-extrabold text-neutral-900">Reports & Analytics</h1>
-          <p className="mt-1 text-sm text-neutral-500">Vendor mix and approval pipeline across the platform.</p>
+          <p className="mt-1 text-sm text-neutral-500">Service provider mix and approval pipeline across the platform.</p>
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
           <Card>
-            <h3 className="mb-4 text-sm font-bold text-neutral-800">Vendors by category</h3>
+            <h3 className="mb-4 text-sm font-bold text-neutral-800">Service providers by category</h3>
             {loadingVendors || categoryData.length === 0 ? (
               <div className="flex h-64 items-center justify-center">
-                {loadingVendors ? <RangoliSpinner label="Loading…" /> : <p className="text-sm text-neutral-400">No vendor data yet</p>}
+                {loadingVendors ? <RangoliSpinner label="Loading…" /> : <p className="text-sm text-neutral-400">No service provider data yet</p>}
               </div>
             ) : (
               <ResponsiveContainer width="100%" height={280}>
@@ -92,7 +92,7 @@ export function ReportsPage() {
           </Card>
 
           <Card>
-            <h3 className="mb-4 text-sm font-bold text-neutral-800">Vendor approval pipeline</h3>
+            <h3 className="mb-4 text-sm font-bold text-neutral-800">Service provider approval pipeline</h3>
             {loadingStats ? (
               <div className="flex h-64 items-center justify-center">
                 <RangoliSpinner label="Loading…" />

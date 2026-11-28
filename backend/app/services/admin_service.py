@@ -30,7 +30,7 @@ class AdminService:
     def approve_vendor(self, vendor_id: int) -> VendorProfile:
         profile = self.users.get_vendor_profile(vendor_id)
         if not profile:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vendor not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Service provider not found")
         profile.is_approved = True
         self.db.commit()
         self.db.refresh(profile)
@@ -39,7 +39,7 @@ class AdminService:
     def set_block_status(self, vendor_id: int, blocked: bool) -> VendorProfile:
         profile = self.users.get_vendor_profile(vendor_id)
         if not profile:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vendor not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Service provider not found")
         profile.is_blocked = blocked
         self.db.commit()
         self.db.refresh(profile)
@@ -50,7 +50,7 @@ class AdminService:
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Commission rate must be between 0 and 100")
         profile = self.users.get_vendor_profile(vendor_id)
         if not profile:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vendor not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Service provider not found")
         profile.commission_rate = rate
         self.db.commit()
         self.db.refresh(profile)
@@ -59,12 +59,12 @@ class AdminService:
     def set_featured(self, vendor_id: int, featured: bool, featured_until: date | None = None) -> VendorProfile:
         profile = self.users.get_vendor_profile(vendor_id)
         if not profile:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vendor not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Service provider not found")
         if featured:
             if not featured_until:
                 raise HTTPException(
                     status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                    detail="An end date is required to mark a vendor Premium",
+                    detail="An end date is required to mark a service provider Premium",
                 )
             if featured_until < date.today():
                 raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="End date must be today or later")
@@ -90,7 +90,7 @@ class AdminService:
     def delete_vendor(self, vendor_id: int) -> None:
         profile = self.users.get_vendor_profile(vendor_id)
         if not profile:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vendor not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Service provider not found")
         # Deleting the underlying account (not just the profile row) so the
         # vendor is fully removed; the DB's ON DELETE CASCADE takes care of
         # the profile, packages, reviews, bookings, ledger entries, etc.
@@ -141,7 +141,7 @@ class AdminService:
     def impersonate_vendor(self, vendor_id: int) -> TokenResponse:
         profile = self.users.get_vendor_profile(vendor_id)
         if not profile:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vendor not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Service provider not found")
         return self._issue_impersonation_tokens(profile.user)
 
     def set_customer_prime(self, user_id: int, prime: bool) -> User:
@@ -165,7 +165,7 @@ class AdminService:
     def reset_vendor_password(self, vendor_id: int, new_password: str) -> VendorProfile:
         profile = self.users.get_vendor_profile(vendor_id)
         if not profile:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vendor not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Service provider not found")
         profile.user.hashed_password = hash_password(new_password)
         self.users.update(profile.user)
         return profile

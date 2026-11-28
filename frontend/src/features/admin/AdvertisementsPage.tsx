@@ -33,7 +33,7 @@ import type { Advertisement, AdvertisementPlacement } from "@/types/advertisemen
 
 const sidebarLinks: SidebarLink[] = [
   { label: "Overview", to: "/admin", icon: LayoutDashboard, end: true },
-  { label: "Vendors", to: "/admin/vendors", icon: ShieldCheck },
+  { label: "Service Providers", to: "/admin/vendors", icon: ShieldCheck },
   { label: "Customers", to: "/admin/customers", icon: Users },
   { label: "Commissions", to: "/admin/commissions", icon: Sliders },
   { label: "Advertisements", to: "/admin/advertisements", icon: Megaphone },
@@ -46,7 +46,7 @@ const PLACEMENT_TABS: { key: AdvertisementPlacement; label: string; description:
   {
     key: "top_banner",
     label: "Top Banner",
-    description: "Runs below the navbar on every page, for every customer and vendor.",
+    description: "Runs below the navbar on every page, for every customer and service provider.",
   },
   {
     key: "event_types_sidebar",

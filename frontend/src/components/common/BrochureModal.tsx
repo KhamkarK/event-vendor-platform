@@ -22,7 +22,7 @@ const BROCHURE_PDF_PATH = "/brochure/EventKarma-Brochure.pdf";
 const roleCopy: Record<UserRole, { greeting: string; tagline: string }> = {
   customer: {
     greeting: "Let's plan something memorable",
-    tagline: "Set a budget, shortlist vendors, and book your event — all from one dashboard.",
+    tagline: "Set a budget, shortlist service providers, and book your event — all from one dashboard.",
   },
   vendor: {
     greeting: "Grow your business with SOHALLASETU",
@@ -30,21 +30,21 @@ const roleCopy: Record<UserRole, { greeting: string; tagline: string }> = {
   },
   admin: {
     greeting: "Welcome back, Admin",
-    tagline: "Approve vendors, monitor commissions, and keep the platform running smoothly.",
+    tagline: "Approve service providers, monitor commissions, and keep the platform running smoothly.",
   },
 };
 
 const steps = [
   { icon: Wallet, label: "Set your budget", description: "Allocate spend across categories before you commit to anything." },
-  { icon: Sparkles, label: "Discover vendors", description: "Browse curated caterers, decorators, photographers & more." },
-  { icon: FileText, label: "Request quotations", description: "Compare offers from shortlisted vendors side by side." },
+  { icon: Sparkles, label: "Discover service providers", description: "Browse curated caterers, decorators, photographers & more." },
+  { icon: FileText, label: "Request quotations", description: "Compare offers from shortlisted service providers side by side." },
   { icon: CalendarCheck, label: "Confirm & track", description: "Bookings, ledger and status — always in view." },
 ];
 
 const featureHighlights = [
   { icon: LayoutDashboard, label: "One dashboard for every event" },
   { icon: Heart, label: "Save favourites to your wishlist" },
-  { icon: ShieldCheck, label: "Verified, admin-approved vendors" },
+  { icon: ShieldCheck, label: "Verified, admin-approved service providers" },
 ];
 
 export function BrochureModal() {

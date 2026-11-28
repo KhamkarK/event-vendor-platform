@@ -17,7 +17,7 @@ export function VendorCard({ vendor }: { vendor: VendorSearchResult }) {
   const handleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (!isAuthenticated) {
-      toast.error("Log in to save vendors to your wishlist");
+      toast.error("Log in to save service providers to your wishlist");
       return;
     }
     const result = await toggleWishlist(vendor.id);

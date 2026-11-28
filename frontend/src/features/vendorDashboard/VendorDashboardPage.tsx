@@ -33,9 +33,9 @@ export function VendorDashboardPage() {
 
   return (
     <div className="flex gap-8">
-      <Sidebar title="Vendor" links={sidebarLinks} />
+      <Sidebar title="Service Provider" links={sidebarLinks} />
       <div className="flex-1">
-        <h1 className="text-2xl font-extrabold text-neutral-900">Vendor Dashboard</h1>
+        <h1 className="text-2xl font-extrabold text-neutral-900">Service Provider Dashboard</h1>
         <p className="mt-1 text-sm text-neutral-500">Track bookings, quotations, and payments in one place.</p>
 
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">

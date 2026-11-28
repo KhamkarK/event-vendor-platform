@@ -104,7 +104,7 @@ export function EventTypesPage() {
           <div className="relative mb-6">
             <MehendiCorner className="pointer-events-none absolute -right-1 -top-2 h-10 w-10 text-brand-200" />
             <h1 className="text-2xl font-extrabold text-neutral-900">What are you planning?</h1>
-            <p className="mt-1 text-sm text-neutral-500">Select one or more occasions — we&apos;ll help you find the right vendors.</p>
+            <p className="mt-1 text-sm text-neutral-500">Select one or more occasions — we&apos;ll help you find the right service providers.</p>
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
@@ -162,7 +162,7 @@ export function EventTypesPage() {
             </div>
 
             <Button onClick={() => setChecklistOpen(true)} disabled={selectedSlugs.length === 0}>
-              Find Vendors
+              Find Service Providers
             </Button>
           </div>
 

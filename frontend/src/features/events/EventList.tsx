@@ -66,7 +66,7 @@ export function EventList() {
         <EmptyState
           icon={CalendarDays}
           title="No events yet"
-          description="Create your first event to get auto-generated budget categories and vendor recommendations."
+          description="Create your first event to get auto-generated budget categories and service provider recommendations."
           action={
             <Link to="/events/new">
               <Button>

@@ -10,7 +10,7 @@ import { listAllVendors, setCommission, setFeatured } from "@/features/admin/adm
 
 const sidebarLinks: SidebarLink[] = [
   { label: "Overview", to: "/admin", icon: LayoutDashboard, end: true },
-  { label: "Vendors", to: "/admin/vendors", icon: ShieldCheck },
+  { label: "Service Providers", to: "/admin/vendors", icon: ShieldCheck },
   { label: "Customers", to: "/admin/customers", icon: Users },
   { label: "Commissions", to: "/admin/commissions", icon: Sliders },
   { label: "Advertisements", to: "/admin/advertisements", icon: Megaphone },
@@ -45,7 +45,7 @@ export function CommissionSettings() {
       <Sidebar title="Admin" links={sidebarLinks} />
       <div className="flex-1">
         <h1 className="text-2xl font-extrabold text-neutral-900">Commission & Featured Listings</h1>
-        <p className="mt-1 text-sm text-neutral-500">Set the platform commission (5–15%) and promote featured vendors.</p>
+        <p className="mt-1 text-sm text-neutral-500">Set the platform commission (5–15%) and promote featured service providers.</p>
 
         <div className="mt-6">
           {isLoading ? (

@@ -34,14 +34,14 @@ export function VendorSearchPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-extrabold text-neutral-900">Find the perfect vendor</h1>
+        <h1 className="text-2xl font-extrabold text-neutral-900">Find the perfect service provider</h1>
         <p className="mt-1 text-sm text-neutral-500">Filter by budget, rating, and location to match your event.</p>
       </div>
 
       {!isPrimeCustomer && (
         <div className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-accent-200 bg-accent-50 px-4 py-3 text-sm text-accent-800">
           <span className="flex items-center gap-2">
-            <Crown size={16} /> Showing up to 5 vendors. Upgrade to Prime to search every vendor.
+            <Crown size={16} /> Showing up to 5 service providers. Upgrade to Prime to search every service provider.
           </span>
           <button
             onClick={() => setShowPrimeModal(true)}
@@ -62,7 +62,7 @@ export function VendorSearchPage() {
             ))}
           </div>
         ) : !vendors || vendors.length === 0 ? (
-          <EmptyState icon={SearchX} title="No vendors found" description="Try widening your filters — location, budget, or rating." />
+          <EmptyState icon={SearchX} title="No service providers found" description="Try widening your filters — location, budget, or rating." />
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {vendors.map((vendor) => (

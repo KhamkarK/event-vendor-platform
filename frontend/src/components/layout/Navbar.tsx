@@ -17,7 +17,7 @@ import { useUIStore } from "@/store/uiStore";
 const navLinksByRole: Record<string, { label: string; to: string }[]> = {
   customer: [
     { label: "Event Types", to: "/event-types" },
-    { label: "Find Vendors", to: "/vendors" },
+    { label: "Find Service Providers", to: "/vendors" },
     { label: "My Events", to: "/events" },
     { label: "Expenses", to: "/expenses" },
   ],
@@ -31,7 +31,7 @@ const navLinksByRole: Record<string, { label: string; to: string }[]> = {
   ],
   admin: [
     { label: "Overview", to: "/admin" },
-    { label: "Vendors", to: "/admin/vendors" },
+    { label: "Service Providers", to: "/admin/vendors" },
     { label: "Customers", to: "/admin/customers" },
     { label: "Commissions", to: "/admin/commissions" },
     { label: "Reports", to: "/admin/reports" },
@@ -46,6 +46,13 @@ function displayName(user: { role: string; full_name: string; vendor_profile: { 
     return user.vendor_profile.business_name;
   }
   return user.full_name.split(" ")[0];
+}
+
+/** The `role` value itself stays "vendor" internally (DB/JWT/routing); this
+ * is purely the user-facing label shown on the account chip and impersonation
+ * banner. */
+function roleLabel(role: string) {
+  return role === "vendor" ? "Service Provider" : role;
 }
 
 /** A Prime customer or a Premium (featured) vendor — surfaced as a badge on
@@ -78,7 +85,7 @@ export function Navbar() {
         { label: "Home", to: "/" },
         { label: "About Us", to: "/about" },
         { label: "Contact", to: "/contact" },
-        { label: "Find Vendors", to: "/vendors" },
+        { label: "Find Service Providers", to: "/vendors" },
       ];
 
   const handleLogout = () => {
@@ -114,7 +121,7 @@ export function Navbar() {
         <div className="flex items-center justify-center gap-3 bg-amber-500 px-4 py-2 text-xs font-semibold text-white sm:text-sm">
           <ShieldAlert size={14} />
           <span>
-            Viewing as {displayName(user)} ({user.role})
+            Viewing as {displayName(user)} ({roleLabel(user.role)})
           </span>
           <button
             onClick={handleExitImpersonation}
@@ -199,7 +206,7 @@ export function Navbar() {
                   <UserIcon size={15} className="text-brand-500" />
                   {displayName(user)}
                   <span className="rounded-full bg-brand-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-700">
-                    {user.role}
+                    {roleLabel(user.role)}
                   </span>
                   {isPrimeMember(user) && (
                     <span className="flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-700">
