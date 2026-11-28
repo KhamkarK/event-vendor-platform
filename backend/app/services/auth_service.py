@@ -22,10 +22,12 @@ class AuthService:
         if payload.mobile and self.users.get_by_mobile(payload.mobile):
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Mobile number already registered")
 
-        if payload.role == UserRole.VENDOR and not (payload.business_name and payload.category and payload.location):
+        if payload.role == UserRole.VENDOR and not (
+            payload.business_name and payload.category and payload.location and payload.service_locations
+        ):
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="business_name, category and location are required for service provider signup",
+                detail="business_name, category, location and at least one taluka are required for service provider signup",
             )
 
         user = User(

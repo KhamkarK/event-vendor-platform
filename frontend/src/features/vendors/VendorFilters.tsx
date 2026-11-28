@@ -6,7 +6,7 @@ import { Button } from "@/components/common/Button";
 import { FilterDropdown } from "@/components/common/FilterDropdown";
 import { Input } from "@/components/common/Input";
 import { VENDOR_CATEGORIES } from "@/constants/vendorCategories";
-import { VENDOR_LOCATIONS } from "@/constants/vendorLocations";
+import { ALL_TALUKAS } from "@/constants/vendorDistricts";
 import type { VendorSearchFilters } from "@/features/vendors/vendorsApi";
 
 const RATING_OPTIONS = ["1", "2", "3", "4", "5"];
@@ -114,7 +114,7 @@ export function VendorFilters({ filters, onChange }: VendorFiltersProps) {
       <FilterDropdown
         label="Location"
         placeholder="All locations"
-        options={VENDOR_LOCATIONS}
+        options={ALL_TALUKAS}
         value={filters.location ?? ""}
         onChange={(location) => onChange({ ...filters, location: location || undefined })}
       />

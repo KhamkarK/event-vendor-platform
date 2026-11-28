@@ -12,7 +12,7 @@ import { Button } from "@/components/common/Button";
 import { Input } from "@/components/common/Input";
 import { HERO_IMAGE_URL } from "@/constants/heroImage";
 import { VENDOR_CATEGORIES } from "@/constants/vendorCategories";
-import { VENDOR_LOCATIONS } from "@/constants/vendorLocations";
+import { TALUKAS_BY_DISTRICT, VENDOR_DISTRICTS, type VendorDistrict } from "@/constants/vendorDistricts";
 import { signupRequest } from "@/features/auth/authApi";
 import { useAuthStore } from "@/store/authStore";
 import type { UserRole } from "@/types/user";
@@ -41,6 +41,18 @@ const schema = z
   .refine((data) => data.role !== "vendor" || !!data.location, {
     message: "Location is required for service providers",
     path: ["location"],
+  })
+  .refine((data) => data.role !== "vendor" || !!(data.service_locations && data.service_locations.length > 0), {
+    message: "Select at least one taluka",
+    path: ["service_locations"],
+  })
+  .refine((data) => data.role !== "vendor" || !!data.email, {
+    message: "Email is required for service providers",
+    path: ["email"],
+  })
+  .refine((data) => data.role !== "vendor" || !!data.mobile, {
+    message: "Mobile is required for service providers",
+    path: ["mobile"],
   });
 
 type FormValues = z.infer<typeof schema>;
@@ -54,7 +66,7 @@ export function SignupPage() {
   const navigate = useNavigate();
   const setSession = useAuthStore((s) => s.setSession);
   const [role, setRole] = useState<UserRole>("customer");
-  const [serviceLocations, setServiceLocations] = useState<string[]>([]);
+  const [selectedTalukas, setSelectedTalukas] = useState<string[]>([]);
   const {
     register,
     handleSubmit,
@@ -68,12 +80,19 @@ export function SignupPage() {
     setValue("role", value as "customer" | "vendor");
   };
 
-  const toggleServiceLocation = (location: string) => {
-    setServiceLocations((current) => {
-      const next = current.includes(location) ? current.filter((l) => l !== location) : [...current, location];
+  const toggleTaluka = (taluka: string) => {
+    setSelectedTalukas((current) => {
+      const next = current.includes(taluka) ? current.filter((t) => t !== taluka) : [...current, taluka];
       setValue("service_locations", next);
       return next;
     });
+  };
+
+  const locationField = register("location");
+  const handleDistrictChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    locationField.onChange(e);
+    setSelectedTalukas([]);
+    setValue("service_locations", []);
   };
 
   const onSubmit = async (values: FormValues) => {
@@ -136,8 +155,18 @@ export function SignupPage() {
             <Input label="Password" type="password" error={errors.password?.message} {...register("password")} />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <Input label="Email (optional)" icon={<Mail size={16} />} error={errors.email?.message} {...register("email")} />
-            <Input label="Mobile (optional)" icon={<Phone size={16} />} error={errors.mobile?.message} {...register("mobile")} />
+            <Input
+              label={role === "vendor" ? "Email" : "Email (optional)"}
+              icon={<Mail size={16} />}
+              error={errors.email?.message}
+              {...register("email")}
+            />
+            <Input
+              label={role === "vendor" ? "Mobile" : "Mobile (optional)"}
+              icon={<Phone size={16} />}
+              error={errors.mobile?.message}
+              {...register("mobile")}
+            />
           </div>
 
           {role === "vendor" && (
@@ -184,41 +213,46 @@ export function SignupPage() {
                     className={`w-full appearance-none rounded-xl border bg-white py-2.5 pl-10 pr-4 text-sm text-neutral-900 outline-none transition-all duration-150 focus:ring-4 focus:ring-brand-100 ${
                       errors.location ? "border-red-300 focus:border-red-400" : "border-neutral-200 focus:border-brand-400"
                     }`}
-                    {...register("location")}
+                    {...locationField}
+                    onChange={handleDistrictChange}
                   >
                     <option value="" disabled>
                       Select a location
                     </option>
-                    {VENDOR_LOCATIONS.map((location) => (
-                      <option key={location} value={location}>
-                        {location}
+                    {VENDOR_DISTRICTS.map((district) => (
+                      <option key={district} value={district}>
+                        {district}
                       </option>
                     ))}
                   </select>
                 </div>
                 {errors.location?.message && <p className="mt-1 text-xs font-medium text-red-500">{errors.location.message}</p>}
               </div>
-              <div className="col-span-2 w-full">
-                <label className="mb-1.5 block text-sm font-medium text-neutral-700">Also serves (optional)</label>
-                <div className="flex flex-wrap gap-2">
-                  {VENDOR_LOCATIONS.filter((loc) => loc !== watch("location")).map((loc) => {
-                    const active = serviceLocations.includes(loc);
-                    return (
-                      <button
-                        type="button"
-                        key={loc}
-                        onClick={() => toggleServiceLocation(loc)}
-                        className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
-                          active ? "border-brand-400 bg-brand-50 text-brand-700" : "border-neutral-200 text-neutral-600 hover:border-neutral-300"
-                        }`}
-                      >
-                        {loc}
-                      </button>
-                    );
-                  })}
+              {watch("location") && (
+                <div className="col-span-2 w-full">
+                  <label className="mb-1.5 block text-sm font-medium text-neutral-700">Taluka</label>
+                  <div className="flex flex-wrap gap-2">
+                    {(TALUKAS_BY_DISTRICT[watch("location") as VendorDistrict] ?? []).map((taluka) => {
+                      const active = selectedTalukas.includes(taluka);
+                      return (
+                        <button
+                          type="button"
+                          key={taluka}
+                          onClick={() => toggleTaluka(taluka)}
+                          className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                            active ? "border-brand-400 bg-brand-50 text-brand-700" : "border-neutral-200 text-neutral-600 hover:border-neutral-300"
+                          }`}
+                        >
+                          {taluka}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {errors.service_locations?.message && (
+                    <p className="mt-1 text-xs font-medium text-red-500">{errors.service_locations.message}</p>
+                  )}
                 </div>
-                <p className="mt-1 text-xs text-neutral-400">Other towns you&apos;re also willing to travel to and serve.</p>
-              </div>
+              )}
             </motion.div>
           )}
 
